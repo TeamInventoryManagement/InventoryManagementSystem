@@ -11,7 +11,7 @@ ReactDOM.render(
   <Router>
     <Routes>
       <Route path="/" element={<App />}>
-        <Route index element={<LoginPage />} />  {/* Default route */}
+        <Route index element={<RepairFormPage />} />  {/* Default route */}
         <Route path="LoginPage" element={<LoginPage />} />
         <Route path="RepairFormPage" element={<RepairFormPage />} />
         <Route path="LaptopDetailsPage" element={<LaptopDetailsPage />} />

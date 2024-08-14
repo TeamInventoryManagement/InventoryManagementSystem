@@ -6,8 +6,8 @@ import "./App.css";
 function App() {
   const location = useLocation();
 
-  // Check if the current path is "/login"
-  const isLoginPage = location.pathname === "/loginPage";
+  // Check if the current path is the login page
+  const isLoginPage = location.pathname.toLowerCase() === "/Loginpage";
 
   return (
     <div className="App" style={{ display: "flex" }}>
