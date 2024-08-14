@@ -15,7 +15,7 @@ const Sidebar = () => {
     return (
         <div className="sidebar">
             <div className="logo">
-            <img src={logo} alt="University Logo" className="header-logo" />
+            <img src={logo} alt="Altria Logo" className="header-logo" />
             </div>
             <Link to="/" className="menu-item" onClick={() => setActiveSection('Home')}>
                 <i className="fas fa-home"></i>
@@ -29,7 +29,7 @@ const Sidebar = () => {
                 <i className="fas fa-tasks"></i>
                 <span>Inventory</span>
             </Link>
-            <Link to="/transfer-handover" className="menu-item" onClick={() => setActiveSection('TransferHandover')}>
+            <Link to="/LoginPage" className="menu-item" onClick={() => setActiveSection('TransferHandover')}>
                 <i className="fas fa-exchange-alt"></i>
                 <span>Transfer / Handover</span>
             </Link>
@@ -55,7 +55,7 @@ const Sidebar = () => {
 
 
             <div className="section-title">Users</div>
-            <Link to="/employees" className="menu-item" onClick={() => setActiveSection('Employees')}>
+            <Link to="/EmployeeDetailsPage" className="menu-item" onClick={() => setActiveSection('Employees')}>
                 <i className="fas fa-user"></i>
                 <span>Employees</span>
             </Link>

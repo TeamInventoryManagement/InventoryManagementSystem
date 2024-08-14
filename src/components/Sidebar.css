@@ -17,6 +17,7 @@
 .menu-item {
     display: flex;
     align-items: center;
+    text-decoration: none;
     padding: 10px;
     margin-bottom: 10px;
     color: #333;
@@ -37,7 +38,7 @@
 .section-title {
     margin: 20px 0 10px;
     font-size: 14px;
-    color: #999;
+    color: #585858;
     text-transform: uppercase;
 }
 
