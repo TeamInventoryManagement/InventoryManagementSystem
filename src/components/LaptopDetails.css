@@ -1,0 +1,117 @@
+/* DeviceForm.css */
+.form-container {
+  width: 100%; /* Set to full width of the page */
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #f7f7f7;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.search-container {
+  position: relative;
+  flex-grow: 1; /* Allow the search container to take up available space */
+  margin-right: 10px; /* Add space between search bar and buttons */
+}
+
+.search-bar {
+  width: 60%;
+  padding: 10px 20px; /* Padding for the text inside the search bar */
+  padding-left: 40px; /* Additional padding on the left to make room for the icon */
+  border-radius: 25px; /* Smooth rounded corners */
+  border: 1px solid #ccc;
+  background-color: #f5eafc; /* Light background color similar to your example */
+  color: #333; /* Text color */
+  font-size: 16px; /* Font size */
+}
+
+.search-icon {
+  position: absolute;
+  left: 1000px; /* Position icon inside the input field */
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666; /* Icon color */
+  pointer-events: none; /* Prevent icon from capturing click events */
+  font-size: 18px; /* Slightly larger icon size */
+}
+
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.new-btn {
+  background-color: #e1bef8;
+  color: #000000;
+  margin-right: 10px;
+}
+
+.delete-btn {
+  background-color: #e1bef8;
+  color: #000000;
+}
+
+.submit-btn {
+  background-color: #4c5eaf; /* Green background */
+  color: rgb(39, 37, 37); /* White text */
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.submit-btn:hover {
+  background-color: #5978bb; /* Darker green on hover */
+}
+
+h2 {
+  text-align: left; 
+  margin-top: 20px;
+  margin-bottom: 20px;
+  color: #000000;
+}
+
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  gap: 40px; 
+}
+
+.form-group {
+  flex: 1;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #000000;
+}
+
+.form-group input, 
+.form-group select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.full-width {
+  width: 100%;
+}
+
+input[type="date"] {
+  padding: 7px;
+}
