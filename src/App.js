@@ -1,16 +1,15 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import Navbar from './components/Navbar';
-
+import Sidebar from './components/Sidebar';  // Corrected path
 import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <Navbar />
-      
-
-      <Outlet />
+    <div className="App" style={{ display: 'flex' }}>
+      <Sidebar />
+      <div style={{ flex: 1, padding: '20px' }}>
+        <Outlet />
+      </div>
     </div>
   );
 }
