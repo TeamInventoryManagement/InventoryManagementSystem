@@ -54,6 +54,7 @@ const Dashboard = () => {
       <div className="form-container">
       <div className="header">
           <div className="search-container">
+          <i className="fas fa-search search-icon"></i>
               <input 
                   type="text" 
                   placeholder="Search by Asset ID" 

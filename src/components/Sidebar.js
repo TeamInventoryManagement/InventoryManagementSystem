@@ -38,42 +38,21 @@ const Sidebar = () => {
                 <span>Issue Tracker</span>
             </Link>
 
+
             <div className="section-title">Devices</div>
-            <div 
-                className="menu-item collapsible"
-                onClick={toggleDevices}
-            >
-                <i className={`fas ${isDevicesOpen ? 'fa-chevron-down' : 'fa-chevron-right'}`}></i>
-                <span>Devices</span>
-            </div>
-            {isDevicesOpen && (
-                <div className="submenu">
-                    <Link 
-                        to="/LaptopDetailsPage" 
-                        className={`menu-item ${activeItem === 'Laptop' ? 'active' : ''}`}
-                        onClick={() => setActiveItem('Laptop')}
-                    >
-                        <i className="fas fa-laptop"></i>
-                        <span>Laptop</span>
-                    </Link>
-                    <Link 
-                        to="/label" 
-                        className={`menu-item ${activeItem === 'Label' ? 'active' : ''}`}
-                        onClick={() => setActiveItem('Label')}
-                    >
-                        <i className="fas fa-tag"></i>
-                        <span>Label</span>
-                    </Link>
-                    <Link 
-                        to="/accessories" 
-                        className={`menu-item ${activeItem === 'Accessories' ? 'active' : ''}`}
-                        onClick={() => setActiveItem('Accessories')}
-                    >
-                        <i className="fas fa-headphones"></i>
-                        <span>Accessories</span>
-                    </Link>
-                </div>
-            )}
+            <Link to="/LaptopDetailsPage" className="menu-item" onClick={() => setActiveSection('Laptop')}>
+                <i className="fas fa-laptop"></i>
+                <span>Laptop</span>
+            </Link>
+            <Link to="/label" className="menu-item" onClick={() => setActiveSection('Label')}>
+                <i className="fas fa-tag"></i>
+                <span>Label</span>
+            </Link>
+            <Link to="/accessories" className="menu-item" onClick={() => setActiveSection('Accessories')}>
+                <i className="fas fa-headphones"></i>
+                <span>Accessories</span>
+            </Link>
+
 
             <div className="section-title">Users</div>
             <Link to="/employees" className="menu-item" onClick={() => setActiveSection('Employees')}>

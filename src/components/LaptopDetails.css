@@ -56,14 +56,14 @@
   margin-right: 10px;
 }
 
-.delete-btn {
+/* .delete-btn {
   background-color: #e1bef8;
   color: #000000;
-}
+} */
 
 .submit-btn {
   background-color: #4c5eaf; /* Green background */
-  color: rgb(39, 37, 37); /* White text */
+  color: rgb(255, 255, 255); /* White text */
   border: none;
   border-radius: 5px;
   padding: 10px 20px;

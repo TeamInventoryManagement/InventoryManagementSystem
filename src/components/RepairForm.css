@@ -1,185 +1,84 @@
-form {
-  max-width: 600px;
+.repair-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
+  background-color: #ffffff;
   padding: 20px;
-  border-radius: 8px;
-  background-color: #fff;
-  font-family: Arial, sans-serif;
-  color: #4a4a4a;
 }
 
-h3 {
-  font-size: 14px;
-  margin-bottom: 20px;
-  color: #666;
-  text-align: center;
-  letter-spacing: 1px;
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
 }
 
-hr {
-  border: none;
-  border-top: 1px solid #ccc;
-  margin: 20px 0;
+.form-section {
+  width: 48%;
 }
 
-input[type="text"],
-input[type="date"],
-select {
+.form-input-sp{
   width: 100%;
   padding: 10px;
-  margin: 5px 0;
-  box-sizing: border-box;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #7f4cc8;
   border-radius: 4px;
   font-size: 14px;
   color: #333;
-  background-color: #f0f0f0;
 }
 
-input[type="text"]:read-only,
-input[type="date"]:read-only {
-  background-color: #e0e0e0;
-  cursor: not-allowed;
+.form-section label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
 }
 
-input[type="text"]::placeholder,
-input[type="date"]::placeholder {
-  color: #999;
-}
-
-select {
-  appearance: none;
-  background-color: #f0f0f0;
-  padding-right: 30px;
-  position: relative;
-}
-
-select::after {
-  content: '\25BC';
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  color: #6c63ff;
-}
-
-button[type="submit"] {
-  background-color: #e0e0e0;
-  color: #6c63ff;
-  padding: 10px 20px;
-  border: 1px solid #6c63ff;
+.form-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
   border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
   font-size: 14px;
 }
 
-button[type="submit"]:hover {
-  background-color: #6c63ff;
-  color: white;
-}
 
-div {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-}
-
-div > input[type="text"],
-div > input[type="date"],
-div > select {
+.section-divider {
   flex: 1;
+  border: none;
+  border-top: 1px solid #888;
+  margin: 10px 0;
 }
 
-@media (max-width: 768px) {
-  div {
-    flex-direction: column;
-  }
-
-  div > input[type="text"],
-  div > input[type="date"],
-  div > select {
-    width: 100%;
-    margin-bottom: 10px;
-  }
-}
-
-/* Specific styles for the header with search bar */
-.header {
+.divider-text {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
+  justify-content: center;
+  font-weight: bold;
+  color: #666;
+  margin: 0 10px;
 }
 
-.header select {
-  flex: 2;
+.divider-container {
+  display: flex;
+  align-items: center;
+  margin-top: 40px;
+  margin-bottom: 30px;
 }
 
-.header input[type="text"] {
-  flex: 3;
-  padding-left: 40px;
-  background-color: #f7f7f7;
+
+.submit-button {
+  background-color: #4ad45c;
+  color: white;
+  padding: 10px 20px;
   border: none;
   border-radius: 4px;
-  color: #6c63ff;
-}
-
-.header input[type="text"]::placeholder {
-  color: #6c63ff;
-}
-
-.header::before {
-  content: "\f002";
-  font-family: "FontAwesome";
-  position: absolute;
-  left: 35px;
-  color: #6c63ff;
-}
-
-.header input[type="text"]:focus {
-  outline: none;
-  box-shadow: 0 0 5px rgba(108, 99, 255, 0.5);
-}
-
-.header .search-icon {
-  position: absolute;
-  right: 10px;
-  color: #6c63ff;
   font-size: 16px;
   cursor: pointer;
+  margin-top: 10px;
+  align-self: flex-end;
 }
 
-/* Additional styling to match second screenshot */
-input,
-select {
-  background-color: #eaeaea;
-  border: none;
-  border-radius: 4px;
-  padding: 10px;
-  font-size: 14px;
-}
-
-input::placeholder {
-  color: #b0b0b0;
-}
-
-input:focus,
-select:focus {
-  outline: none;
-  border: 1px solid #d1d1d1;
-}
-
-button[type="submit"] {
-  background-color: #f2f2f2;
-  color: #6c63ff;
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-button[type="submit"]:hover {
-  background-color: #6c63ff;
-  color: #fff;
+.submit-button:hover {
+  background-color: #48ee5e;
 }
