@@ -1,0 +1,129 @@
+/* DeviceAssignForm.css */
+.form-container {
+    margin-top: 80px;
+    width: 100%;
+    max-width: 800px;
+    padding: 20px;
+    background-color: #ffffff;
+    font-family: "Poppins", sans-serif;
+}
+
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.form-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #f3f1f7;
+    font-size: 14px;
+    color: #333;
+}
+
+.search-container {
+    position: relative;
+}
+
+.search-container input {
+    padding-left: 30px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+}
+
+.status-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+.material-symbols-outlined{
+    padding: 6px;
+}
+.status-label {
+    padding: 6px;
+    background-color: #7c7c7c; 
+    color: #ffffff; 
+    border-radius: 20px;
+    font-size: 14px; 
+    font-weight: 500; 
+    text-align: center;
+    display: inline-block; 
+    cursor: default; 
+}
+
+
+.divider {
+    margin: 20px 0;
+    border: none;
+    border-top: 1px solid #ccc;
+}
+
+h2 {
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 18px;
+    text-align: left;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.handover-btn,
+.transfer-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #fff;
+}
+
+.handover-btn {
+    background-color: #4caf50;
+}
+
+.transfer-btn {
+    background-color: #2196f3;
+}
+
+@media (max-width: 768px) {
+    .form-container {
+        padding: 10px;
+    }
+
+    .form-row {
+        flex-direction: column;
+    }
+
+    .action-buttons {
+        justify-content: center;
+    }
+}
