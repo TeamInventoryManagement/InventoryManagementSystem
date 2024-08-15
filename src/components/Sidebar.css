@@ -31,8 +31,8 @@
 }
 
 .menu-item.active, .menu-item:hover {
-    background-color: #5263ad;
-    color: #000000;
+    background-color: #fc9744;
+    color: #ffffff;
 }
 
 .section-title {
