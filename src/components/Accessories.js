@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./Accessories.css";
-
+ 
 const Accessories = () => {
   const [accessoryType, setAccessoryType] = useState("");
   const [model, setModel] = useState("");
@@ -9,21 +9,21 @@ const Accessories = () => {
   const [assetId, setAssetId] = useState("");
   const [purchaseDate, setPurchaseDate] = useState("");
   const [warrantyExpiryDate, setWarrantyExpiryDate] = useState("");
-
+ 
   const [storageLocation, setStorageLocation] = useState("");
   const [condition, setCondition] = useState("");
-
+ 
   const [operationalStatus, setOperationalStatus] = useState("");
   const [lastMaintenanceDate, setLastMaintenanceDate] = useState("");
-
+ 
   const [notes, setNotes] = useState("");
   const [documentation, setDocumentation] = useState(null);
-
+ 
   const handleSave = () => {
     // Logic to save the accessory data
     alert("Accessory data saved successfully!");
   };
-
+ 
   const handleReset = () => {
     // Logic to reset all form fields
     setAccessoryType("");
@@ -40,11 +40,11 @@ const Accessories = () => {
     setNotes("");
     setDocumentation(null);
   };
-
+ 
   return (
     <div className="form-container">
       <h2>Accessories</h2>
-
+ 
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="accessoryType">Accessory Type</label>
@@ -71,7 +71,7 @@ const Accessories = () => {
           />
         </div>
       </div>
-
+ 
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="manufacturer">Manufacturer</label>
@@ -94,7 +94,7 @@ const Accessories = () => {
           />
         </div>
       </div>
-
+ 
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="assetId">Asset ID</label>
@@ -116,7 +116,7 @@ const Accessories = () => {
           />
         </div>
       </div>
-
+ 
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="warrantyExpiryDate">Warranty Expiry Date</label>
@@ -128,9 +128,9 @@ const Accessories = () => {
           />
         </div>
       </div>
-
+ 
       <h3>Physical Location</h3>
-
+ 
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="storageLocation">Storage Location</label>
@@ -156,9 +156,9 @@ const Accessories = () => {
           </select>
         </div>
       </div>
-
+ 
       <h3>Status and Monitoring</h3>
-
+ 
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="operationalStatus">Operational Status</label>
@@ -183,9 +183,9 @@ const Accessories = () => {
           />
         </div>
       </div>
-
+ 
       <h3>Notes and Documentation</h3>
-
+ 
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="notes">Notes</label>
@@ -197,18 +197,7 @@ const Accessories = () => {
           ></textarea>
         </div>
       </div>
-
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="documentation">Documentation</label>
-          <input
-            id="documentation"
-            type="file"
-            onChange={(e) => setDocumentation(e.target.files[0])}
-          />
-        </div>
-      </div>
-
+ 
       <div className="form-row action-buttons">
         <button type="button" className="save-btn" onClick={handleSave}>
           Save
@@ -220,5 +209,5 @@ const Accessories = () => {
     </div>
   );
 };
-
+ 
 export default Accessories;

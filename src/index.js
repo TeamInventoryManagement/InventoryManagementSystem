@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import App from './App';
+import App from './App'; 
+import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RepairFormPage from './pages/RepairFormPage';
 import LaptopDetailsPage from './pages/LaptopDetailsPage';
@@ -14,7 +15,8 @@ ReactDOM.render(
   <Router>
     <Routes>
       <Route path="/" element={<App />}>
-        <Route index element={<LaptopDetailsPage />} />  {/* Default route */}
+        <Route index element={<LandingPage />} />  {/* Default route */}
+        <Route path="LandingPage" element={<LandingPage />} />
         <Route path="LoginPage" element={<LoginPage />} />
         <Route path="RepairFormPage" element={<RepairFormPage />} />
         <Route path="LaptopDetailsPage" element={<LaptopDetailsPage />} />

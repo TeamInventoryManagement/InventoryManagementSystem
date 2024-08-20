@@ -1,0 +1,74 @@
+/* LandingPage.css */
+
+.landing-container {
+    font-family: "Poppins", sans-serif;
+    color: #333;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.landing-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 50px;
+    background-color: #ffffff;
+}
+
+.landing-logo {
+    width: 150px;
+}
+
+.landing-nav {
+    margin-left: auto; /* Push the nav items to the right */
+    display: flex;
+    align-items: center;
+}
+
+.option {
+    margin-right: 20px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    font-size: 16px;
+}
+
+.login-btn {
+    padding: 8px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #ffffff;
+    background-color: #fc9744;
+    font-weight: 500;
+    font-size: 16px;
+}
+
+.login-btn:hover {
+    background-color: #ffa55b; 
+    transform: scale(1.05);    
+}
+
+.landing-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.landing-main h1 {
+    font-size: 48px;
+    color: #0044cc;
+    margin-bottom: 30px;
+}
+
+.landing-illustration img {
+    margin-top: 4%;
+    width: 70%;
+    height: auto;
+}
+
+

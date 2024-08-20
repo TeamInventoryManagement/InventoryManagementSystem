@@ -55,11 +55,11 @@ const Dashboard = () => {
        
       <div className="form-container">
  
-<button type="submit" className="search-button" style={{ width: '20px',height: '20px',marginLeft: '140px' ,position: 'relative', top: '18px'}}>
+<button type="submit" className="search-button" style={{ width: '20px',height: '20px',marginLeft: '145px' ,position: 'relative', top: '16px'}}>
                     <img
                     src={searchIcon}
                     alt="Search"
-                    style={{ width: '20px', height: '20px',marginLeft: '140px',position: 'relative', top: '18px'}}
+                    style={{ width: '20px', height: '20px',marginLeft: '145px',position: 'relative', top: '16px'}}
                     />
                 </button>
       <div className="header">
@@ -98,7 +98,7 @@ const Dashboard = () => {
  
                 <div className="form-row">
                     <div className="form-group">
-                        <label>Full device name</label>
+                        <label>Brand</label>
                         <input type="text" name="fullName" placeholder="Full device name" onChange={handleChange} value={formData.fullName} />
                     </div>
                     <div className="form-group">
@@ -166,6 +166,8 @@ const Dashboard = () => {
                         <input type="text" name="address" placeholder="Address" className="full-width" onChange={handleChange} value={formData.address} />
                     </div>
                 </div>
+
+                
                 <button type="submit" className="submit-btn1">Submit</button>
             </form>
            

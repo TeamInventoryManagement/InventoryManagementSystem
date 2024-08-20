@@ -12,7 +12,7 @@
     background-color: white;
     padding: 40px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
     width: 300px;
     text-align: center;
 }
@@ -46,13 +46,13 @@
 
 .form-group input:focus {
     outline: none;
-    border-color: #8a56ac;
+    border-color: #29278d;
 }
 
 .login-button {
     width: 100%;
     padding: 10px;
-    background-color: #333;
+    background-color: #fc9744;
     color: white;
     border: none;
     border-radius: 8px;
@@ -62,7 +62,9 @@
 }
 
 .login-button:hover {
-    background-color: #000;
+    background-color: #ff953e; 
+    transform: scale(1.05);    
+
 }
 
 .forgot-password-link {

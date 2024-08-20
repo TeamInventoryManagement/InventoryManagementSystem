@@ -35,7 +35,7 @@
   display: block;
   font-weight: semi-bold;
   margin-bottom: 5px;
-  color: #333;
+ 
 }
  
 .form-input {
@@ -87,24 +87,3 @@
   background-color: #26139e;
 }
  
-/* Media Queries for responsiveness */
-@media (max-width: 768px) {
-  .form-row {
-    flex-direction: column;
-  }
- 
-  .form-section {
-    width: 100%;
-    margin-bottom: 15px;
-  }
- 
-  .divider-container {
-    margin-top: 20px;
-    margin-bottom: 20px;
-  }
- 
-  .submit-button {
-    align-self: center;
-    width: 100%; /* Ensure the button takes up the full width */
-  }
-}

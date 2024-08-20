@@ -6,13 +6,16 @@ import "./App.css";
 function App() {
   const location = useLocation();
 
-  // Check if the current path is the login page
-  const isLoginPage = location.pathname.toLowerCase() === "/Loginpage";
+  // Define paths where the sidebar should not be displayed
+  const noSidebarPaths = ["/", "/loginpage", "/signuppage"]; // Add your landing page and other routes where sidebar shouldn't appear
+
+  // Check if the current path is in the noSidebarPaths list
+  const hideSidebar = noSidebarPaths.includes(location.pathname.toLowerCase());
 
   return (
     <div className="App" style={{ display: "flex" }}>
-      {!isLoginPage && <Sidebar />}
-      <div style={{ flex: 1, padding: isLoginPage ? "0" : "20px" }}>
+      {!hideSidebar && <Sidebar />}
+      <div style={{ flex: 1, padding: hideSidebar ? "0" : "20px" }}>
         <Outlet />
       </div>
     </div>

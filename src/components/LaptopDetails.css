@@ -1,10 +1,13 @@
+/*Laptop Details Styles*/
 /* Container Styles */
 .form-container {
-  width:100 px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   margin: 0 auto;
-  padding: 20px;
   background-color: #ffffff;
- 
+  padding: 20px;
+  font-size: 14px;
 }
  
 /* Header and Search Styles */
@@ -20,6 +23,7 @@
   align-items: center;
   width: 33%;
   border-radius:5px;
+  margin-top: 1px;
 }
  
  
@@ -28,6 +32,7 @@
   font-size: 16px;
   width: 250px;
   border: 1px solid #ccc;
+  margin-top: 1px;
  
 }
  
@@ -117,9 +122,12 @@ input::placeholder {
   .form-group {
     margin-right: 0;
     margin-bottom: 15px;
+   
+   
   }
  
   .submit-btn1 {
     width: 100%;
   }
 }
+ 

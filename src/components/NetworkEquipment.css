@@ -1,25 +1,25 @@
 /* NetworkEquipmentPage.css */
 .form-container {
-    width: 100%;
+    width: 95%;
     max-width: 900px;
     margin: 20px auto;
     padding: 20px;
     background-color: #ffffff;
     font-family: "Poppins", sans-serif;
   }
-  
+ 
   h2 {
     margin-bottom: 20px;
     color: #333;
     font-size: 24px;
   }
-  
+ 
   h3 {
     margin-top: 20px;
     color: #333;
     font-size: 20px;
   }
-  
+ 
   .form-row {
     display: flex;
     justify-content: space-between;
@@ -27,19 +27,19 @@
     gap: 20px;
     flex-wrap: wrap;
   }
-  
+ 
   .form-group {
     flex: 1;
     min-width: 200px;
   }
-  
+ 
   .form-group label {
     display: block;
     margin-bottom: 5px;
     color: #333;
-    font-weight: 500;
+    font-weight:semi-bold;
   }
-  
+ 
   .form-group input,
   .form-group select,
   .form-group textarea {
@@ -51,19 +51,19 @@
     font-size: 14px;
     color: #333;
   }
-  
+ 
   .form-group textarea {
     height: 100px;
     resize: vertical;
   }
-  
+ 
   .action-buttons {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
     margin-top: 20px;
   }
-  
+ 
   .save-btn,
   .reset-btn {
     padding: 10px 20px;
@@ -73,14 +73,16 @@
     font-size: 14px;
     color: #fff;
   }
-  
-  .save-btn {
-    background-color: #4caf50;
+ 
+  .form-container.save-btn {
+    background-color: #fc9744;
   }
-  
-  .reset-btn {
-    background-color: #f44336;
+ 
+  .form-container.reset-btn {
+     background-color: #1f1664;
   }
-  
+ 
+ 
+ 
+ 
 
-  

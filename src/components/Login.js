@@ -8,7 +8,6 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Implement your login logic here
     console.log("Logging in with", email, password);
   };
 
@@ -37,7 +36,7 @@ const Login = () => {
           />
         </div>
         <button type="submit" className="login-button">
-          Sign In
+          Login
         </button>
         <a href="/forgot-password" className="forgot-password-link">
           Forgot password?

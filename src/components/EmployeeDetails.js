@@ -1,51 +1,75 @@
 import React, { useState } from "react";
 import "./EmployeeDetails.css";
+import searchIcon from './images/Search_icon.png';
 
 const EmployeeDetails = () => {
   const [employeeId, setEmployeeId] = useState("");
   const [fullName, setFullName] = useState("");
   const [division, setDivision] = useState("");
   const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");  // To display success/error messages
 
-  const handleSearch = () => {
-    // Implement your search logic here
-    console.log("Searching for employee with ID:", employeeId);
-  };
+  const handleNew = async () => {
+    setMessage("");  // Reset message
+    if (!employeeId || !fullName || !division || !email) {
+      setMessage("All fields are required.");
+      return;
+    }
 
-  const handleNew = () => {
-    // Implement the logic for creating a new employee
-    console.log("Creating new employee");
-  };
+    try {
+      const response = await fetch('http://localhost:3000/employees', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          EmployeeID: employeeId,
+          FullName: fullName,
+          Division: division,
+          Email: email,
+        }),
+      });
 
-  const handleDelete = () => {
-    // Implement the logic for deleting an employee
-    console.log("Deleting employee with ID:", employeeId);
+      if (response.ok) {
+        setMessage('Employee added successfully');
+        // Clear form fields after successful submission
+        setEmployeeId('');
+        setFullName('');
+        setDivision('');
+        setEmail('');
+      } else {
+        const errorMessage = await response.text();
+        setMessage(`Failed to add employee: ${errorMessage}`);
+      }
+    } catch (error) {
+      setMessage('Error adding employee: ' + error.message);
+    }
   };
 
   return (
     <div className="employee-details">
+      <button type="submit" className="search-button" style={{ width: '20px', height: '20px', marginLeft: '130px', position: 'relative', top: '22px'}}>
+        <img
+          src={searchIcon}
+          alt="Search"
+          style={{ width: '20px', height: '20px', marginLeft: '130px', position: 'relative', top: '22px'}}
+        />
+      </button>
+
       <div className="search-bar-container">
         <div className="search-bar">
-          <i className="fas fa-bars"></i>
           <input
             type="text"
             placeholder="Search by employee id"
             value={employeeId}
             onChange={(e) => setEmployeeId(e.target.value)}
           />
-          <i className="fas fa-search search-icon" onClick={handleSearch}></i>
         </div>
-        <button className="btn new-btn" onClick={handleNew}>
-          <i className="fas fa-plus"></i> New
-        </button>
-        <button className="btn delete-btn" onClick={handleDelete}>
-          <i className="fas fa-trash-alt"></i> Delete
-        </button>
+        <br></br>
       </div>
 
-      <div className="employee-details-title">
-        <i className="fas fa-id-badge"></i> Employee Details
-      </div>
+      <h1 className="Employee">Employee Details</h1>
+      <br></br>
 
       <div className="form-row">
         <div className="form-group">
@@ -85,7 +109,6 @@ const EmployeeDetails = () => {
             <option value="HR">HR</option>
             <option value="IT">IT</option>
             <option value="Finance">Finance</option>
-            {/* Add more options as needed */}
           </select>
         </div>
         <div className="form-group">
@@ -99,6 +122,14 @@ const EmployeeDetails = () => {
           />
         </div>
       </div>
+
+      <div className="form-row action-buttons">
+        <button type="button" className="Add-btn" onClick={handleNew}>
+          Add
+        </button>
+      </div>
+
+      {message && <p>{message}</p>}
     </div>
   );
 };

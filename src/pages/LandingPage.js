@@ -1,14 +1,14 @@
 import React from 'react';
-import LandingPage from '../components/LandingPage';
+import Landing from '../components/Landing';
 
 
 
-const LandingPagePage = () => {
+const LandingPage = () => {
   return (
     <>
-      <LandingPage />
+      <Landing />
     </>
   );
 };
 
-export default LandingPagePage;
+export default LandingPage;

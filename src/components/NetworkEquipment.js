@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./NetworkEquipment.css";
-
+ 
 const NetworkEquipment = () => {
   const [deviceType, setDeviceType] = useState("");
   const [model, setModel] = useState("");
@@ -9,36 +9,36 @@ const NetworkEquipment = () => {
   const [assetId, setAssetId] = useState("");
   const [purchaseDate, setPurchaseDate] = useState("");
   const [warrantyExpiryDate, setWarrantyExpiryDate] = useState("");
-
+ 
   const [macAddress, setMacAddress] = useState("");
   const [ipAddress, setIpAddress] = useState("");
   const [subnetMask, setSubnetMask] = useState("");
   const [gateway, setGateway] = useState("");
   const [dnsServers, setDnsServers] = useState("");
   const [vlanId, setVlanId] = useState("");
-
+ 
   const [firmwareVersion, setFirmwareVersion] = useState("");
   const [configurationBackup, setConfigurationBackup] = useState(null);
   const [loginCredentials, setLoginCredentials] = useState("");
   const [portConfiguration, setPortConfiguration] = useState("");
-
+ 
   const [rackLocation, setRackLocation] = useState("");
   const [physicalAddress, setPhysicalAddress] = useState("");
   const [installedBy, setInstalledBy] = useState("");
-
+ 
   const [operationalStatus, setOperationalStatus] = useState("");
   const [powerStatus, setPowerStatus] = useState("");
   const [uptime, setUptime] = useState("");
   const [lastMaintenanceDate, setLastMaintenanceDate] = useState("");
-
+ 
   const [notes, setNotes] = useState("");
   const [documentation, setDocumentation] = useState(null);
-
+ 
   const handleSave = () => {
     // Logic to save the network equipment data
     alert("Network Equipment data saved successfully!");
   };
-
+ 
   const handleReset = () => {
     // Logic to reset all form fields
     setDeviceType("");
@@ -68,11 +68,11 @@ const NetworkEquipment = () => {
     setNotes("");
     setDocumentation(null);
   };
-
+ 
   return (
     <div className="form-container">
       <h2>Network Equipment</h2>
-
+ 
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="deviceType">Device Type</label>
@@ -99,7 +99,7 @@ const NetworkEquipment = () => {
           />
         </div>
       </div>
-
+ 
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="manufacturer">Manufacturer</label>
@@ -122,7 +122,7 @@ const NetworkEquipment = () => {
           />
         </div>
       </div>
-
+ 
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="assetId">Asset ID</label>
@@ -144,7 +144,7 @@ const NetworkEquipment = () => {
           />
         </div>
       </div>
-
+ 
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="warrantyExpiryDate">Warranty Expiry Date</label>
@@ -156,9 +156,9 @@ const NetworkEquipment = () => {
           />
         </div>
       </div>
-
+ 
       <h3>Network Information</h3>
-
+ 
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="macAddress">MAC Address</label>
@@ -181,7 +181,7 @@ const NetworkEquipment = () => {
           />
         </div>
       </div>
-
+ 
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="subnetMask">Subnet Mask</label>
@@ -204,7 +204,7 @@ const NetworkEquipment = () => {
           />
         </div>
       </div>
-
+ 
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="dnsServers">DNS Servers</label>
@@ -227,9 +227,9 @@ const NetworkEquipment = () => {
           />
         </div>
       </div>
-
+ 
       <h3>Configuration Information</h3>
-
+ 
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="firmwareVersion">Firmware Version</label>
@@ -250,7 +250,7 @@ const NetworkEquipment = () => {
           />
         </div>
       </div>
-
+ 
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="loginCredentials">Login Credentials</label>
@@ -272,9 +272,9 @@ const NetworkEquipment = () => {
           ></textarea>
         </div>
       </div>
-
+ 
       <h3>Status and Monitoring</h3>
-
+ 
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="operationalStatus">Operational Status</label>
@@ -303,7 +303,7 @@ const NetworkEquipment = () => {
           </select>
         </div>
       </div>
-
+ 
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="uptime">Uptime</label>
@@ -325,9 +325,9 @@ const NetworkEquipment = () => {
           />
         </div>
       </div>
-
+ 
       <h3>Notes and Documentation</h3>
-
+ 
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="notes">Notes</label>
@@ -339,28 +339,19 @@ const NetworkEquipment = () => {
           ></textarea>
         </div>
       </div>
-
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="documentation">Documentation</label>
-          <input
-            id="documentation"
-            type="file"
-            onChange={(e) => setDocumentation(e.target.files[0])}
-          />
-        </div>
-      </div>
-
+ 
+   
+ 
       <div className="form-row action-buttons">
-        <button type="button" className="save-btn" onClick={handleSave}>
+        <button type="button" className="handover-btn">
           Save
         </button>
-        <button type="button" className="reset-btn" onClick={handleReset}>
+        <button type="button" className="transfer-btn">
           Reset
         </button>
       </div>
     </div>
   );
 };
-
+ 
 export default NetworkEquipment;
