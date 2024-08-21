@@ -44,17 +44,14 @@ function RepairForm() {
       <div className="form-row">
         <div className="form-section">
           <label htmlFor="device">Device</label>
-          <select
+          <input
             id="device"
-            value={device}
-            onChange={handleDeviceChange}
+            type="text"
+            value={deviceName}
+            onChange={deviceName}
             className="form-input"
-          >
-            <option value="">Select Device</option>
-            <option value="Laptop">Laptop</option>
-            <option value="Desktop">Desktop</option>
-            {/* Add more device options as needed */}
-          </select>
+          />
+
         </div>
         <div className="form-section">
           <label htmlFor="assetID">Asset ID</label>

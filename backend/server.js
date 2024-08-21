@@ -3,9 +3,37 @@ const cors = require('cors');
 const app = express();
 const { sql, poolPromise } = require('./db');
 
-// Use CORS middleware
 app.use(cors());
 app.use(express.json());
+
+// Route to handle employee addition
+app.post('/api/employees', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        const { EmployeeID, FullName, Division, Email } = req.body;
+
+        if (!EmployeeID || !FullName || !Division || !Email) {
+            return res.status(400).send('All fields are required');
+        }
+
+        const query = `
+            INSERT INTO Employees (EmployeeID, FullName, Division, Email, SysDate) 
+            VALUES (@EmployeeID, @FullName, @Division, @Email, GETDATE())
+        `;
+
+        await pool.request()
+            .input('EmployeeID', sql.VarChar(50), EmployeeID)
+            .input('FullName', sql.VarChar(255), FullName)
+            .input('Division', sql.VarChar(50), Division)
+            .input('Email', sql.VarChar(50), Email)
+            .query(query);
+
+        res.status(201).send('Employee added successfully');
+    } catch (err) {
+        console.error('Error inserting employee:', err.message);
+        res.status(500).send('Error inserting employee: ' + err.message);
+    }
+});
 
 // Function to calculate warranty expiry date
 function calculateWarrantyExpiryDate(purchaseDate, warentyMonths) {
@@ -66,6 +94,62 @@ app.post('/api/devices', async (req, res) => {
     } catch (err) {
         console.error('Error inserting device:', err.message);
         res.status(500).send({ error: 'Error inserting device: ' + err.message });
+    }
+});
+
+
+
+// Route to get device details by Asset ID
+app.get('/api/devices/:assetId', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        const { assetId } = req.params;
+
+        const query = `
+            SELECT Device, DeviceBrand, Model, SerialNumber, ConditionStatus, CurrentStatus 
+            FROM [Device] 
+            WHERE AssetID = @AssetID
+        `;
+
+        const result = await pool.request()
+            .input('AssetID', sql.VarChar(50), assetId)
+            .query(query);
+
+        if (result.recordset.length === 0) {
+            return res.status(404).send('Device not found');
+        }
+
+        res.json(result.recordset[0]);
+    } catch (err) {
+        console.error('Error fetching device details:', err.message);
+        res.status(500).send('Error fetching device details: ' + err.message);
+    }
+});
+
+// Route to get employee details by Employee ID
+app.get('/api/employees/:employeeId', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        const { employeeId } = req.params;
+
+        const query = `
+            SELECT EmployeeID, FullName, Division, Email 
+            FROM Employees 
+            WHERE EmployeeID = @EmployeeID
+        `;
+
+        const result = await pool.request()
+            .input('EmployeeID', sql.VarChar(50), employeeId)
+            .query(query);
+
+        if (result.recordset.length === 0) {
+            return res.status(404).send('Employee not found');
+        }
+
+        res.json(result.recordset[0]);
+    } catch (err) {
+        console.error('Error fetching employee details:', err.message);
+        res.status(500).send('Error fetching employee details: ' + err.message);
     }
 });
 

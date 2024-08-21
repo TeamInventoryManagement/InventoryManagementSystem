@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./TransferHandover.css";
 import searchIcon from './images/Search_icon.png';
- 
+
 const TransferHandover = () => {
   const [device, setDevice] = useState("");
   const [assetId, setAssetId] = useState("");
@@ -10,71 +10,79 @@ const TransferHandover = () => {
   const [serialNumber, setSerialNumber] = useState("");
   const [conditionStatus, setConditionStatus] = useState("Condition Status");
   const [currentStatus, setCurrentStatus] = useState("Status");
- 
+
   const [employeeId, setEmployeeId] = useState("");
   const [division, setDivision] = useState("");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
- 
-  // Mock function to simulate autofill based on Asset ID
-  const handleAssetAutoFill = () => {
-    if (assetId === "0001") {
-      setDeviceName("HP ProBook 450");
-      setModel("HP");
-      setSerialNumber("SN12345");
-      setConditionStatus("Good");
-      setCurrentStatus("In Use");
-    } else {
-      setDeviceName("");
-      setModel("");
-      setSerialNumber("");
-      setConditionStatus("Condition Status");
-      setCurrentStatus("Status");
+
+  useEffect(() => {
+    if (assetId) {
+      console.log(`Fetching data for Asset ID: ${assetId}`);
+      fetch(`http://localhost:3000/api/devices/${assetId}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Device data retrieved:', data);
+
+          setDevice(data.Device);
+          setDeviceName(data.DeviceBrand);
+          setModel(data.Model);
+          setSerialNumber(data.SerialNumber);
+          setConditionStatus(data.ConditionStatus);
+          setCurrentStatus(data.CurrentStatus);
+        })
+        .catch(error => {
+          console.error('Error fetching device details:', error);
+        });
     }
-  };
- 
-  // Mock function to simulate autofill based on Employee ID
-  const handleEmployeeAutoFill = () => {
-    if (employeeId === "E001") {
-      setDivision("IT");
-      setFullName("John Doe");
-      setEmail("john.doe@example.com");
-    } else {
-      setDivision("");
-      setFullName("");
-      setEmail("");
-    }
-  };
- 
-  React.useEffect(() => {
-    handleAssetAutoFill();
   }, [assetId]);
- 
-  React.useEffect(() => {
-    handleEmployeeAutoFill();
+
+  useEffect(() => {
+    if (employeeId) {
+      console.log(`Fetching data for Employee ID: ${employeeId}`);
+      fetch(`http://localhost:3000/api/employees/${employeeId}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Employee data retrieved:', data);
+
+          setDivision(data.Division);
+          setFullName(data.FullName);
+          setEmail(data.Email);
+        })
+        .catch(error => {
+          console.error('Error fetching employee details:', error);
+        });
+    }
   }, [employeeId]);
- 
+
   return (
     <div className="form-container">
-      <button type="submit" className="search-button" style={{ width: '20px',height: '20px',marginLeft: '310px' ,position: 'relative', top: '28px'}}>
-                    <img
-                    src={searchIcon}
-                    alt="Search"
-                    style={{ width: '20px', height: '20px',marginLeft: '310px',position: 'relative', top: '28px'}}
-                    />
-                </button>
+      <button type="submit" className="search-button" style={{ width: '20px', height: '20px', marginLeft: '310px' ,position: 'relative', top: '28px'}}>
+        <img
+          src={searchIcon}
+          alt="Search"
+          style={{ width: '20px', height: '20px', marginLeft: '310px', position: 'relative', top: '28px'}}
+        />
+      </button>
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="device">Device</label>
-          <select
+          <input
             id="device"
+            type="text"
+            placeholder="Value"
             value={device}
-            onChange={(e) => setDevice(e.target.value)}
-          >
-            <option value="">Value</option>
-            <option value="Laptop">Laptop</option>
-            <option value="Desktop">Desktop</option>
-          </select>
+          />
         </div>
         <div className="form-group">
           <label htmlFor="assetSearch">Search by asset id</label>
@@ -86,11 +94,10 @@ const TransferHandover = () => {
               value={assetId}
               onChange={(e) => setAssetId(e.target.value)}
             />
-           
           </div>
         </div>
       </div>
- 
+
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="deviceName">Device Name</label>
@@ -99,7 +106,6 @@ const TransferHandover = () => {
             type="text"
             placeholder="Value"
             value={deviceName}
-            readOnly
           />
         </div>
         <div className="form-group">
@@ -109,11 +115,10 @@ const TransferHandover = () => {
             type="text"
             placeholder="Value"
             value={assetId}
-            readOnly
           />
         </div>
       </div>
- 
+
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="model">Model</label>
@@ -126,7 +131,7 @@ const TransferHandover = () => {
           />
         </div>
       </div>
- 
+
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="serialNumber">Serial Number</label>
@@ -139,32 +144,32 @@ const TransferHandover = () => {
           />
         </div>
         <div className="status-group">
-            <div className="status-label">
-                <span class="material-symbols-outlined">keyboard_command_key</span>
-                <label className="status-label">{conditionStatus}</label>
-            </div>
-            <div className="status-label">
-                <span class="material-symbols-outlined">keyboard_command_key</span>
-                <label className="status-label">{currentStatus}</label>
-                </div>
+          <div className="status-label">
+            <span className="material-symbols-outlined">keyboard_command_key</span>
+            <label className="status-label">{conditionStatus}</label>
+          </div>
+          <div className="status-label">
+            <span className="material-symbols-outlined">keyboard_command_key</span>
+            <label className="status-label">{currentStatus}</label>
+          </div>
         </div>
       </div>
- 
+
       <div className="divider-container">
         <hr className="section-divider" />
         <span className="divider-text">Device Assign To</span>
         <hr className="section-divider" />
-        </div>
- 
+      </div>
+
       <div className="form-row">
         <div className="form-group">
-        <button type="submit" className="search-button" style={{ width: '20px',height: '20px',marginLeft: '145px' ,position: 'relative', top: '28px'}}>
-                    <img
-                    src={searchIcon}
-                    alt="Search"
-                    style={{ width: '20px', height: '20px',marginLeft: '145px',position: 'relative', top: '28px'}}
-                    />
-                </button>
+          <button type="submit" className="search-button" style={{ width: '20px', height: '20px', marginLeft: '145px' ,position: 'relative', top: '28px'}}>
+            <img
+              src={searchIcon}
+              alt="Search"
+              style={{ width: '20px', height: '20px', marginLeft: '145px', position: 'relative', top: '28px'}}
+            />
+          </button>
           <label htmlFor="employeeSearch">Search by employee id</label>
           <div className="search-container">
             <input
@@ -174,11 +179,10 @@ const TransferHandover = () => {
               value={employeeId}
               onChange={(e) => setEmployeeId(e.target.value)}
             />
-           
           </div>
         </div>
       </div>
- 
+
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="employeeId">Employee ID</label>
@@ -204,7 +208,7 @@ const TransferHandover = () => {
           </select>
         </div>
       </div>
- 
+
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="fullName">Full Name</label>
@@ -217,7 +221,7 @@ const TransferHandover = () => {
           />
         </div>
       </div>
- 
+
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="email">E-mail</label>
@@ -230,7 +234,7 @@ const TransferHandover = () => {
           />
         </div>
       </div>
- 
+
       <div className="form-row action-buttons">
         <button type="button" className="handover-btn">
           Handover
@@ -242,5 +246,5 @@ const TransferHandover = () => {
     </div>
   );
 };
- 
+
 export default TransferHandover;

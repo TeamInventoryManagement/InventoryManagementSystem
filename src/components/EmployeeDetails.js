@@ -17,7 +17,7 @@ const EmployeeDetails = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/employees', {
+      const response = await fetch('http://localhost:3000/api/employees', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
