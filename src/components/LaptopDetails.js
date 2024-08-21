@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import './LaptopDetails.css';
 import searchIcon from './images/Search_icon.png';
- 
-const Dashboard = () => {
+
+const LaptopDetails = () => {
     const [formData, setFormData] = useState({
         device: '',
         model: '',
@@ -17,28 +17,30 @@ const Dashboard = () => {
         purchasedDate: '',
         purchasedFrom: '',
         purchasedAmount: '',
-        address: ''
+        warentyMonths: '',
+        address: '' 
+         // Assuming this was missed in the previous form
     });
- 
+
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
     };
- 
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-       
+
         try {
-            const response = await fetch('/api/devices', {
+            const response = await fetch('http://localhost:3000/api/devices', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(formData)
             });
- 
+
             const data = await response.json();
             if (response.ok) {
                 alert(data.message);
@@ -50,34 +52,27 @@ const Dashboard = () => {
             alert('An error occurred. Please try again.');
         }
     };
- 
+
     return (
-       
-      <div className="form-container">
- 
-<button type="submit" className="search-button" style={{ width: '20px',height: '20px',marginLeft: '145px' ,position: 'relative', top: '16px'}}>
-                    <img
+        <div className="form-container">
+            <button type="submit" className="search-button" style={{ width: '20px', height: '20px', marginLeft: '145px', position: 'relative', top: '16px' }}>
+                <img
                     src={searchIcon}
                     alt="Search"
-                    style={{ width: '20px', height: '20px',marginLeft: '145px',position: 'relative', top: '16px'}}
+                    style={{ width: '20px', height: '20px', marginLeft: '145px', position: 'relative', top: '16px' }}
+                />
+            </button>
+            <div className="header">
+                <div className="search-container">
+                    <input
+                        type="text"
+                        placeholder="Search by Asset ID"
+                        className="search-bar"
+                        onChange={handleChange}
+                        name="search"
                     />
-                </button>
-      <div className="header">
-          <div className="search-container">
-       
-              <input
-                  type="text"
-                  placeholder="Search by Asset ID"
-                  className="search-bar"
-                  onChange={handleChange}
-                  name="search"
-              />
-             
-               
+                </div>
             </div>
-         {/* <button className="btn new-btn">New</button>&*/}
-          {/* <button className="btn delete-btn">Delete device</button> */}
-      </div>
             <h2>Device Specifications</h2>
             <form onSubmit={handleSubmit}>
                 <div className="form-row">
@@ -87,7 +82,6 @@ const Dashboard = () => {
                             <option value="">Select Device</option>
                             <option value="Laptop">Laptop</option>
                             <option value="Desktop">Desktop</option>
-                            {/* Add more options as needed */}
                         </select>
                     </div>
                     <div className="form-group">
@@ -95,25 +89,25 @@ const Dashboard = () => {
                         <input type="text" name="model" placeholder="Model" onChange={handleChange} value={formData.model} />
                     </div>
                 </div>
- 
+
                 <div className="form-row">
                     <div className="form-group">
                         <label>Brand</label>
-                        <input type="text" name="fullName" placeholder="Full device name" onChange={handleChange} value={formData.fullName} />
+                        <input type="text" name="fullName" placeholder="Device Brand" onChange={handleChange} value={formData.fullName} />
                     </div>
                     <div className="form-group">
                         <label>Asset ID</label>
                         <input type="text" name="assetId" placeholder="Asset ID" onChange={handleChange} value={formData.assetId} />
                     </div>
                 </div>
- 
+
                 <div className="form-row">
                     <div className="form-group">
                         <label>Processor</label>
                         <input type="text" name="processor" placeholder="Processor" onChange={handleChange} value={formData.processor} />
                     </div>
                 </div>
- 
+
                 <div className="form-row">
                     <div className="form-group">
                         <label>Device ID</label>
@@ -124,7 +118,7 @@ const Dashboard = () => {
                         <input type="text" name="installedRam" placeholder="Installed RAM" onChange={handleChange} value={formData.installedRam} />
                     </div>
                 </div>
- 
+
                 <div className="form-row">
                     <div className="form-group">
                         <label>Serial Number</label>
@@ -135,9 +129,9 @@ const Dashboard = () => {
                         <input type="text" name="systemType" placeholder="System type (OS)" onChange={handleChange} value={formData.systemType} />
                     </div>
                 </div>
- 
+
                 <h2>Billing Details</h2>
- 
+
                 <div className="form-row">
                     <div className="form-group">
                         <label>Invoice Number</label>
@@ -148,7 +142,7 @@ const Dashboard = () => {
                         <input type="date" name="purchasedDate" onChange={handleChange} value={formData.purchasedDate} />
                     </div>
                 </div>
- 
+
                 <div className="form-row">
                     <div className="form-group">
                         <label>Purchased from</label>
@@ -159,7 +153,7 @@ const Dashboard = () => {
                         <input type="text" name="purchasedAmount" placeholder="Purchased Amount" onChange={handleChange} value={formData.purchasedAmount} />
                     </div>
                 </div>
- 
+
                 <div className="form-row">
                     <div className="form-group">
                         <label>Address</label>
@@ -167,14 +161,17 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                
+                <div className="form-row">
+                <div className="form-group">
+                        <label>Expiry Months</label>
+                        <input type="number" name="warentyMonths" placeholder="Expiry Months" onChange={handleChange} value={formData.warentyMonths} />
+                    </div>
+                </div>
+
                 <button type="submit" className="submit-btn1">Submit</button>
             </form>
-           
-         
         </div>
-       
     );
 };
- 
-export default Dashboard;
+
+export default LaptopDetails;
