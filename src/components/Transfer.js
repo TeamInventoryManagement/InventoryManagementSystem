@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./TransferHandover.css";
 import searchIcon from './images/Search_icon.png';
 
-const TransferHandover = () => {
+const Transfer = () => {
   const [device, setDevice] = useState("");
   const [assetId, setAssetId] = useState("");
   const [deviceName, setDeviceName] = useState("");
@@ -247,4 +247,4 @@ const TransferHandover = () => {
   );
 };
 
-export default TransferHandover;
+export default Transfer;

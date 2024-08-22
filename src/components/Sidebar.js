@@ -37,9 +37,13 @@ const Sidebar = () => {
                     <i className="fas fa-tasks"></i>
                     <span>Inventory</span>
                 </Link>
-                <Link to="/TransferHandoverPage" className={`menu-item ${activeSection === 'TransferHandover' ? 'active' : ''}`} onClick={() => setActiveSection('TransferHandover')}>
+                <Link to="/TransferPage" className={`menu-item ${activeSection === 'Transfer' ? 'active' : ''}`} onClick={() => setActiveSection('Transfer')}>
                     <i className="fas fa-exchange-alt"></i>
-                    <span>Transfer / Handover</span>
+                    <span>Transfer</span>
+                </Link>
+                <Link to="/HandoverPage" className={`menu-item ${activeSection === 'Handover' ? 'active' : ''}`} onClick={() => setActiveSection('Handover')}>
+                    <i className="fas fa-exchange-alt"></i>
+                    <span>Handover</span>
                 </Link>
                 <Link to="/RepairFormPage" className={`menu-item ${activeSection === 'IssueTracker' ? 'active' : ''}`} onClick={() => setActiveSection('IssueTracker')}>
                     <i className="fas fa-clipboard-list"></i>

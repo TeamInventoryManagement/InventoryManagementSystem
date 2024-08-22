@@ -7,7 +7,8 @@ import LoginPage from './pages/LoginPage';
 import RepairFormPage from './pages/RepairFormPage';
 import LaptopDetailsPage from './pages/LaptopDetailsPage';
 import EmployeeDetailsPage from './pages/EmployeeDetailsPage';
-import TransferHandoverPage from './pages/TransferHandoverPage';
+import TransferPage from './pages/TransferPage';
+import HandoverPage from './pages/HandoverPage';
 import NetworkEquipmentPage from './pages/NetworkEquipmentPage';
 import AccessoriesPage from './pages/AccessoriesPage';
 
@@ -21,7 +22,8 @@ ReactDOM.render(
         <Route path="RepairFormPage" element={<RepairFormPage />} />
         <Route path="LaptopDetailsPage" element={<LaptopDetailsPage />} />
         <Route path="EmployeeDetailsPage" element={<EmployeeDetailsPage />} />
-        <Route path="TransferHandoverPage" element={<TransferHandoverPage />} />
+        <Route path="TransferPage" element={<TransferPage />} />
+        <Route path="HandoverPage" element={<HandoverPage />} />
         <Route path="NetworkEquipmentPage" element={<NetworkEquipmentPage />} />
         <Route path="AccessoriesPage" element={<AccessoriesPage />} />
       </Route>
