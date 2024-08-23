@@ -5,73 +5,120 @@ import searchIcon from './images/Search_icon.png';
 const Transfer = () => {
   const [device, setDevice] = useState("");
   const [assetId, setAssetId] = useState("");
-  const [deviceName, setDeviceName] = useState("");
+  const [deviceBrand, setDeviceBrand] = useState("");
   const [model, setModel] = useState("");
   const [serialNumber, setSerialNumber] = useState("");
-  const [conditionStatus, setConditionStatus] = useState("Condition Status");
-  const [currentStatus, setCurrentStatus] = useState("Status");
+  const [lapCondition, setLapCondition] = useState("Condition Status");
+  const [status, setStatus] = useState("Status");
 
   const [employeeId, setEmployeeId] = useState("");
   const [division, setDivision] = useState("");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
 
+  // Fetch device details when assetId changes
   useEffect(() => {
     if (assetId) {
-      console.log(`Fetching data for Asset ID: ${assetId}`);
-      fetch(`http://localhost:3000/api/devices/${assetId}`)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.json();
-        })
-        .then(data => {
-          console.log('Device data retrieved:', data);
-
-          setDevice(data.Device);
-          setDeviceName(data.DeviceBrand);
-          setModel(data.Model);
-          setSerialNumber(data.SerialNumber);
-          setConditionStatus(data.ConditionStatus);
-          setCurrentStatus(data.CurrentStatus);
-        })
-        .catch(error => {
-          console.error('Error fetching device details:', error);
-        });
+      fetchDeviceDetails(assetId);
     }
   }, [assetId]);
 
+  // Fetch employee details when employeeId changes
   useEffect(() => {
     if (employeeId) {
-      console.log(`Fetching data for Employee ID: ${employeeId}`);
-      fetch(`http://localhost:3000/api/employees/${employeeId}`)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.json();
-        })
-        .then(data => {
-          console.log('Employee data retrieved:', data);
-
-          setDivision(data.Division);
-          setFullName(data.FullName);
-          setEmail(data.Email);
-        })
-        .catch(error => {
-          console.error('Error fetching employee details:', error);
-        });
+      fetchEmployeeDetails(employeeId);
     }
   }, [employeeId]);
 
+  // Function to fetch device details
+  const fetchDeviceDetails = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/devices/${id}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch device details: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      // Update state with fetched data
+      setDevice(data.Device);
+      setDeviceBrand(data.DeviceBrand);
+      setModel(data.Model);
+      setSerialNumber(data.SerialNumber);
+      setLapCondition(data.ConditionStatus);
+      setStatus(data.CurrentStatus);
+    } catch (error) {
+      console.error('Error fetching device details:', error);
+    }
+  };
+
+  // Function to fetch employee details
+  const fetchEmployeeDetails = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/employees/${id}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch employee details: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      // Update state with fetched data
+      setDivision(data.Division);
+      setFullName(data.FullName);
+      setEmail(data.Email);
+    } catch (error) {
+      console.error('Error fetching employee details:', error);
+    }
+  };
+
+  // Function to handle the transfer button click
+  const handleTransfer = async () => {
+    const transferData = {
+      assetId,
+      device,
+      deviceBrand,
+      model,
+      serialNumber,
+      lapCondition,
+      status,
+      employeeId,
+      division,
+      fullName,
+      email,
+      issueDate: new Date().toISOString().split('T')[0],
+      handoverDate: new Date().toISOString().split('T')[0] // Or you can provide a separate handover date if needed
+    };
+
+    try {
+      const response = await fetch('http://localhost:3000/api/transfer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(transferData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('Transfer successful!');
+      } else {
+        console.error('Error response:', data);
+        alert('Error: ' + data.error);
+      }
+    } catch (error) {
+      console.error('Error during transfer:', error);
+      alert('An error occurred. Please try again.');
+    }
+  };
+
   return (
     <div className="form-container">
-      <button type="submit" className="search-button" style={{ width: '20px', height: '20px', marginLeft: '310px' ,position: 'relative', top: '28px'}}>
+      <button type="submit" className="search-button" style={{ width: '20px', height: '20px', marginLeft: '310px', position: 'relative', top: '28px' }}>
         <img
           src={searchIcon}
           alt="Search"
-          style={{ width: '20px', height: '20px', marginLeft: '310px', position: 'relative', top: '28px'}}
+          style={{ width: '20px', height: '20px', marginLeft: '310px', position: 'relative', top: '28px' }}
         />
       </button>
       <div className="form-row">
@@ -82,6 +129,7 @@ const Transfer = () => {
             type="text"
             placeholder="Value"
             value={device}
+            readOnly
           />
         </div>
         <div className="form-group">
@@ -105,7 +153,8 @@ const Transfer = () => {
             id="deviceName"
             type="text"
             placeholder="Value"
-            value={deviceName}
+            value={deviceBrand}
+            readOnly
           />
         </div>
         <div className="form-group">
@@ -115,6 +164,7 @@ const Transfer = () => {
             type="text"
             placeholder="Value"
             value={assetId}
+            readOnly
           />
         </div>
       </div>
@@ -146,11 +196,11 @@ const Transfer = () => {
         <div className="status-group">
           <div className="status-label">
             <span className="material-symbols-outlined">keyboard_command_key</span>
-            <label className="status-label">{conditionStatus}</label>
+            <label className="status-label">{lapCondition}</label>
           </div>
           <div className="status-label">
             <span className="material-symbols-outlined">keyboard_command_key</span>
-            <label className="status-label">{currentStatus}</label>
+            <label className="status-label">{status}</label>
           </div>
         </div>
       </div>
@@ -163,11 +213,11 @@ const Transfer = () => {
 
       <div className="form-row">
         <div className="form-group">
-          <button type="submit" className="search-button" style={{ width: '20px', height: '20px', marginLeft: '145px' ,position: 'relative', top: '28px'}}>
+          <button type="submit" className="search-button" style={{ width: '20px', height: '20px', marginLeft: '145px', position: 'relative', top: '28px' }}>
             <img
               src={searchIcon}
               alt="Search"
-              style={{ width: '20px', height: '20px', marginLeft: '145px', position: 'relative', top: '28px'}}
+              style={{ width: '20px', height: '20px', marginLeft: '145px', position: 'relative', top: '28px' }}
             />
           </button>
           <label htmlFor="employeeSearch">Search by employee id</label>
@@ -236,10 +286,7 @@ const Transfer = () => {
       </div>
 
       <div className="form-row action-buttons">
-        <button type="button" className="handover-btn">
-          Handover
-        </button>
-        <button type="button" className="transfer-btn">
+        <button type="button" className="transfer-btn" onClick={handleTransfer}>
           Transfer
         </button>
       </div>

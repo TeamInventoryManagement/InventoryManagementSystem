@@ -239,9 +239,7 @@ const Handover = () => {
         <button type="button" className="handover-btn">
           Handover
         </button>
-        <button type="button" className="transfer-btn">
-          Transfer
-        </button>
+
       </div>
     </div>
   );

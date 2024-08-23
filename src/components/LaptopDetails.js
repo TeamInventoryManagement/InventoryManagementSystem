@@ -4,23 +4,23 @@ import searchIcon from './images/Search_icon.png';
 
 const LaptopDetails = () => {
     const [formData, setFormData] = useState({
-        device: '',
+        device: 'Laptop', // Hardcoded value for device
+        deviceBrand: '',
         model: '',
-        fullName: '',
         assetId: '',
         processor: '',
-        deviceId: '',
+        laptopId: '',
         installedRam: '',
         serialNumber: '',
         systemType: '',
         invoiceNumber: '',
         purchasedDate: '',
-        purchasedFrom: '',
         purchasedAmount: '',
         warentyMonths: '',
-        address: '' 
-         // Assuming this was missed in the previous form
+        address: ''
     });
+
+    const [searchAssetId, setSearchAssetId] = useState('');
 
     const handleChange = (e) => {
         setFormData({
@@ -29,11 +29,87 @@ const LaptopDetails = () => {
         });
     };
 
+    const handleSearchChange = (e) => {
+        setSearchAssetId(e.target.value);
+
+        // If the Asset ID field is cleared, reset the form
+        if (e.target.value === '') {
+            resetFormData();
+        }
+    };
+
+    const handleSearchClick = async () => {
+        if (!searchAssetId) {
+            alert("Please enter an Asset ID to search.");
+            return;
+        }
+
+        try {
+            console.log(`Fetching details for Asset ID: ${searchAssetId}`);
+            const response = await fetch(`http://localhost:3000/api/laptop/${searchAssetId}`);
+
+            if (!response.ok) {
+                // Check if the response is HTML instead of JSON
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("text/html")) {
+                    throw new Error('Received HTML instead of JSON');
+                }
+
+                const errorData = await response.json();
+                console.error('Error data:', errorData);
+                throw new Error(errorData.error || 'Unknown error occurred');
+            }
+
+            const data = await response.json();
+            console.log('Received data:', data); // Log the received data
+            setFormData({
+                device: data.Device || '',
+                deviceBrand: data.DeviceBrand || '',
+                model: data.Model || '',
+                assetId: data.AssetID || '',
+                processor: data.Processor || '',
+                laptopId: data.LaptopId || '',
+                installedRam: data.InstalledRAM || '',
+                serialNumber: data.SerialNumber || '',
+                systemType: data.SystemType || '',
+                invoiceNumber: data.InvoiceNumber || '',
+                purchasedDate: data.PurchaseDate ? data.PurchaseDate.split('T')[0] : '',
+                purchasedAmount: data.PurchaseAmount || '',
+                warentyMonths: data.WarentyMonths || '',
+                address: data.Address || '',
+            });
+
+        } catch (error) {
+            console.error('Error fetching device:', error.message);
+            alert('An error occurred while fetching the device details: ' + error.message);
+        }
+    };
+
+    const resetFormData = () => {
+        setFormData({
+            device: 'Laptop',
+            deviceBrand: '',
+            model: '',
+            assetId: '',
+            processor: '',
+            laptopId: '',
+            installedRam: '',
+            serialNumber: '',
+            systemType: '',
+            invoiceNumber: '',
+            purchasedDate: '',
+            purchasedAmount: '',
+            warentyMonths: '',
+            address: ''
+        });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            const response = await fetch('http://localhost:3000/api/devices', {
+            console.log('Submitting form data:', formData);
+            const response = await fetch('http://localhost:3000/api/LaptopDetails', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -45,6 +121,7 @@ const LaptopDetails = () => {
             if (response.ok) {
                 alert(data.message);
             } else {
+                console.error('Error response:', data);
                 alert('Error: ' + data.error);
             }
         } catch (error) {
@@ -55,49 +132,38 @@ const LaptopDetails = () => {
 
     return (
         <div className="form-container">
-            <button type="submit" className="search-button" style={{ width: '20px', height: '20px', marginLeft: '145px', position: 'relative', top: '16px' }}>
-                <img
-                    src={searchIcon}
-                    alt="Search"
-                    style={{ width: '20px', height: '20px', marginLeft: '145px', position: 'relative', top: '16px' }}
-                />
-            </button>
             <div className="header">
                 <div className="search-container">
                     <input
                         type="text"
                         placeholder="Search by Asset ID"
                         className="search-bar"
-                        onChange={handleChange}
-                        name="search"
+                        value={searchAssetId}
+                        onChange={handleSearchChange}
                     />
+                    <button type="button" className="search-button" onClick={handleSearchClick}>
+                        <img src={searchIcon} alt="Search" style={{ width: '20px', height: '20px' }} />
+                    </button>
                 </div>
             </div>
+
             <h2>Device Specifications</h2>
             <form onSubmit={handleSubmit}>
                 <div className="form-row">
                     <div className="form-group">
-                        <label>Device</label>
-                        <select name="device" onChange={handleChange} value={formData.device}>
-                            <option value="">Select Device</option>
-                            <option value="Laptop">Laptop</option>
-                            <option value="Desktop">Desktop</option>
-                        </select>
+                        <label>Asset ID</label>
+                        <input type="text" name="assetId" placeholder="Asset ID" onChange={handleChange} value={formData.assetId} />
+                    </div>
+                </div>
+               
+                <div className="form-row">
+                    <div className="form-group">
+                        <label>Brand</label>
+                        <input type="text" name="deviceBrand" placeholder="Device Brand" onChange={handleChange} value={formData.deviceBrand} />
                     </div>
                     <div className="form-group">
                         <label>Model</label>
                         <input type="text" name="model" placeholder="Model" onChange={handleChange} value={formData.model} />
-                    </div>
-                </div>
-
-                <div className="form-row">
-                    <div className="form-group">
-                        <label>Brand</label>
-                        <input type="text" name="fullName" placeholder="Device Brand" onChange={handleChange} value={formData.fullName} />
-                    </div>
-                    <div className="form-group">
-                        <label>Asset ID</label>
-                        <input type="text" name="assetId" placeholder="Asset ID" onChange={handleChange} value={formData.assetId} />
                     </div>
                 </div>
 
@@ -110,8 +176,8 @@ const LaptopDetails = () => {
 
                 <div className="form-row">
                     <div className="form-group">
-                        <label>Device ID</label>
-                        <input type="text" name="deviceId" placeholder="Device ID" onChange={handleChange} value={formData.deviceId} />
+                        <label>Laptop ID (Device ID)</label>
+                        <input type="text" name="laptopId" placeholder="Laptop ID" onChange={handleChange} value={formData.laptopId} />
                     </div>
                     <div className="form-group">
                         <label>Installed RAM</label>
@@ -145,10 +211,6 @@ const LaptopDetails = () => {
 
                 <div className="form-row">
                     <div className="form-group">
-                        <label>Purchased from</label>
-                        <input type="text" name="purchasedFrom" placeholder="Purchased from" onChange={handleChange} value={formData.purchasedFrom} />
-                    </div>
-                    <div className="form-group">
                         <label>Purchased Amount</label>
                         <input type="text" name="purchasedAmount" placeholder="Purchased Amount" onChange={handleChange} value={formData.purchasedAmount} />
                     </div>
@@ -162,9 +224,9 @@ const LaptopDetails = () => {
                 </div>
 
                 <div className="form-row">
-                <div className="form-group">
-                        <label>Expiry Months</label>
-                        <input type="number" name="warentyMonths" placeholder="Expiry Months" onChange={handleChange} value={formData.warentyMonths} />
+                    <div className="form-group">
+                        <label>Warranty Period (Months)</label>
+                        <input type="number" name="warentyMonths" placeholder="Warranty Months" onChange={handleChange} value={formData.warentyMonths} />
                     </div>
                 </div>
 

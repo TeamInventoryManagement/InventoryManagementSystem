@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./EmployeeDetails.css";
-import searchIcon from './images/Search_icon.png';
+import searchIcon from './images/Search_icon.png';  // Ensure you have the correct path for the image
 
 const EmployeeDetails = () => {
   const [employeeId, setEmployeeId] = useState("");
@@ -8,6 +8,37 @@ const EmployeeDetails = () => {
   const [division, setDivision] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");  // To display success/error messages
+
+  const handleSearch = async () => {
+    setMessage("");  // Reset message
+
+    if (!employeeId) {
+      setMessage("Please enter an Employee ID to search.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3000/api/employees/${employeeId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setFullName(data.FullName);
+        setDivision(data.Division);
+        setEmail(data.Email);
+        setMessage('Employee details retrieved successfully');
+      } else {
+        const errorMessage = await response.json();
+        setMessage(`Failed to retrieve employee details: ${errorMessage.message}`);
+      }
+    } catch (error) {
+      setMessage('Error retrieving employee details: ' + error.message);
+    }
+  };
 
   const handleNew = async () => {
     setMessage("");  // Reset message
@@ -17,7 +48,7 @@ const EmployeeDetails = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/employees', {
+      const response = await fetch('http://localhost:3000/api/employees', {  // Replace 3000 with your server port
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -48,7 +79,7 @@ const EmployeeDetails = () => {
 
   return (
     <div className="employee-details">
-      <button type="submit" className="search-button" style={{ width: '20px', height: '20px', marginLeft: '130px', position: 'relative', top: '22px'}}>
+      <button type="button" className="search-button" onClick={handleSearch}>
         <img
           src={searchIcon}
           alt="Search"
