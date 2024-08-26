@@ -1,11 +1,45 @@
 const express = require('express');
 const cors = require('cors');
-const { sql, poolPromise } = require('./db'); // Assuming you have a separate db.js file for database connection
+const bcrypt = require('bcrypt');
+const { sql, poolPromise } = require('./db'); 
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+
+// Route to handle user registration
+app.post('/api/registerfrom', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        const { email, password, userRole } = req.body;
+
+        if (!email || !password || !userRole) {
+            return res.status(400).send({ error: 'All fields are required' });
+        }
+
+        // Hash the password before storing it in the database
+        const hashedPassword = await bcrypt.hash(password, 10); 
+
+        const query = `
+            INSERT INTO UserDetails (Email, Password, UserRole, SysDate)
+            VALUES (@Email, @Password, @UserRole, GETDATE())
+        `;
+
+        await pool.request()
+            .input('Email', sql.VarChar(50), email)
+            .input('Password', sql.VarChar(255), hashedPassword) 
+            .input('UserRole', sql.VarChar(50), userRole)
+            .query(query);
+
+        res.status(201).send({ message: 'User registered successfully' });
+    } catch (error) {
+        console.error('Error registering user:', error.message);
+        res.status(500).send({ error: 'Server error: ' + error.message });
+    }
+});
+
 
 // Function to calculate warranty expiry date
 function calculateWarrantyExpiryDate(purchaseDate, warentyMonths) {
@@ -242,92 +276,70 @@ app.get('/api/employees/:employeeId', async (req, res) => {
     }
 });
 
-// Insert into TransferDetails table 
-app.post('/api/transfer', async (req, res) => {
+app.get('/api/transfer/:assetId', async (req, res) => {
     try {
         const pool = await poolPromise;
-        const {
-            assetId,
-            device,
-            deviceBrand,
-            model,
-            serialNumber,
-            lapCondition,
-            status,
-            employeeId,
-            division,
-            fullName,
-            email,
-            issueDate,
-            handoverDate
-        } = req.body;
+        const assetId = req.params.assetId;
 
-        console.log('Received transfer data:', req.body);
+        const query = `
+            SELECT * FROM TransferDetails WHERE AssetID = @AssetID
+        `;
 
-        if (!device || !assetId || !deviceBrand || !model || !serialNumber || !employeeId || !division || !fullName) {
-            console.log('Validation failed: Missing required fields');
-            return res.status(400).send({ error: 'All required fields must be provided' });
+        const result = await pool.request()
+            .input('AssetID', sql.VarChar(50), assetId)
+            .query(query);
+
+        if (result.recordset.length > 0) {
+            res.status(200).json(result.recordset[0]);
+        } else {
+            res.status(404).send({ message: 'Asset not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching transfer details:', error.message);
+        res.status(500).send({ error: 'Server error: ' + error.message });
+    }
+});
+
+
+// Insert into TransferDetails table 
+app.post('/api/transfer/handover', async (req, res) => {
+    try {
+        const { assetId } = req.body;
+        console.log('Received assetId:', assetId); // Log the received data
+
+        if (!assetId) {
+            return res.status(400).send({ error: 'Asset ID is required' });
         }
 
         const transaction = new sql.Transaction(pool);
         await transaction.begin();
 
-        try {
-            const transferQuery = `
-                INSERT INTO TransferDetails (
-                    AssetID, Device, DeviceBrand, Model, SerialNumber, LapCondition,
-                    EmployeeID, FullName, Division, Email, Status, IssueDate, HandoverDate
-                ) VALUES (
-                    @AssetID, @Device, @DeviceBrand, @Model, @SerialNumber, @LapCondition,
-                    @EmployeeID, @FullName, @Division, @Email, @Status, @IssueDate, @HandoverDate
-                )
-            `;
+        const handoverQuery = `
+            UPDATE TransferDetails
+            SET CurrentStatus = 'Handover', HandoverDate = GETDATE()
+            WHERE AssetID = @AssetID AND CurrentStatus = 'In-Use'
+        `;
 
-            await transaction.request()
-                .input('AssetID', sql.VarChar(50), assetId)
-                .input('Device', sql.VarChar(50), device)
-                .input('DeviceBrand', sql.VarChar(50), deviceBrand)
-                .input('Model', sql.VarChar(50), model)
-                .input('SerialNumber', sql.VarChar(50), serialNumber)
-                .input('LapCondition', sql.VarChar(50), lapCondition)
-                .input('EmployeeID', sql.VarChar(50), employeeId)
-                .input('FullName', sql.VarChar(50), fullName)
-                .input('Division', sql.VarChar(50), division)
-                .input('Email', sql.VarChar(50), email)
-                .input('Status', sql.VarChar(50), status)
-                .input('IssueDate', sql.Date, issueDate)
-                .input('HandoverDate', sql.Date, handoverDate)
-                .query(transferQuery);
+        const result = await transaction.request()
+            .input('AssetID', sql.VarChar(50), assetId)
+            .query(handoverQuery);
 
-            console.log('Inserted into TransferDetails table successfully');
+        await transaction.commit();
 
-            // Update the CurrentStatus to 'In-Use' in DeviceDetails1 table
-            const updateStatusQuery = `
-                UPDATE DeviceDetails1
-                SET CurrentStatus = 'In-Use'
-                WHERE AssetID = @AssetID
-            `;
-
-            await transaction.request()
-                .input('AssetID', sql.VarChar(50), assetId)
-                .query(updateStatusQuery);
-
-            console.log('Updated DeviceDetails1 CurrentStatus to In-Use');
-
-            await transaction.commit();
-
-            res.status(201).send({ message: 'Transfer successful and status updated' });
-        } catch (error) {
-            console.error('Error during transaction, rolling back:', error.message);
-            await transaction.rollback();
-            res.status(500).send({ error: 'Error during transfer: ' + error.message });
+        if (result.rowsAffected[0] === 0) {
+            throw new Error('No rows were updated. Check the AssetID and CurrentStatus.');
         }
+
+        res.status(200).send({ message: 'Handover successful!' });
     } catch (error) {
-        console.error('Error establishing connection or starting transaction:', error.message);
-        res.status(500).send({ error: 'Server error: ' + error.message });
+        console.error('Error during handover:', error.message);
+        res.status(500).send({ error: 'An error occurred during the handover: ' + error.message });
     }
 });
 
+
+
+       
 
 
 // sql.connect(config, (err) => {

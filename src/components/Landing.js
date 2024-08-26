@@ -1,7 +1,7 @@
 import React from "react";
 import "./Landing.css";
 import logo from './images/Altria-logo.png';
-import landing from "./images/landing.png"; // Adjust the path to your logo image
+import landing from "./images/landing.png"; 
 
 const Landing = () => {
   return (
@@ -15,6 +15,10 @@ const Landing = () => {
 
           <a href="/LoginPage" className="login-btn">
             Login
+          </a>
+          
+          <a href="/RegisterPAge" className="login-btn">
+            Register
           </a>
 
 

@@ -12,7 +12,7 @@ import HandoverPage from './pages/HandoverPage';
 import NetworkEquipmentPage from './pages/NetworkEquipmentPage';
 import AccessoriesPage from './pages/AccessoriesPage';
 import InUseDevicePage from './pages/InUseDevicePage';
-// import AccessoriesPage from './pages/AccessoriesPage';
+import RegisterPage from './pages/RegisterPage';
 // import AccessoriesPage from './pages/AccessoriesPage';
 
 
@@ -31,8 +31,8 @@ ReactDOM.render(
         <Route path="NetworkEquipmentPage" element={<NetworkEquipmentPage />} />
         <Route path="AccessoriesPage" element={<AccessoriesPage />} />
         <Route path="InUseDevicePage" element={<InUseDevicePage />} />
+        <Route path="RegisterPage" element={<RegisterPage />} />
         {/* <Route path="AccessoriesPage" element={<AccessoriesPage />} />
-        <Route path="AccessoriesPage" element={<AccessoriesPage />} />
         <Route path="AccessoriesPage" element={<AccessoriesPage />} /> */}
       </Route>
     </Routes>

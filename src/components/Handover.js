@@ -3,9 +3,9 @@ import "./TransferHandover.css";
 import searchIcon from './images/Search_icon.png';
 
 const Handover = () => {
-  const [device, setDevice] = useState("");
   const [assetId, setAssetId] = useState("");
-  const [deviceName, setDeviceName] = useState("");
+  const [device, setDevice] = useState("");
+  const [deviceBrand, setDeviceBrand] = useState("");
   const [model, setModel] = useState("");
   const [serialNumber, setSerialNumber] = useState("");
   const [conditionStatus, setConditionStatus] = useState("Condition Status");
@@ -19,7 +19,7 @@ const Handover = () => {
   useEffect(() => {
     if (assetId) {
       console.log(`Fetching data for Asset ID: ${assetId}`);
-      fetch(`http://localhost:3000/api/devices/${assetId}`)
+      fetch(`http://localhost:3000/api/transfer/${assetId}`)
         .then(response => {
           if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -27,51 +27,66 @@ const Handover = () => {
           return response.json();
         })
         .then(data => {
-          console.log('Device data retrieved:', data);
+          console.log('TransferDetails data retrieved:', data);
 
           setDevice(data.Device);
-          setDeviceName(data.DeviceBrand);
+          setDeviceBrand(data.DeviceBrand);
           setModel(data.Model);
           setSerialNumber(data.SerialNumber);
           setConditionStatus(data.ConditionStatus);
           setCurrentStatus(data.CurrentStatus);
+          setEmployeeId(data.EmployeeID);
+          setFullName(data.FullName);
+          setDivision(data.Division);
+          setEmail(data.Email);
         })
         .catch(error => {
-          console.error('Error fetching device details:', error);
+          console.error('Error fetching transfer details:', error);
         });
     }
   }, [assetId]);
 
-  useEffect(() => {
-    if (employeeId) {
-      console.log(`Fetching data for Employee ID: ${employeeId}`);
-      fetch(`http://localhost:3000/api/employees/${employeeId}`)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.json();
-        })
-        .then(data => {
-          console.log('Employee data retrieved:', data);
+  const handleHandover = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/transfer/handover', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          assetId,
+          currentStatus: 'Handover',
+          handoverDate: new Date().toISOString().split('T')[0],
+        }),
+      });
 
-          setDivision(data.Division);
-          setFullName(data.FullName);
-          setEmail(data.Email);
-        })
-        .catch(error => {
-          console.error('Error fetching employee details:', error);
-        });
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        console.log('error testing')
+        const data = await response.json();
+        if (response.ok) {
+          alert('Handover successful!');
+        } else {
+          alert('Error: ' + data.error);
+        }
+      } else {
+        const textResponse = await response.text();
+        console.error('Unexpected response:', textResponse);
+        alert('An unexpected error occurred. Please check the server response.');
+      }
+    } catch (error) {
+      console.error('Error during handover:', error.message);
+      alert('An error occurred: ' + error.message);
     }
-  }, [employeeId]);
+  };
 
   return (
     <div className="form-container">
-      <button type="submit" className="search-button" style={{ width: '20px', height: '20px', marginLeft: '310px' ,position: 'relative', top: '28px'}}>
+      <button type="submit" className="search-button" style={{ width: '20px', height: '20px', marginLeft: '310px', position: 'relative', top: '28px' }}>
         <img
           src={searchIcon}
           alt="Search"
-          style={{ width: '20px', height: '20px', marginLeft: '310px', position: 'relative', top: '28px'}}
+          style={{ width: '20px', height: '20px', marginLeft: '310px', position: 'relative', top: '28px' }}
         />
       </button>
       <div className="form-row">
@@ -82,6 +97,7 @@ const Handover = () => {
             type="text"
             placeholder="Value"
             value={device}
+            readOnly
           />
         </div>
         <div className="form-group">
@@ -100,12 +116,13 @@ const Handover = () => {
 
       <div className="form-row">
         <div className="form-group">
-          <label htmlFor="deviceName">Device Name</label>
+          <label htmlFor="deviceName">Device Brand</label>
           <input
             id="deviceName"
             type="text"
             placeholder="Value"
-            value={deviceName}
+            value={deviceBrand}
+            readOnly
           />
         </div>
         <div className="form-group">
@@ -115,6 +132,7 @@ const Handover = () => {
             type="text"
             placeholder="Value"
             value={assetId}
+            readOnly
           />
         </div>
       </div>
@@ -163,11 +181,11 @@ const Handover = () => {
 
       <div className="form-row">
         <div className="form-group">
-          <button type="submit" className="search-button" style={{ width: '20px', height: '20px', marginLeft: '145px' ,position: 'relative', top: '28px'}}>
+          <button type="submit" className="search-button" style={{ width: '20px', height: '20px', marginLeft: '145px', position: 'relative', top: '28px' }}>
             <img
               src={searchIcon}
               alt="Search"
-              style={{ width: '20px', height: '20px', marginLeft: '145px', position: 'relative', top: '28px'}}
+              style={{ width: '20px', height: '20px', marginLeft: '145px', position: 'relative', top: '28px' }}
             />
           </button>
           <label htmlFor="employeeSearch">Search by employee id</label>
@@ -236,10 +254,9 @@ const Handover = () => {
       </div>
 
       <div className="form-row action-buttons">
-        <button type="button" className="handover-btn">
+        <button type="button" className="handover-btn" onClick={handleHandover}>
           Handover
         </button>
-
       </div>
     </div>
   );

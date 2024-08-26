@@ -8,8 +8,8 @@ const Transfer = () => {
   const [deviceBrand, setDeviceBrand] = useState("");
   const [model, setModel] = useState("");
   const [serialNumber, setSerialNumber] = useState("");
-  const [lapCondition, setLapCondition] = useState("Condition Status");
-  const [status, setStatus] = useState("Status");
+  const [conditionStatus, setConditionStatus] = useState("Condition Status");
+  const [currentStatus, setCurrentStatus] = useState("Status");
 
   const [employeeId, setEmployeeId] = useState("");
   const [division, setDivision] = useState("");
@@ -45,8 +45,8 @@ const Transfer = () => {
       setDeviceBrand(data.DeviceBrand);
       setModel(data.Model);
       setSerialNumber(data.SerialNumber);
-      setLapCondition(data.ConditionStatus);
-      setStatus(data.CurrentStatus);
+      setConditionStatus(data.ConditionStatus);
+      setCurrentStatus(data.CurrentStatus);
     } catch (error) {
       console.error('Error fetching device details:', error);
     }
@@ -79,14 +79,14 @@ const Transfer = () => {
       deviceBrand,
       model,
       serialNumber,
-      lapCondition,
-      status,
+      conditionStatus, // Updated field name
+      currentStatus, // Updated field name
       employeeId,
       division,
       fullName,
       email,
       issueDate: new Date().toISOString().split('T')[0],
-      handoverDate: new Date().toISOString().split('T')[0] // Or you can provide a separate handover date if needed
+      handoverDate: null // Explicitly set handoverDate to null
     };
 
     try {
@@ -196,11 +196,11 @@ const Transfer = () => {
         <div className="status-group">
           <div className="status-label">
             <span className="material-symbols-outlined">keyboard_command_key</span>
-            <label className="status-label">{lapCondition}</label>
+            <label className="status-label">{conditionStatus}</label>
           </div>
           <div className="status-label">
             <span className="material-symbols-outlined">keyboard_command_key</span>
-            <label className="status-label">{status}</label>
+            <label className="status-label">{currentStatus}</label>
           </div>
         </div>
       </div>

@@ -7,7 +7,7 @@ function App() {
   const location = useLocation();
 
   // Define paths where the sidebar should not be displayed
-  const noSidebarPaths = ["/", "/loginpage", "/signuppage"]; // Add your landing page and other routes where sidebar shouldn't appear
+  const noSidebarPaths = ["/", "/loginpage", "/registerpage"]; // Add your landing page and other routes where sidebar shouldn't appear
 
   // Check if the current path is in the noSidebarPaths list
   const hideSidebar = noSidebarPaths.includes(location.pathname.toLowerCase());

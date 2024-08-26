@@ -75,7 +75,7 @@ const Sidebar = () => {
                 </Link>
 
                 <div className="section-title">Reports</div>
-                <Link to="/in-use-devices" className={`menu-item ${activeSection === 'InUseDevices' ? 'active' : ''}`} onClick={() => setActiveSection('InUseDevices')}>
+                <Link to="/InUseDevicePage" className={`menu-item ${activeSection === 'InUseDevices' ? 'active' : ''}`} onClick={() => setActiveSection('InUseDevices')}>
                     <i className="fas fa-clipboard-check"></i>
                     <span>In Use Devices</span>
                 </Link>
