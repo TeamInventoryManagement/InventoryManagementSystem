@@ -25,7 +25,7 @@ const Sidebar = () => {
                 <div className="logo">
                     <img src={logo} alt="Altria Logo" className="header-logo" />
                 </div>
-                <Link to="/" className={`menu-item ${activeSection === 'Home' ? 'active' : ''}`} onClick={() => setActiveSection('Home')}>
+                <Link to="/HomePage" className={`menu-item ${activeSection === 'Home' ? 'active' : ''}`} onClick={() => setActiveSection('Home')}>
                     <i className="fas fa-home"></i>
                     <span>Home</span>
                 </Link>

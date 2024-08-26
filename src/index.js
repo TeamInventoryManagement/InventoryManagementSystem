@@ -13,7 +13,7 @@ import NetworkEquipmentPage from './pages/NetworkEquipmentPage';
 import AccessoriesPage from './pages/AccessoriesPage';
 import InUseDevicePage from './pages/InUseDevicePage';
 import RegisterPage from './pages/RegisterPage';
-// import AccessoriesPage from './pages/AccessoriesPage';
+import HomePage from './pages/HomePage';
 
 
 ReactDOM.render(
@@ -32,8 +32,8 @@ ReactDOM.render(
         <Route path="AccessoriesPage" element={<AccessoriesPage />} />
         <Route path="InUseDevicePage" element={<InUseDevicePage />} />
         <Route path="RegisterPage" element={<RegisterPage />} />
-        {/* <Route path="AccessoriesPage" element={<AccessoriesPage />} />
-        <Route path="AccessoriesPage" element={<AccessoriesPage />} /> */}
+        <Route path="HomePage" element={<HomePage />} />
+        {/* <Route path="AccessoriesPage" element={<AccessoriesPage />} /> */}
       </Route>
     </Routes>
   </Router>,
