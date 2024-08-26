@@ -11,7 +11,7 @@ app.use(express.json());
 function calculateWarrantyExpiryDate(purchaseDate, warentyMonths) {
     const date = new Date(purchaseDate);
     date.setMonth(date.getMonth() + parseInt(warentyMonths, 10));
-    return date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+    return date.toISOString().split('T')[0]; 
 }
 
 // Route to handle device addition (inserts into both LaptopDetails and DeviceDetails)

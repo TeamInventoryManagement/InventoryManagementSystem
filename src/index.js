@@ -11,6 +11,10 @@ import TransferPage from './pages/TransferPage';
 import HandoverPage from './pages/HandoverPage';
 import NetworkEquipmentPage from './pages/NetworkEquipmentPage';
 import AccessoriesPage from './pages/AccessoriesPage';
+import InUseDevicePage from './pages/InUseDevicePage';
+// import AccessoriesPage from './pages/AccessoriesPage';
+// import AccessoriesPage from './pages/AccessoriesPage';
+
 
 ReactDOM.render(
   <Router>
@@ -26,6 +30,10 @@ ReactDOM.render(
         <Route path="HandoverPage" element={<HandoverPage />} />
         <Route path="NetworkEquipmentPage" element={<NetworkEquipmentPage />} />
         <Route path="AccessoriesPage" element={<AccessoriesPage />} />
+        <Route path="InUseDevicePage" element={<InUseDevicePage />} />
+        {/* <Route path="AccessoriesPage" element={<AccessoriesPage />} />
+        <Route path="AccessoriesPage" element={<AccessoriesPage />} />
+        <Route path="AccessoriesPage" element={<AccessoriesPage />} /> */}
       </Route>
     </Routes>
   </Router>,
