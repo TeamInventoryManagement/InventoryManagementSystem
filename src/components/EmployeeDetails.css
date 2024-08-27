@@ -30,3 +30,19 @@ border: none;
  
  
 }
+ 
+.Add-btn {
+  background-color: #1f1664;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 20%;
+  margin-top: 20px;
+}
+ 
+.Add-btn:hover {
+  background-color: #26139e;
+}

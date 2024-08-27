@@ -48,7 +48,7 @@ const Handover = () => {
 
   const handleHandover = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/transfer/handover', {
+      const response = await fetch('http://localhost:3000/api/handover', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -86,7 +86,7 @@ const Handover = () => {
         <img
           src={searchIcon}
           alt="Search"
-          style={{ width: '20px', height: '20px', marginLeft: '310px', position: 'relative', top: '28px' }}
+          style={{ width: '20px', height: '20px', marginLeft: '180px', position: 'relative', top: '28px' }}
         />
       </button>
       <div className="form-row">

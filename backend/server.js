@@ -9,37 +9,6 @@ app.use(cors());
 app.use(express.json());
 
 
-// Route to handle user registration
-app.post('/api/registerfrom', async (req, res) => {
-    try {
-        const pool = await poolPromise;
-        const { email, password, userRole } = req.body;
-
-        if (!email || !password || !userRole) {
-            return res.status(400).send({ error: 'All fields are required' });
-        }
-
-        // Hash the password before storing it in the database
-        const hashedPassword = await bcrypt.hash(password, 10); 
-
-        const query = `
-            INSERT INTO UserDetails (Email, Password, UserRole, SysDate)
-            VALUES (@Email, @Password, @UserRole, GETDATE())
-        `;
-
-        await pool.request()
-            .input('Email', sql.VarChar(50), email)
-            .input('Password', sql.VarChar(255), hashedPassword) 
-            .input('UserRole', sql.VarChar(50), userRole)
-            .query(query);
-
-        res.status(201).send({ message: 'User registered successfully' });
-    } catch (error) {
-        console.error('Error registering user:', error.message);
-        res.status(500).send({ error: 'Server error: ' + error.message });
-    }
-});
-
 
 // Function to calculate warranty expiry date
 function calculateWarrantyExpiryDate(purchaseDate, warentyMonths) {
@@ -191,7 +160,7 @@ app.get('/api/devices/:assetId', async (req, res) => {
     try {
         const pool = await poolPromise;
         const assetId = req.params.assetId;
-
+        console.log(`check`);
         console.log(`Fetching device details for Asset ID: ${assetId}`);
         
         const query = `
@@ -254,25 +223,32 @@ app.get('/api/employees/:employeeId', async (req, res) => {
     try {
         const pool = await poolPromise;
         const employeeId = req.params.employeeId;
+        console.log(`check`);
+        console.log(`Fetching Employee details for Employee ID:' ${employeeId}`);
 
-        const query = `
+        const query1 = `
             SELECT EmployeeID, FullName, Division, Email
             FROM Employees
             WHERE EmployeeID = @EmployeeID
         `;
 
-        const result = await pool.request()
+        
+        const result1 = await pool.request()
             .input('EmployeeID', sql.VarChar(50), employeeId)
-            .query(query);
+            .query(query1);
 
-        if (result.recordset.length > 0) {
-            res.status(200).json(result.recordset[0]);
+        console.log('Query executed successfully. Result:', result1.recordset);
+
+        if (result1.recordset.length > 0) {
+            console.info('record found');
+            res.status(200).json(result1.recordset[0]);
         } else {
-            res.status(404).send({ message: 'Employee not found' });
+            res.status(404).send('Employee not found');
         }
     } catch (err) {
+        console.log(result1.recordset[1]);
         console.error('Error fetching employee details:', err.message);
-        res.status(500).send({ error: 'Server error: ' + err.message });
+        res.status(500).send('Server error');
     }
 });
 
@@ -301,46 +277,149 @@ app.get('/api/transfer/:assetId', async (req, res) => {
 });
 
 
-// Insert into TransferDetails table 
-app.post('/api/transfer/handover', async (req, res) => {
+//Insert Transfer details
+// Route to handle transfer details
+app.post('/api/Transfer', async (req, res) => {
     try {
-        const { assetId } = req.body;
-        console.log('Received assetId:', assetId); // Log the received data
+        const pool = await poolPromise;
+        const {
+        assetId,device,deviceBrand,model,serialNumber,conditionStatus,employeeId, fullName, division, email
+        } = req.body;
 
-        if (!assetId) {
-            return res.status(400).send({ error: 'Asset ID is required' });
-        }
+        console.log('Received form _data:', req.body);
 
+        const transactionquery = `
+            INSERT INTO TransferDetails (AssetID,Device,DeviceBrand,Model,SerialNumber,ConditionStatus,EmployeeID, FullName, Division, Email,issueDate,CurrentStatus)
+            VALUES (@AssetID,@Device,@DeviceBrand,@Model,@SerialNumber,@conditionStatus,@EmployeeID, @FullName, @Division, @Email,GETDATE(),'In-Use')
+        `;
+
+        // Execute the queries within a transaction
         const transaction = new sql.Transaction(pool);
         await transaction.begin();
 
-        const handoverQuery = `
-            UPDATE TransferDetails
-            SET CurrentStatus = 'Handover', HandoverDate = GETDATE()
-            WHERE AssetID = @AssetID AND CurrentStatus = 'In-Use'
-        `;
+        try {
+            // Insert into Transer Table
+            await transaction.request()
+                .input('Device', sql.VarChar(50), device)
+                .input('Model', sql.VarChar(50), model)
+                .input('DeviceBrand', sql.VarChar(50), deviceBrand)
+                .input('AssetID', sql.VarChar(50), assetId)
+                .input('SerialNumber', sql.VarChar(50), serialNumber)
+                .input('conditionStatus', sql.VarChar(50), conditionStatus)
+                .input('EmployeeID', sql.VarChar(50), employeeId)
+                .input('FullName', sql.VarChar(50), fullName)
+                .input('Division', sql.VarChar(50), division)
+                .input('Email', sql.VarChar(50), email)   
+                .query(transactionquery);
 
-        const result = await transaction.request()
-            .input('AssetID', sql.VarChar(50), assetId)
-            .query(handoverQuery);
+        console.log('Inserted into Transfer table');
+
+            // Update DeviceDetails Table
+          const updateDeviceQuery = `
+                UPDATE DeviceDetails1
+                SET CurrentStatus = 'In-Use'
+                WHERE AssetID = @AssetID  
+            `;
+
+           await transaction.request()
+                .input('AssetID', sql.VarChar(50), assetId)
+                .query(updateDeviceQuery);
+
+
+        console.log('Update into DeviceDetails table');
 
         await transaction.commit();
 
-        if (result.rowsAffected[0] === 0) {
-            throw new Error('No rows were updated. Check the AssetID and CurrentStatus.');
+
+        res.status(201).send({ message: 'Transfer added successfully' });
+        } catch (error) {
+            console.error('Error during transaction:', error.message);
+            await transaction.rollback();
+            res.status(500).send({ error: 'Server error: ' + error.message });
         }
 
-        res.status(200).send({ message: 'Handover successful!' });
     } catch (error) {
-        console.error('Error during handover:', error.message);
-        res.status(500).send({ error: 'An error occurred during the handover: ' + error.message });
+        console.error('Error adding employee:', error.message);
+        res.status(500).send({ error: 'Server error: ' + error.message });
     }
 });
 
 
 
-       
 
+
+//hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+
+
+// app.post('/api/repair', async (req, res) => {
+//     console.log("Received data:", req.body);
+//     try {
+//         const pool = await poolPromise;
+//         const { assetId, device, deviceName, model, serialNumber, repairStatus, invoiceNumber, vendor, issueDate, receivedDate, repairCost } = req.body;
+        
+//         const query = `INSERT INTO IssueTracker (AssetID, Device, DeviceBrand, Model, SerialNumber, RepairStatus, InvoiceNumber, Vendor, IssueDateToVendor, RecievedDatefromVendor, RepairCost) VALUES (@AssetID, @Device, @DeviceBrand, @Model, @SerialNumber, @RepairStatus, @InvoiceNumber, @Vendor, @IssueDateToVendor, @RecievedDatefromVendor, @RepairCost)`;
+
+//         await pool.request()
+//             .input('AssetID', sql.VarChar(50), assetId)
+//             .input('Device', sql.VarChar(50), device)
+//             .input('DeviceBrand', sql.VarChar(50), deviceName)
+//             .input('Model', sql.VarChar(50), model)
+//             .input('SerialNumber', sql.VarChar(50), serialNumber)
+//             .input('RepairStatus', sql.VarChar(50), repairStatus)
+//             .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
+//             .input('Vendor', sql.VarChar(50), vendor)
+//             .input('IssueDateToVendor', sql.Date, issueDate)
+//             .input('ReceivedDate', sql.Date, receivedDate)  // Corrected column name
+//             .input('RepairCost', sql.Decimal(10, 2), repairCost)
+//             .query(query);
+
+
+//         res.status(201).send({ message: 'Repair data added successfully' });
+//     } catch (error) {
+//         console.error('Error adding repair data:', error);
+//         res.status(500).send({ error: 'Server error: ' + error.message });
+//         console.log(req.body);  // Log the received data for debugging
+//     }
+// });
+
+
+
+app.post('/api/repair', async (req, res) => {
+    console.log("Received data:", req.body);
+    try {
+        const pool = await poolPromise;
+        const { assetId, device, deviceName, model, serialNumber, repairStatus, invoiceNumber, vendor, issueDate, receivedDate, repairCost } = req.body;
+        
+        const query = `
+    INSERT INTO IssueTracker (
+        AssetID, Device, DeviceBrand, Model, SerialNumber, RepairStatus, 
+        InvoiceNumber, Vendor, IssueDateToVendor, ReceivedDateFromVendor, RepairCost
+    ) VALUES (
+        @AssetID, @Device, @DeviceBrand, @Model, @SerialNumber, @RepairStatus, 
+        @InvoiceNumber, @Vendor, @IssueDateToVendor, @ReceivedDateFromVendor, @RepairCost
+    )`;
+
+await pool.request()
+
+    .input('AssetID', sql.VarChar(50), assetId)
+    .input('Device', sql.VarChar(50), device)
+    .input('DeviceBrand', sql.VarChar(50), deviceName)
+    .input('Model', sql.VarChar(50), model)
+    .input('SerialNumber', sql.VarChar(50), serialNumber)
+    .input('RepairStatus', sql.VarChar(50), repairStatus)
+    .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
+    .input('Vendor', sql.VarChar(50), vendor)
+    .input('IssueDateToVendor', sql.Date, issueDate)
+    .input('ReceivedDateFromVendor', sql.Date, receivedDate)
+    .input('RepairCost', sql.Decimal(10, 2), repairCost)
+    .query(query);
+
+        res.status(201).send({ message: 'Repair data added successfully' });
+    } catch (error) {
+        console.error('Failed to process repair data:', error);
+        res.status(500).send({ error: 'Server error: ' + error.message });
+    }
+});
 
 // sql.connect(config, (err) => {
 //     if (err) {
@@ -357,6 +436,7 @@ app.post('/api/transfer/handover', async (req, res) => {
 //     }
 //   });
 // Start server
+
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);

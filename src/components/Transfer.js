@@ -90,7 +90,7 @@ const Transfer = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:3000/api/transfer', {
+      const response = await fetch('http://localhost:3000/api/Transfer', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -217,7 +217,7 @@ const Transfer = () => {
             <img
               src={searchIcon}
               alt="Search"
-              style={{ width: '20px', height: '20px', marginLeft: '145px', position: 'relative', top: '28px' }}
+              style={{ width: '20px', height: '20px', marginLeft: '160px', position: 'relative', top: '28px' }}
             />
           </button>
           <label htmlFor="employeeSearch">Search by employee id</label>

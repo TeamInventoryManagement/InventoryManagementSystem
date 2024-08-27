@@ -113,3 +113,23 @@ h2 {
 .transfer-btn {
     background-color: #1f1664;
 }
+ 
+.divider-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+  }
+ 
+  .section-divider {
+    flex-grow: 1;
+    border: 0;
+    height: 1px;
+    background: #ccc;
+    margin: 0 10px;
+  }
+ 
+  .divider-text {
+    white-space: nowrap; /* Prevent text from wrapping */
+    font-weight: bold;
+  }
