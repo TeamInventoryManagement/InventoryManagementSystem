@@ -6,6 +6,7 @@ const Accessories = () => {
   const [model, setModel] = useState("");
   const [manufacturer, setManufacturer] = useState("");
   const [serialNumber, setSerialNumber] = useState("");
+  const [deviceID, setDeviceID] = useState("");
   const [assetId, setAssetId] = useState("");
   const [purchaseDate, setPurchaseDate] = useState("");
   const [storageLocation, setStorageLocation] = useState("");
@@ -24,6 +25,7 @@ const Accessories = () => {
       Model: model,
       DeviceBrand: manufacturer,
       SerialNumber: serialNumber,
+      DeviceID: deviceID,
       AssetID: assetId,
       PurchaseDate: purchaseDate,
       ConditionStatus: condition,
@@ -108,6 +110,17 @@ const Accessories = () => {
             placeholder="Serial Number"
             value={serialNumber}
             onChange={(e) => setSerialNumber(e.target.value)}
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="deviceID"> Device ID</label>
+          <input
+            id="deviceID"
+            type="text"
+            placeholder="Device ID"
+            value={deviceID}
+            onChange={(e) => setDeviceID(e.target.value)}
           />
         </div>
       </div>

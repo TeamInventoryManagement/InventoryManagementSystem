@@ -348,17 +348,49 @@ app.post('/api/Transfer', async (req, res) => {
 //access
 // POST Route to add accessory details into DeviceDetails1 table
 app.post('/api/acces', async (req, res) => {
-    const { Device, Model } = req.body;  // Example for extracting data from the request body
+    console.log("Accessories endpoint hit");
+    res.status(201).send({ message: "Data received" });
+
+
+    const {
+        Device, Model, DeviceBrand, SerialNumber, DeviceID, AssetID,
+        PurchaseDate, ConditionStatus, CurrentStatus
+    } = req.body;
+
     try {
-        // Your database logic here
-        console.log("Device:", Device);  // Logging data for debugging
-        res.status(201).json({ message: "Accessory added successfully" });
+        const pool = await poolPromise;
+        
+
+        const query = `
+            INSERT INTO DeviceDetails1 (
+                Device, Model, DeviceBrand, SerialNumber, DeviceID, AssetID,
+                PurchaseDate,
+                ConditionStatus, CurrentStatus, SysDate
+            ) VALUES (
+                @Device, @Model, @DeviceBrand, @SerialNumber, @DeviceID, @AssetID,
+                @PurchaseDate,
+                @ConditionStatus, @CurrentStatus, GETDATE()
+            )
+        `;
+
+        await pool.request()
+            .input('Device', sql.VarChar(50), Device)
+            .input('Model', sql.VarChar(50), Model)
+            .input('DeviceBrand', sql.VarChar(50), DeviceBrand)
+            .input('SerialNumber', sql.VarChar(50), SerialNumber)
+            .input('DeviceID', sql.VarChar(50), DeviceID)
+            .input('AssetID', sql.VarChar(50), AssetID)
+            .input('PurchaseDate', sql.Date, PurchaseDate)
+            .input('ConditionStatus', sql.VarChar(50), ConditionStatus)
+            .input('CurrentStatus', sql.VarChar(50), CurrentStatus)
+            .query(query);
+
+        res.status(201).send({ message: 'Accessory added successfully' });
     } catch (error) {
-        console.error("Error adding accessory:", error);
-        res.status(500).json({ error: "Internal server error" });
+        console.error('Error adding accessory:', error.message);
+        res.status(500).send({ error: 'Server error: ' + error.message });
     }
 });
-
 
 
 
