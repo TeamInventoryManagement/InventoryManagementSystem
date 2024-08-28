@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const { sql, poolPromise } = require('./db'); 
-
 const app = express();
 
 app.use(cors());
@@ -17,7 +16,7 @@ function calculateWarrantyExpiryDate(purchaseDate, warentyMonths) {
     return date.toISOString().split('T')[0]; 
 }
 
-// Route to handle device addition (inserts into both LaptopDetails and DeviceDetails)
+// Inserts laptop details into both LaptopDetails table and DeviceDetails table
 app.post('/api/LaptopDetails', async (req, res) => {
     try {
         const pool = await poolPromise;
@@ -36,7 +35,6 @@ app.post('/api/LaptopDetails', async (req, res) => {
         // Calculate the warranty expiry date
         const warrentyExpieryDate = calculateWarrantyExpiryDate(purchasedDate, warentyMonths);
 
-        // Query to insert data into LaptopDetails table
         const laptopDetailsQuery = `
             INSERT INTO LaptopDetails1 (
                 Device, Model, DeviceBrand, AssetID, Processor, LaptopId, InstalledRAM, SerialNumber,
@@ -49,7 +47,6 @@ app.post('/api/LaptopDetails', async (req, res) => {
             )
         `;
 
-        // Query to insert data into DeviceDetails table
         const deviceDetailsQuery = `
             INSERT INTO DeviceDetails1 (
                 Device, AssetID, DeviceBrand, DeviceID, Model, SerialNumber, SystemType, InvoiceNumber,
@@ -60,7 +57,6 @@ app.post('/api/LaptopDetails', async (req, res) => {
             )
         `;
 
-        // Execute the queries within a transaction
         const transaction = new sql.Transaction(pool);
         await transaction.begin();
 
@@ -120,7 +116,7 @@ app.post('/api/LaptopDetails', async (req, res) => {
 
 
 
-// Route to get laptop details by Asset ID from LaptopDetails1 table
+// Retrieve laptop details by Asset ID from LaptopDetails1 table
 app.get('/api/laptop/:assetId', async (req, res) => {
     try {
         const pool = await poolPromise;
@@ -154,8 +150,7 @@ app.get('/api/laptop/:assetId', async (req, res) => {
 });
 
 
-//Retrieve data to the transfer page
-// Route to fetch device details by Asset ID
+//Retrievedevice details from device table to the transfer page  /Tranfer page
 app.get('/api/devices/:assetId', async (req, res) => {
     try {
         const pool = await poolPromise;
@@ -187,8 +182,7 @@ app.get('/api/devices/:assetId', async (req, res) => {
 });
 
 
-//Insert Employee details
-// Route to handle employee addition
+//Insert Employee details to the employee details table /employee page
 app.post('/api/employees', async (req, res) => {
     try {
         const pool = await poolPromise;
@@ -218,7 +212,6 @@ app.post('/api/employees', async (req, res) => {
 });
 
 //Retrive employee details to the transfer form
-// Route to fetch employee details by Employee ID
 app.get('/api/employees/:employeeId', async (req, res) => {
     try {
         const pool = await poolPromise;
@@ -246,12 +239,13 @@ app.get('/api/employees/:employeeId', async (req, res) => {
             res.status(404).send('Employee not found');
         }
     } catch (err) {
-        console.log(result1.recordset[1]);
         console.error('Error fetching employee details:', err.message);
         res.status(500).send('Server error');
     }
 });
 
+
+//Retrieve device details from deviceDetails1 table to the transfer form
 app.get('/api/transfer/:assetId', async (req, res) => {
     try {
         const pool = await poolPromise;
@@ -277,7 +271,7 @@ app.get('/api/transfer/:assetId', async (req, res) => {
 });
 
 
-//Insert Transfer details
+//Insert Transfer details to the transferDetails table
 app.post('/api/Transfer', async (req, res) => {
     try {
         const pool = await poolPromise;
@@ -343,58 +337,178 @@ app.post('/api/Transfer', async (req, res) => {
     }
 });
 
-
-
-//access
-// POST Route to add accessory details into DeviceDetails1 table
-app.post('/api/acces', async (req, res) => {
-    console.log("Accessories endpoint hit");
-    res.status(201).send({ message: "Data received" });
-
-
-    const {
-        Device, Model, DeviceBrand, SerialNumber, DeviceID, AssetID,
-        PurchaseDate, ConditionStatus, CurrentStatus
-    } = req.body;
-
+//Update In-Use current status throught handover button
+app.post('/api/Handover', async (req, res) => {
     try {
         const pool = await poolPromise;
-        
+        const {
+        assetId
+        } = req.body;
 
-        const query = `
-            INSERT INTO DeviceDetails1 (
-                Device, Model, DeviceBrand, SerialNumber, DeviceID, AssetID,
-                PurchaseDate,
-                ConditionStatus, CurrentStatus, SysDate
-            ) VALUES (
-                @Device, @Model, @DeviceBrand, @SerialNumber, @DeviceID, @AssetID,
-                @PurchaseDate,
-                @ConditionStatus, @CurrentStatus, GETDATE()
-            )
-        `;
+        console.log('Received form _data:', req.body);
 
-        await pool.request()
-            .input('Device', sql.VarChar(50), Device)
-            .input('Model', sql.VarChar(50), Model)
-            .input('DeviceBrand', sql.VarChar(50), DeviceBrand)
-            .input('SerialNumber', sql.VarChar(50), SerialNumber)
-            .input('DeviceID', sql.VarChar(50), DeviceID)
-            .input('AssetID', sql.VarChar(50), AssetID)
-            .input('PurchaseDate', sql.Date, PurchaseDate)
-            .input('ConditionStatus', sql.VarChar(50), ConditionStatus)
-            .input('CurrentStatus', sql.VarChar(50), CurrentStatus)
-            .query(query);
+        // Execute the queries within a transaction
+        const transaction = new sql.Transaction(pool);
+        await transaction.begin();
 
-        res.status(201).send({ message: 'Accessory added successfully' });
+        try {
+
+            // Update DeviceDetails Table
+          const updateDeviceQuery = `
+                UPDATE TransferDetails
+                SET CurrentStatus = 'Handover',
+                HandoverDate = GETDATE()
+                WHERE AssetID = @AssetID and  CurrentStatus = 'In-Use'
+            `;
+
+           await transaction.request()
+                .input('AssetID', sql.VarChar(50), assetId)
+                .query(updateDeviceQuery);
+
+
+        console.log('Updated into DeviceDetails table');
+
+        await transaction.commit();
+
+        res.status(201).send({ message: 'Update Transfer Table record successfully' });
+        } catch (error) {
+            console.error('Error during transaction:', error.message);
+            await transaction.rollback();
+            res.status(500).send({ error: 'Server error: ' + error.message });
+        }
+
     } catch (error) {
-        console.error('Error adding accessory:', error.message);
+        console.error('Error update transfer record:', error.message);
         res.status(500).send({ error: 'Server error: ' + error.message });
     }
 });
 
 
+//Insert IssueTracker form data to the IssueTracker table
+app.post('/api/repair', async (req, res) => {
+    console.log("Received data:", req.body);
+
+    try {
+        const pool = await poolPromise;
+        const { assetId, device, deviceBrand, model, serialNumber, repairStatus, repairInvoiceNumber, vendor, 
+        issueDate, receivedDate, repairCost } = req.body;
+        
+    const repairquery = `
+    INSERT INTO IssueTracker (
+        AssetID, Device, DeviceBrand, Model, SerialNumber, RepairStatus, 
+        InvoiceNumber, Vendor, IssueDateToVendor, ReceivedDatefromVendor, RepairCost
+    ) VALUES (
+        @AssetID, @Device, @DeviceBrand, @Model, @SerialNumber, @RepairStatus, 
+        @InvoiceNumber, @Vendor, @IssueDateToVendor, @ReceivedDateFromVendor, @RepairCost
+    )`;
+
+    // Execute the queries within a transaction
+    const transaction = new sql.Transaction(pool);
+    await transaction.begin();
+
+    await transaction.request()
+        .input('AssetID', sql.VarChar(50), assetId)
+        .input('Device', sql.VarChar(50), device)
+        .input('DeviceBrand', sql.VarChar(50), deviceBrand)
+        .input('Model', sql.VarChar(50), model)
+        .input('SerialNumber', sql.VarChar(50), serialNumber)
+        .input('RepairStatus', sql.VarChar(50), repairStatus)
+        .input('InvoiceNumber', sql.VarChar(50), repairInvoiceNumber || null)
+        .input('Vendor', sql.VarChar(50), vendor || null)
+        .input('IssueDateToVendor', sql.Date, issueDate || null)
+        .input('ReceivedDateFromVendor', sql.Date, receivedDate || null)
+        .input('RepairCost', sql.Decimal(10, 2), repairCost || null)
+        .query(repairquery);
+
+        await transaction.commit();
+
+        res.status(201).send({ message: 'Repair data added successfully' });
+    } catch (error) {
+        console.error('Failed to process repair data:', error);
+        res.status(500).send({ error: 'Server error: ' + error.message });
+    }
+});
 
 
+//Insert accessories form data to the DeviceDetails1 table
+app.post('/api/acces', async (req, res) => {
+    const {
+        Device, Model, DeviceBrand, SerialNumber, AssetID,
+        PurchaseDate, ConditionStatus, CurrentStatus
+    } = req.body;
+ 
+    try {
+        const pool = await poolPromise;
+        const query = `
+            INSERT INTO DeviceDetails1 (
+                Device, Model, DeviceBrand, SerialNumber, AssetID,
+                PurchaseDate, ConditionStatus, CurrentStatus, SysDate
+            ) VALUES (
+                @Device, @Model, @DeviceBrand, @SerialNumber, @AssetID,
+                @PurchaseDate, @ConditionStatus, @CurrentStatus, GETDATE()
+            )
+        `;
+ 
+        await pool.request()
+            .input('Device', sql.VarChar(50), Device)
+            .input('Model', sql.VarChar(50), Model)
+            .input('DeviceBrand', sql.VarChar(50), DeviceBrand)
+            .input('SerialNumber', sql.VarChar(50), SerialNumber)
+            .input('AssetID', sql.VarChar(50), AssetID)
+            .input('PurchaseDate', sql.Date, PurchaseDate)
+            .input('ConditionStatus', sql.VarChar(50), ConditionStatus)
+            .input('CurrentStatus', sql.VarChar(50), CurrentStatus)
+            .query(query);
+ 
+        res.status(201).send({ message: 'Accessory added successfully' });
+    } catch (error) {
+        console.error('Error adding accessory:', error.message);
+        if (!res.headersSent) {
+            res.status(500).send({ error: 'Server error: ' + error.message });
+        }
+    }
+});
+ 
+ 
+//Insert network equipments form data to the DeviceDetails1 table
+app.post('/api/networkEquip', async (req, res) => {
+    res.status(200).send("Network equipment added successfully.");
+    const {
+        Device, Model, DeviceBrand, SerialNumber, AssetID,
+        PurchaseDate, ConditionStatus, CurrentStatus
+    } = req.body;
+ 
+    try {
+        const pool = await poolPromise;
+        const query = `
+            INSERT INTO DeviceDetails1 (
+                Device, Model, DeviceBrand, SerialNumber, AssetID,
+                PurchaseDate, ConditionStatus, CurrentStatus, SysDate
+            ) VALUES (
+                @Device, @Model, @DeviceBrand, @SerialNumber, @AssetID,
+                @PurchaseDate, @ConditionStatus, @CurrentStatus, GETDATE()
+            )
+        `;
+ 
+        await pool.request()
+            .input('Device', sql.VarChar(50), Device)
+            .input('Model', sql.VarChar(50), Model)
+            .input('DeviceBrand', sql.VarChar(50), DeviceBrand)
+            .input('SerialNumber', sql.VarChar(50), SerialNumber)
+            .input('AssetID', sql.VarChar(50), AssetID)
+            .input('PurchaseDate', sql.Date, PurchaseDate)
+            .input('ConditionStatus', sql.VarChar(50), ConditionStatus)
+            .input('CurrentStatus', sql.VarChar(50), CurrentStatus)
+            .query(query);
+ 
+        res.status(201).send({ message: 'Accessory added successfully' });
+    } catch (error) {
+        console.error('Error adding accessory:', error.message);
+        if (!res.headersSent) {
+            res.status(500).send({ error: 'Server error: ' + error.message });
+        }
+    }
+});
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

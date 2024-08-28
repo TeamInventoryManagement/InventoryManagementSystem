@@ -6,7 +6,6 @@ const Accessories = () => {
   const [model, setModel] = useState("");
   const [manufacturer, setManufacturer] = useState("");
   const [serialNumber, setSerialNumber] = useState("");
-  const [deviceID, setDeviceID] = useState("");
   const [assetId, setAssetId] = useState("");
   const [purchaseDate, setPurchaseDate] = useState("");
   const [storageLocation, setStorageLocation] = useState("");
@@ -16,7 +15,7 @@ const Accessories = () => {
   const [notes, setNotes] = useState("");
   const [documentation, setDocumentation] = useState(null);
 
-  // Function to calculate warranty expiry date
+
 
 
   const handleSave = async () => {
@@ -25,7 +24,6 @@ const Accessories = () => {
       Model: model,
       DeviceBrand: manufacturer,
       SerialNumber: serialNumber,
-      DeviceID: deviceID,
       AssetID: assetId,
       PurchaseDate: purchaseDate,
       ConditionStatus: condition,
@@ -44,10 +42,14 @@ const Accessories = () => {
         body: JSON.stringify(accessoryData),
       });
   
-      const responseData = await response.text(); // Read the response data only once
+      const responseData = await response.text();
   
       if (response.ok) {
         alert('Accessory added successfully');
+  
+        // Reset the form fields here after successful save
+        resetForm();
+  
       } else {
         console.error("HTTP error", response.status, responseData);
         alert('Failed to add accessory: ' + responseData);
@@ -57,6 +59,23 @@ const Accessories = () => {
       alert('Error adding accessory: ' + error.message);
     }
   };
+  
+  // Function to reset all form fields
+  const resetForm = () => {
+    setAccessoryType("");
+    setModel("");
+    setManufacturer("");
+    setSerialNumber("");
+    setAssetId("");
+    setPurchaseDate("");
+    setStorageLocation("");
+    setCondition("");
+    setOperationalStatus("");
+    setLastMaintenanceDate("");
+    setNotes("");
+    // Reset other states as needed
+  };
+  
   
 
  
@@ -113,16 +132,6 @@ const Accessories = () => {
           />
         </div>
 
-        <div className="form-group">
-          <label htmlFor="deviceID"> Device ID</label>
-          <input
-            id="deviceID"
-            type="text"
-            placeholder="Device ID"
-            value={deviceID}
-            onChange={(e) => setDeviceID(e.target.value)}
-          />
-        </div>
       </div>
  
       <div className="form-row">

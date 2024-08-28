@@ -1,73 +1,81 @@
 import React, { useState } from "react";
 import "./NetworkEquipment.css";
- 
+
 const NetworkEquipment = () => {
-  const [deviceType, setDeviceType] = useState("");
+  const [accessoryType, setAccessoryType] = useState("");
   const [model, setModel] = useState("");
   const [manufacturer, setManufacturer] = useState("");
   const [serialNumber, setSerialNumber] = useState("");
   const [assetId, setAssetId] = useState("");
   const [purchaseDate, setPurchaseDate] = useState("");
-  const [warrantyExpiryDate, setWarrantyExpiryDate] = useState("");
- 
-  const [macAddress, setMacAddress] = useState("");
-  const [ipAddress, setIpAddress] = useState("");
-  const [subnetMask, setSubnetMask] = useState("");
-  const [gateway, setGateway] = useState("");
-  const [dnsServers, setDnsServers] = useState("");
-  const [vlanId, setVlanId] = useState("");
- 
-  const [firmwareVersion, setFirmwareVersion] = useState("");
-  const [configurationBackup, setConfigurationBackup] = useState(null);
-  const [loginCredentials, setLoginCredentials] = useState("");
-  const [portConfiguration, setPortConfiguration] = useState("");
- 
-  const [rackLocation, setRackLocation] = useState("");
-  const [physicalAddress, setPhysicalAddress] = useState("");
-  const [installedBy, setInstalledBy] = useState("");
- 
+  const [storageLocation, setStorageLocation] = useState("");
+  const [condition, setCondition] = useState("");
   const [operationalStatus, setOperationalStatus] = useState("");
-  const [powerStatus, setPowerStatus] = useState("");
-  const [uptime, setUptime] = useState("");
   const [lastMaintenanceDate, setLastMaintenanceDate] = useState("");
- 
   const [notes, setNotes] = useState("");
   const [documentation, setDocumentation] = useState(null);
- 
-  const handleSave = () => {
-    // Logic to save the network equipment data
-    alert("Network Equipment data saved successfully!");
+
+
+
+
+  const handleSave = async () => {
+    const accessoryData = {
+      Device: accessoryType,
+      Model: model,
+      DeviceBrand: manufacturer,
+      SerialNumber: serialNumber,
+      AssetID: assetId,
+      PurchaseDate: purchaseDate,
+      ConditionStatus: condition,
+      CurrentStatus: operationalStatus,
+      StorageLocation: storageLocation,
+      LastMaintenanceDate: lastMaintenanceDate,
+      Notes: notes
+    };
+  
+    try {
+      const response = await fetch('http://localhost:3000/api/networkEquip', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(accessoryData),
+      });
+  
+      const responseData = await response.text();
+  
+      if (response.ok) {
+        alert('Accessory added successfully');
+  
+        // Reset the form fields here after successful save
+        resetForm();
+  
+      } else {
+        console.error("HTTP error", response.status, responseData);
+        alert('Failed to add accessory: ' + responseData);
+      }
+    } catch (error) {
+      console.error("Network error", error);
+      alert('Error adding accessory: ' + error.message);
+    }
   };
- 
-  const handleReset = () => {
-    // Logic to reset all form fields
-    setDeviceType("");
+  
+  // Function to reset all form fields
+  const resetForm = () => {
+    setAccessoryType("");
     setModel("");
     setManufacturer("");
     setSerialNumber("");
     setAssetId("");
     setPurchaseDate("");
-    setWarrantyExpiryDate("");
-    setMacAddress("");
-    setIpAddress("");
-    setSubnetMask("");
-    setGateway("");
-    setDnsServers("");
-    setVlanId("");
-    setFirmwareVersion("");
-    setConfigurationBackup(null);
-    setLoginCredentials("");
-    setPortConfiguration("");
-    setRackLocation("");
-    setPhysicalAddress("");
-    setInstalledBy("");
+    setStorageLocation("");
+    setCondition("");
     setOperationalStatus("");
-    setPowerStatus("");
-    setUptime("");
     setLastMaintenanceDate("");
     setNotes("");
-    setDocumentation(null);
+ 
   };
+  
  
   return (
     <div className="form-container">
@@ -75,17 +83,17 @@ const NetworkEquipment = () => {
  
       <div className="form-row">
         <div className="form-group">
-          <label htmlFor="deviceType">Device Type</label>
+          <label htmlFor="accessoryType">Accessory Type</label>
           <select
-            id="deviceType"
-            value={deviceType}
-            onChange={(e) => setDeviceType(e.target.value)}
+            id="accessoryType"
+            value={accessoryType}
+            onChange={(e) => setAccessoryType(e.target.value)}
           >
-            <option value="">Select Device Type</option>
-            <option value="Router">Router</option>
-            <option value="Switch">Switch</option>
-            <option value="Firewall">Firewall</option>
-            <option value="Access Point">Access Point</option>
+            <option value="">Select Accessory Type</option>
+            <option value="Keyboard">Keyboard</option>
+            <option value="Mouse">Mouse</option>
+            <option value="Cable">Cable</option>
+            <option value="Adapter">Adapter</option>
           </select>
         </div>
         <div className="form-group">
@@ -121,6 +129,7 @@ const NetworkEquipment = () => {
             onChange={(e) => setSerialNumber(e.target.value)}
           />
         </div>
+
       </div>
  
       <div className="form-row">
@@ -145,131 +154,33 @@ const NetworkEquipment = () => {
         </div>
       </div>
  
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="warrantyExpiryDate">Warranty Expiry Date</label>
-          <input
-            id="warrantyExpiryDate"
-            type="date"
-            value={warrantyExpiryDate}
-            onChange={(e) => setWarrantyExpiryDate(e.target.value)}
-          />
-        </div>
-      </div>
+
  
-      <h3>Network Information</h3>
+      <h3>Physical Location</h3>
  
       <div className="form-row">
         <div className="form-group">
-          <label htmlFor="macAddress">MAC Address</label>
+          <label htmlFor="storageLocation">Storage Location</label>
           <input
-            id="macAddress"
+            id="storageLocation"
             type="text"
-            placeholder="MAC Address"
-            value={macAddress}
-            onChange={(e) => setMacAddress(e.target.value)}
+            placeholder="Storage Location"
+            value={storageLocation}
+            onChange={(e) => setStorageLocation(e.target.value)}
           />
         </div>
         <div className="form-group">
-          <label htmlFor="ipAddress">IP Address</label>
-          <input
-            id="ipAddress"
-            type="text"
-            placeholder="IP Address"
-            value={ipAddress}
-            onChange={(e) => setIpAddress(e.target.value)}
-          />
-        </div>
-      </div>
- 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="subnetMask">Subnet Mask</label>
-          <input
-            id="subnetMask"
-            type="text"
-            placeholder="Subnet Mask"
-            value={subnetMask}
-            onChange={(e) => setSubnetMask(e.target.value)}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="gateway">Gateway</label>
-          <input
-            id="gateway"
-            type="text"
-            placeholder="Gateway"
-            value={gateway}
-            onChange={(e) => setGateway(e.target.value)}
-          />
-        </div>
-      </div>
- 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="dnsServers">DNS Servers</label>
-          <input
-            id="dnsServers"
-            type="text"
-            placeholder="DNS Servers"
-            value={dnsServers}
-            onChange={(e) => setDnsServers(e.target.value)}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="vlanId">VLAN ID</label>
-          <input
-            id="vlanId"
-            type="text"
-            placeholder="VLAN ID"
-            value={vlanId}
-            onChange={(e) => setVlanId(e.target.value)}
-          />
-        </div>
-      </div>
- 
-      <h3>Configuration Information</h3>
- 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="firmwareVersion">Firmware Version</label>
-          <input
-            id="firmwareVersion"
-            type="text"
-            placeholder="Firmware Version"
-            value={firmwareVersion}
-            onChange={(e) => setFirmwareVersion(e.target.value)}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="configurationBackup">Configuration Backup</label>
-          <input
-            id="configurationBackup"
-            type="file"
-            onChange={(e) => setConfigurationBackup(e.target.files[0])}
-          />
-        </div>
-      </div>
- 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="loginCredentials">Login Credentials</label>
-          <input
-            id="loginCredentials"
-            type="password"
-            placeholder="Login Credentials"
-            value={loginCredentials}
-            onChange={(e) => setLoginCredentials(e.target.value)}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="portConfiguration">Port Configuration</label>
-          <textarea
-            id="portConfiguration"
-            placeholder="Port Configuration"
-            value={portConfiguration}
-            onChange={(e) => setPortConfiguration(e.target.value)}
-          ></textarea>
+          <label htmlFor="condition">Condition</label>
+          <select
+            id="condition"
+            value={condition}
+            onChange={(e) => setCondition(e.target.value)}
+          >
+            <option value="">Select Condition</option>
+            <option value="New">New</option>
+            <option value="Used">Used</option>
+            <option value="Damaged">Damaged</option>
+          </select>
         </div>
       </div>
  
@@ -284,36 +195,10 @@ const NetworkEquipment = () => {
             onChange={(e) => setOperationalStatus(e.target.value)}
           >
             <option value="">Select Status</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
+            <option value="In Use">In Use</option>
+            <option value="In Stock">In Stock</option>
             <option value="Maintenance">Maintenance</option>
           </select>
-        </div>
-        <div className="form-group">
-          <label htmlFor="powerStatus">Power Status</label>
-          <select
-            id="powerStatus"
-            value={powerStatus}
-            onChange={(e) => setPowerStatus(e.target.value)}
-          >
-            <option value="">Select Power Status</option>
-            <option value="On">On</option>
-            <option value="Off">Off</option>
-            <option value="Standby">Standby</option>
-          </select>
-        </div>
-      </div>
- 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="uptime">Uptime</label>
-          <input
-            id="uptime"
-            type="text"
-            placeholder="Uptime"
-            value={uptime}
-            onChange={(e) => setUptime(e.target.value)}
-          />
         </div>
         <div className="form-group">
           <label htmlFor="lastMaintenanceDate">Last Maintenance Date</label>
@@ -340,15 +225,11 @@ const NetworkEquipment = () => {
         </div>
       </div>
  
-   
- 
       <div className="form-row action-buttons">
-        <button type="button" className="handover-btn">
+        <button type="button" className="save-btn" onClick={handleSave}>
           Save
         </button>
-        <button type="button" className="transfer-btn">
-          Reset
-        </button>
+
       </div>
     </div>
   );

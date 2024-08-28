@@ -55,7 +55,7 @@ const Sidebar = () => {
                     <i className="fas fa-laptop"></i>
                     <span>Laptop</span>
                 </Link>
-                <Link to="/NetworkEquipmentPage" className={`menu-item ${activeSection === 'Label' ? 'active' : ''}`} onClick={() => setActiveSection('NetworkEquipment')}>
+                <Link to="/NetworkEquipmentPage" className={`menu-item ${activeSection === 'Network Equipment' ? 'active' : ''}`} onClick={() => setActiveSection('Network Equipment')}>
                     <i className="fas fa-tag"></i>
                     <span>Network Equipment</span>
                 </Link>

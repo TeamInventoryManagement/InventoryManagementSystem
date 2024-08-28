@@ -5,15 +5,16 @@ import searchIcon from './images/Search_icon.png';
 const RepairForm = () => {
   const [device, setDevice] = useState("");
   const [assetId, setAssetId] = useState("");
-  const [deviceName, setDeviceName] = useState("");
+  const [deviceBrand, setDeviceBrand] = useState("");
   const [model, setModel] = useState("");
   const [serialNumber, setSerialNumber] = useState("");
   const [repairStatus, setRepairStatus] = useState('');
-  const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [repairInvoiceNumber, setRepairInvoiceNumber] = useState('');
   const [vendor, setVendor] = useState('');
   const [issueDate, setIssueDate] = useState('');
   const [receivedDate, setReceivedDate] = useState('');
   const [repairCost, setRepairCost] = useState('');
+  const [repairNote, setRepairNote] = useState('');
 
   useEffect(() => {
     if (assetId) {
@@ -29,7 +30,7 @@ const RepairForm = () => {
       }
       const data = await response.json();
       setDevice(data.Device);
-      setDeviceName(data.DeviceName);
+      setDeviceBrand(data.DeviceBrand);
       setModel(data.Model);
       setSerialNumber(data.SerialNumber);
     } catch (error) {
@@ -48,11 +49,11 @@ const RepairForm = () => {
         body: JSON.stringify({
           assetId,
           device,
-          deviceName,
+          deviceBrand,
           model,
           serialNumber,
           repairStatus,
-          invoiceNumber,
+          repairInvoiceNumber,
           vendor,
           issueDate,
           receivedDate,
@@ -96,8 +97,8 @@ const RepairForm = () => {
 
         <div className="form-row">
           <div className="form-group">
-            <label htmlFor="deviceName">Device Name</label>
-            <input id="deviceName" type="text" value={deviceName} readOnly />
+            <label htmlFor="deviceBrand">Device Brand</label>
+            <input id="deviceBrand" type="text" value={deviceBrand} readOnly />
           </div>
           <div className="form-group">
             <label htmlFor="assetId">Asset ID</label>
@@ -110,6 +111,7 @@ const RepairForm = () => {
             <label htmlFor="model">Model</label>
             <input id="model" type="text" value={model} readOnly />
           </div>
+
           <div className="form-group">
             <label htmlFor="serialNumber">Serial Number</label>
             <input id="serialNumber" type="text" value={serialNumber} readOnly />
@@ -122,8 +124,37 @@ const RepairForm = () => {
           <hr className="section-divider" />
         </div>
 
+
         <div className="form-row">
-          <div className="form-section">
+        <div className="form-group">
+          <label htmlFor="repairstatus">Repair Status</label>
+          <select
+            id="repairstatus"
+            value={repairStatus}
+            onChange={(e) => setRepairStatus(e.target.value)}
+          >
+            <option value="">Select Division</option>
+            <option value="Issue-Identified">Issue-Identified</option>
+            <option value="Send-to-Repair">Send-to-Repair</option>
+            <option value="Resolved">Resolved</option>
+          </select>
+        </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="RepairInvoiceNumber">Repair Invoice Number</label>
+            <input
+              id="RepairInvoiceNumber"
+              type="text"
+              placeholder='Repair Invoice Number'
+              value={repairInvoiceNumber}
+              onChange={(e) => setRepairInvoiceNumber(e.target.value)}
+              className="form-input"
+            />
+          </div>
+
+          <div className="form-group">
             <label htmlFor="vendor">Vendor</label>
             <input
               id="vendor"
@@ -136,8 +167,9 @@ const RepairForm = () => {
           </div>
         </div>
 
+
         <div className="form-row">
-          <div className="form-section date-field">
+          <div className="form-group date-field">
             <label htmlFor="issueDate">Issued Date to Vendor</label>
             <input
               id="issueDate"
@@ -147,7 +179,7 @@ const RepairForm = () => {
               className="form-input-sp"
             />
           </div>
-          <div className="form-section date-field">
+          <div className="form-group date-field">
             <label htmlFor="receivedDate">Received Date from Vendor</label>
             <input
               id="receivedDate"
@@ -160,7 +192,7 @@ const RepairForm = () => {
         </div>
 
         <div className="form-row">
-          <div className="form-section">
+          <div className="form-group">
             <label htmlFor="repairCost">Repair Cost (LKR)</label>
             <input
               id="repairCost"
@@ -171,7 +203,27 @@ const RepairForm = () => {
               className="form-input"
             />
           </div>
-          <button type="submit" className="submit-button">Update</button>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="repairNote">Repair Note</label>
+            <textarea
+              id="repairNote"
+              type="text"
+              placeholder='repair Note'
+              value={repairNote}
+              onChange={(e) => setRepairNote(e.target.value)}
+              className="form-input"
+            />
+          </div>
+        </div>
+
+
+        <div className="form-row action-buttons">
+          <button type="button" className="Add-btn" onClick={handleSubmit}>
+            Update
+          </button>
         </div>
       </form>
     </div>
