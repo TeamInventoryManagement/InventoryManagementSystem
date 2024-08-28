@@ -278,7 +278,6 @@ app.get('/api/transfer/:assetId', async (req, res) => {
 
 
 //Insert Transfer details
-// Route to handle transfer details
 app.post('/api/Transfer', async (req, res) => {
     try {
         const pool = await poolPromise;
@@ -346,96 +345,24 @@ app.post('/api/Transfer', async (req, res) => {
 
 
 
-
-
-//hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
-
-
-// app.post('/api/repair', async (req, res) => {
-//     console.log("Received data:", req.body);
-//     try {
-//         const pool = await poolPromise;
-//         const { assetId, device, deviceName, model, serialNumber, repairStatus, invoiceNumber, vendor, issueDate, receivedDate, repairCost } = req.body;
-        
-//         const query = `INSERT INTO IssueTracker (AssetID, Device, DeviceBrand, Model, SerialNumber, RepairStatus, InvoiceNumber, Vendor, IssueDateToVendor, RecievedDatefromVendor, RepairCost) VALUES (@AssetID, @Device, @DeviceBrand, @Model, @SerialNumber, @RepairStatus, @InvoiceNumber, @Vendor, @IssueDateToVendor, @RecievedDatefromVendor, @RepairCost)`;
-
-//         await pool.request()
-//             .input('AssetID', sql.VarChar(50), assetId)
-//             .input('Device', sql.VarChar(50), device)
-//             .input('DeviceBrand', sql.VarChar(50), deviceName)
-//             .input('Model', sql.VarChar(50), model)
-//             .input('SerialNumber', sql.VarChar(50), serialNumber)
-//             .input('RepairStatus', sql.VarChar(50), repairStatus)
-//             .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
-//             .input('Vendor', sql.VarChar(50), vendor)
-//             .input('IssueDateToVendor', sql.Date, issueDate)
-//             .input('ReceivedDate', sql.Date, receivedDate)  // Corrected column name
-//             .input('RepairCost', sql.Decimal(10, 2), repairCost)
-//             .query(query);
-
-
-//         res.status(201).send({ message: 'Repair data added successfully' });
-//     } catch (error) {
-//         console.error('Error adding repair data:', error);
-//         res.status(500).send({ error: 'Server error: ' + error.message });
-//         console.log(req.body);  // Log the received data for debugging
-//     }
-// });
-
-
-
-app.post('/api/repair', async (req, res) => {
-    console.log("Received data:", req.body);
+//access
+// POST Route to add accessory details into DeviceDetails1 table
+app.post('/api/acces', async (req, res) => {
+    const { Device, Model } = req.body;  // Example for extracting data from the request body
     try {
-        const pool = await poolPromise;
-        const { assetId, device, deviceName, model, serialNumber, repairStatus, invoiceNumber, vendor, issueDate, receivedDate, repairCost } = req.body;
-        
-        const query = `
-    INSERT INTO IssueTracker (
-        AssetID, Device, DeviceBrand, Model, SerialNumber, RepairStatus, 
-        InvoiceNumber, Vendor, IssueDateToVendor, ReceivedDateFromVendor, RepairCost
-    ) VALUES (
-        @AssetID, @Device, @DeviceBrand, @Model, @SerialNumber, @RepairStatus, 
-        @InvoiceNumber, @Vendor, @IssueDateToVendor, @ReceivedDateFromVendor, @RepairCost
-    )`;
-
-await pool.request()
-
-    .input('AssetID', sql.VarChar(50), assetId)
-    .input('Device', sql.VarChar(50), device)
-    .input('DeviceBrand', sql.VarChar(50), deviceName)
-    .input('Model', sql.VarChar(50), model)
-    .input('SerialNumber', sql.VarChar(50), serialNumber)
-    .input('RepairStatus', sql.VarChar(50), repairStatus)
-    .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
-    .input('Vendor', sql.VarChar(50), vendor)
-    .input('IssueDateToVendor', sql.Date, issueDate)
-    .input('ReceivedDateFromVendor', sql.Date, receivedDate)
-    .input('RepairCost', sql.Decimal(10, 2), repairCost)
-    .query(query);
-
-        res.status(201).send({ message: 'Repair data added successfully' });
+        // Your database logic here
+        console.log("Device:", Device);  // Logging data for debugging
+        res.status(201).json({ message: "Accessory added successfully" });
     } catch (error) {
-        console.error('Failed to process repair data:', error);
-        res.status(500).send({ error: 'Server error: ' + error.message });
+        console.error("Error adding accessory:", error);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 
-// sql.connect(config, (err) => {
-//     if (err) {
-//       console.error('Database connection failed: ', err);
-//     } else {
-//       console.log('Connected to database');
-//       sql.query('SELECT * FROM LaptopDetails', (err, result) => {
-//         if (err) {
-//           console.error('Error querying database: ', err);
-//         } else {
-//           console.log('Query result: ', result.recordset);
-//         }
-//       });
-//     }
-//   });
-// Start server
+
+
+
+
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

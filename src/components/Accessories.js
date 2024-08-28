@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./Accessories.css";
- 
+
 const Accessories = () => {
   const [accessoryType, setAccessoryType] = useState("");
   const [model, setModel] = useState("");
@@ -8,38 +8,55 @@ const Accessories = () => {
   const [serialNumber, setSerialNumber] = useState("");
   const [assetId, setAssetId] = useState("");
   const [purchaseDate, setPurchaseDate] = useState("");
-  const [warrantyExpiryDate, setWarrantyExpiryDate] = useState("");
- 
   const [storageLocation, setStorageLocation] = useState("");
   const [condition, setCondition] = useState("");
- 
   const [operationalStatus, setOperationalStatus] = useState("");
   const [lastMaintenanceDate, setLastMaintenanceDate] = useState("");
- 
   const [notes, setNotes] = useState("");
   const [documentation, setDocumentation] = useState(null);
- 
-  const handleSave = () => {
-    // Logic to save the accessory data
-    alert("Accessory data saved successfully!");
+
+  // Function to calculate warranty expiry date
+
+
+  const handleSave = async () => {
+    const accessoryData = {
+      Device: accessoryType,
+      Model: model,
+      DeviceBrand: manufacturer,
+      SerialNumber: serialNumber,
+      AssetID: assetId,
+      PurchaseDate: purchaseDate,
+      ConditionStatus: condition,
+      CurrentStatus: operationalStatus,
+      StorageLocation: storageLocation,
+      LastMaintenanceDate: lastMaintenanceDate,
+      Notes: notes
+    };
+  
+    try {
+      const response = await fetch('http://localhost:3000/api/acces', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(accessoryData),
+      });
+  
+      const responseData = await response.text(); // Read the response data only once
+  
+      if (response.ok) {
+        alert('Accessory added successfully');
+      } else {
+        console.error("HTTP error", response.status, responseData);
+        alert('Failed to add accessory: ' + responseData);
+      }
+    } catch (error) {
+      console.error("Network error", error);
+      alert('Error adding accessory: ' + error.message);
+    }
   };
- 
-  const handleReset = () => {
-    // Logic to reset all form fields
-    setAccessoryType("");
-    setModel("");
-    setManufacturer("");
-    setSerialNumber("");
-    setAssetId("");
-    setPurchaseDate("");
-    setWarrantyExpiryDate("");
-    setStorageLocation("");
-    setCondition("");
-    setOperationalStatus("");
-    setLastMaintenanceDate("");
-    setNotes("");
-    setDocumentation(null);
-  };
+  
+
  
   return (
     <div className="form-container">
@@ -117,17 +134,7 @@ const Accessories = () => {
         </div>
       </div>
  
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="warrantyExpiryDate">Warranty Expiry Date</label>
-          <input
-            id="warrantyExpiryDate"
-            type="date"
-            value={warrantyExpiryDate}
-            onChange={(e) => setWarrantyExpiryDate(e.target.value)}
-          />
-        </div>
-      </div>
+
  
       <h3>Physical Location</h3>
  
@@ -202,9 +209,7 @@ const Accessories = () => {
         <button type="button" className="save-btn" onClick={handleSave}>
           Save
         </button>
-        <button type="button" className="reset-btn" onClick={handleReset}>
-          Reset
-        </button>
+
       </div>
     </div>
   );
