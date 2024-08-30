@@ -14,7 +14,8 @@ const LaptopDetails = () => {
         serialNumber: '',
         systemType: '',
         invoiceNumber: '',
-        purchasedDate: '',
+        purchasedCompnay: '',
+        purchaseDate: '',
         purchasedAmount: '',
         warentyMonths: '',
         address: ''
@@ -73,7 +74,8 @@ const LaptopDetails = () => {
                 serialNumber: data.SerialNumber || '',
                 systemType: data.SystemType || '',
                 invoiceNumber: data.InvoiceNumber || '',
-                purchasedDate: data.PurchaseDate ? data.PurchaseDate.split('T')[0] : '',
+                purchasedCompnay: data.PurchasedCompnay || '',
+                purchaseDate: data.PurchaseDate ? data.PurchaseDate.split('T')[0] : '',
                 purchasedAmount: data.PurchaseAmount || '',
                 warentyMonths: data.WarentyMonths || '',
                 address: data.Address || '',
@@ -97,7 +99,8 @@ const LaptopDetails = () => {
             serialNumber: '',
             systemType: '',
             invoiceNumber: '',
-            purchasedDate: '',
+            purchasedCompnay: '',
+            purchaseDate: '',
             purchasedAmount: '',
             warentyMonths: '',
             address: ''
@@ -203,9 +206,17 @@ const LaptopDetails = () => {
                         <label>Invoice Number</label>
                         <input type="text" name="invoiceNumber" placeholder="Invoice Number" onChange={handleChange} value={formData.invoiceNumber} />
                     </div>
+
                     <div className="form-group">
+                        <label>Purchased Company</label>
+                        <input type="text" name="purchasedCompnay" placeholder="Purchased Compnay" onChange={handleChange} value={formData.purchasedCompnay} />
+                    </div>
+                </div>
+
+                <div className="form-row">
+                     <div className="form-group">
                         <label>Purchased Date</label>
-                        <input type="date" name="purchasedDate" onChange={handleChange} value={formData.purchasedDate} />
+                        <input type="date" name="purchaseDate" onChange={handleChange} value={formData.purchaseDate} />
                     </div>
                 </div>
 

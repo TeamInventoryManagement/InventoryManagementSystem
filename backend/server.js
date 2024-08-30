@@ -1,8 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const { sql, poolPromise } = require('./db'); 
 const app = express();
+require('dotenv').config();
+
 
 app.use(cors());
 app.use(express.json());
@@ -16,24 +19,47 @@ function calculateWarrantyExpiryDate(purchaseDate, warentyMonths) {
     return date.toISOString().split('T')[0]; 
 }
 
+
+// Login route
+// app.post('api/login', (req, res) => {
+//     const { email, password } = req.body;
+//     const sql = 'SELECT * FROM UserDetails WHERE Email = ?';
+//     db.query(sql, [email], (err, results) => {
+//       if (err) throw err;
+//       if (results.length > 0) {
+//         const user = results[0];
+//         bcrypt.compare(password, user.password, (err, isMatch) => {
+//           if (err) throw err;
+//           if (isMatch) {
+//             res.json({ success: true });
+//           } else {
+//             res.json({ success: false });
+//           }
+//         });
+//       } else {
+//         res.json({ success: false });
+//       }
+//     });
+//   });
+
 // Inserts laptop details into both LaptopDetails table and DeviceDetails table
 app.post('/api/LaptopDetails', async (req, res) => {
     try {
         const pool = await poolPromise;
         const {
             device, model, deviceBrand, assetId, processor, laptopId, installedRam,
-            serialNumber, systemType, invoiceNumber, purchasedDate,
+            serialNumber, systemType, invoiceNumber, purchasedCompnay, purchaseDate,
             purchasedAmount, address, warentyMonths
         } = req.body;
 
         console.log('Received form data:', req.body);
 
-        if (!device || !model || !deviceBrand || !laptopId || !serialNumber || !assetId || !warentyMonths || !purchasedDate) {
+        if (!device || !model || !deviceBrand || !laptopId || !serialNumber || !assetId || !warentyMonths || !purchaseDate) {
             return res.status(400).send({ error: 'All required fields must be provided' });
         }
 
         // Calculate the warranty expiry date
-        const warrentyExpieryDate = calculateWarrantyExpiryDate(purchasedDate, warentyMonths);
+        const warrentyExpieryDate = calculateWarrantyExpiryDate(purchaseDate, warentyMonths);
 
         const laptopDetailsQuery = `
             INSERT INTO LaptopDetails1 (
@@ -49,10 +75,10 @@ app.post('/api/LaptopDetails', async (req, res) => {
 
         const deviceDetailsQuery = `
             INSERT INTO DeviceDetails1 (
-                Device, AssetID, DeviceBrand, DeviceID, Model, SerialNumber, SystemType, InvoiceNumber,
+                Device, AssetID, DeviceBrand, DeviceID, Model, SerialNumber, SystemType, InvoiceNumber, PurchasedCompnay
                 PurchaseDate, PurchaseAmount, WarentyMonths, WarrentyExpieryDate, CurrentStatus, SysDate
             ) VALUES (
-                @Device, @AssetID, @DeviceBrand, @LaptopId, @Model, @SerialNumber, @SystemType, @InvoiceNumber,
+                @Device, @AssetID, @DeviceBrand, @LaptopId, @Model, @SerialNumber, @SystemType, @InvoiceNumber, @purchasedCompnay,
                 @PurchaseDate, @PurchaseAmount, @WarentyMonths, @WarrentyExpieryDate, 'In-Stock', GETDATE()
             )
         `;
@@ -73,7 +99,7 @@ app.post('/api/LaptopDetails', async (req, res) => {
                 .input('SerialNumber', sql.VarChar(50), serialNumber)
                 .input('SystemType', sql.VarChar(50), systemType)
                 .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
-                .input('PurchaseDate', sql.Date, purchasedDate)
+                .input('PurchaseDate', sql.Date, purchaseDate)
                 .input('PurchaseAmount', sql.Decimal(10, 2), purchasedAmount)
                 .input('Address', sql.VarChar(50), address)
                 .input('WarentyMonths', sql.Int, warentyMonths)
@@ -92,7 +118,8 @@ app.post('/api/LaptopDetails', async (req, res) => {
                 .input('SerialNumber', sql.VarChar(50), serialNumber)
                 .input('SystemType', sql.VarChar(50), systemType)
                 .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
-                .input('PurchaseDate', sql.Date, purchasedDate)
+                .input('PurchasedCompnay', sql.VarChar(50), purchasedCompnay)
+                .input('PurchaseDate', sql.Date, purchaseDate)
                 .input('PurchaseAmount', sql.Decimal(10, 2), purchasedAmount)
                 .input('WarentyMonths', sql.Int, warentyMonths)
                 .input('WarrentyExpieryDate', sql.Date, warrentyExpieryDate)
@@ -126,7 +153,7 @@ app.get('/api/laptop/:assetId', async (req, res) => {
 
         const query = `
             SELECT Device, AssetID, DeviceBrand, LaptopId, Model, SerialNumber,
-                   Processor, InstalledRAM, SystemType, InvoiceNumber, PurchaseDate,
+                   Processor, InstalledRAM, SystemType, InvoiceNumber, PurchasedCompnay, PurchaseDate,
                    PurchaseAmount, Address, WarentyMonths, WarrentyExpieryDate, SysDate
             FROM LaptopDetails1
             WHERE AssetID = @AssetID
@@ -187,30 +214,29 @@ app.post('/api/employees', async (req, res) => {
     try {
         const pool = await poolPromise;
         const { EmployeeID, FullName, Division, Email } = req.body;
-
+ 
         if (!EmployeeID || !FullName || !Division || !Email) {
             return res.status(400).send({ error: 'All fields are required' });
         }
-
+ 
         const query = `
             INSERT INTO Employees (EmployeeID, FullName, Division, Email)
             VALUES (@EmployeeID, @FullName, @Division, @Email)
         `;
-
+ 
         await pool.request()
             .input('EmployeeID', sql.VarChar(50), EmployeeID)
             .input('FullName', sql.VarChar(50), FullName)
             .input('Division', sql.VarChar(50), Division)
             .input('Email', sql.VarChar(50), Email)
             .query(query);
-
+ 
         res.status(201).send({ message: 'Employee added successfully' });
     } catch (error) {
         console.error('Error adding employee:', error.message);
         res.status(500).send({ error: 'Server error: ' + error.message });
     }
 });
-
 //Retrive employee details to the transfer form
 app.get('/api/employees/:employeeId', async (req, res) => {
     try {
@@ -430,85 +456,187 @@ app.post('/api/repair', async (req, res) => {
 });
 
 
-//Insert accessories form data to the DeviceDetails1 table
-app.post('/api/acces', async (req, res) => {
-    const {
-        Device, Model, DeviceBrand, SerialNumber, AssetID,
-        PurchaseDate, ConditionStatus, CurrentStatus
-    } = req.body;
- 
+// accessories
+app.post('/api/accessories', async (req, res) => {
     try {
         const pool = await poolPromise;
-        const query = `
-            INSERT INTO DeviceDetails1 (
-                Device, Model, DeviceBrand, SerialNumber, AssetID,
-                PurchaseDate, ConditionStatus, CurrentStatus, SysDate
+        const {
+            accessoriesType, model, deviceBrand, assetId,
+            serialNumber, invoiceNumber, purchaseDate,
+            purchasedAmount, warentyMonths
+        } = req.body;
+
+        console.log('Received form data:', req.body);
+
+
+
+        // Calculate the warranty expiry date
+        const warrentyExpieryDate = calculateWarrantyExpiryDate(purchaseDate, warentyMonths);
+
+        const accessoriesDetailsQuery = `
+            INSERT INTO Accessories (
+                Model, DeviceBrand, AssetID, AccessoriesType, SerialNumber,
+                InvoiceNumber, PurchaseDate, PurchaseAmount,
+                WarentyMonths, WarrentyExpieryDate, SysDate
             ) VALUES (
-                @Device, @Model, @DeviceBrand, @SerialNumber, @AssetID,
-                @PurchaseDate, @ConditionStatus, @CurrentStatus, GETDATE()
+                @Model, @DeviceBrand, @AssetID, @AccessoriesType, @SerialNumber,
+                @InvoiceNumber, @PurchaseDate, @PurchaseAmount,
+                @WarentyMonths, @WarrentyExpieryDate, GETDATE()
             )
         `;
- 
-        await pool.request()
-            .input('Device', sql.VarChar(50), Device)
-            .input('Model', sql.VarChar(50), Model)
-            .input('DeviceBrand', sql.VarChar(50), DeviceBrand)
-            .input('SerialNumber', sql.VarChar(50), SerialNumber)
-            .input('AssetID', sql.VarChar(50), AssetID)
-            .input('PurchaseDate', sql.Date, PurchaseDate)
-            .input('ConditionStatus', sql.VarChar(50), ConditionStatus)
-            .input('CurrentStatus', sql.VarChar(50), CurrentStatus)
-            .query(query);
- 
-        res.status(201).send({ message: 'Accessory added successfully' });
-    } catch (error) {
-        console.error('Error adding accessory:', error.message);
-        if (!res.headersSent) {
-            res.status(500).send({ error: 'Server error: ' + error.message });
+
+        const deviceDetailsQuery = `
+            INSERT INTO DeviceDetails1 (
+                AssetID, DeviceBrand, Model, SerialNumber, InvoiceNumber,
+                PurchaseDate, PurchaseAmount, WarentyMonths, WarrentyExpieryDate, CurrentStatus, SysDate
+            ) VALUES (
+                @AssetID, @DeviceBrand, @Model, @SerialNumber, @InvoiceNumber,
+                @PurchaseDate, @PurchaseAmount, @WarentyMonths, @WarrentyExpieryDate, 'In-Stock', GETDATE()
+            )
+        `;
+
+        const transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
+        try {
+            // Insert into accessories table
+            await transaction.request()
+                .input('AccessoriesType', sql.VarChar(255), accessoriesType) 
+                .input('Model', sql.VarChar(50), model)
+                .input('DeviceBrand', sql.VarChar(50), deviceBrand)
+                .input('AssetID', sql.VarChar(50), assetId)
+                .input('SerialNumber', sql.VarChar(50), serialNumber)
+                .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
+                .input('PurchaseDate', sql.Date, purchaseDate)
+                .input('PurchaseAmount', sql.Decimal(10, 2), purchasedAmount)
+                .input('WarentyMonths', sql.Int, warentyMonths)
+                .input('WarrentyExpieryDate', sql.Date, warrentyExpieryDate)
+                .query(accessoriesDetailsQuery);
+
+            console.log('Inserted into LaptopDetails table');
+
+            // Insert into DeviceDetails
+            await transaction.request()
+                .input('Model', sql.VarChar(50), model)
+                .input('DeviceBrand', sql.VarChar(50), deviceBrand)
+                .input('AssetID', sql.VarChar(50), assetId)
+                .input('AccessoryType', sql.VarChar(255), req.body.accessoryType)
+                .input('SerialNumber', sql.VarChar(50), serialNumber)
+                .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
+                .input('PurchaseDate', sql.Date, purchaseDate)
+                .input('PurchaseAmount', sql.Decimal(10, 2), purchasedAmount)
+                .input('WarentyMonths', sql.Int, warentyMonths)
+                .input('WarrentyExpieryDate', sql.Date, warrentyExpieryDate)
+                .query(deviceDetailsQuery);
+
+            console.log('Inserted into DeviceDetails table');
+
+            await transaction.commit();
+
+            res.status(201).send({ message: 'Device added successfully to both tables' });
+        } catch (error) {
+            console.error('Error during transaction, rolling back:', error.message);
+            await transaction.rollback();
+            res.status(500).send({ error: 'Error inserting data: ' + error.message });
         }
+    } catch (err) {
+        console.error('Error establishing connection or starting transaction:', err.message);
+        res.status(500).send({ error: 'Server error: ' + err.message });
     }
 });
- 
- 
-//Insert network equipments form data to the DeviceDetails1 table
-app.post('/api/networkEquip', async (req, res) => {
-    res.status(200).send("Network equipment added successfully.");
-    const {
-        Device, Model, DeviceBrand, SerialNumber, AssetID,
-        PurchaseDate, ConditionStatus, CurrentStatus
-    } = req.body;
- 
+
+// networkEquipment
+app.post('/api/networkEquipment', async (req, res) => {
     try {
         const pool = await poolPromise;
-        const query = `
-            INSERT INTO DeviceDetails1 (
-                Device, Model, DeviceBrand, SerialNumber, AssetID,
-                PurchaseDate, ConditionStatus, CurrentStatus, SysDate
+        const {
+            accessoriesType, model, deviceBrand, assetId, macID, ipAddress,
+            serialNumber, invoiceNumber, purchasedCompnay, purchaseDate,
+            purchasedAmount, warentyMonths
+        } = req.body;
+
+        console.log('Received form data:', req.body);
+
+
+
+        // Calculate the warranty expiry date
+        const warrentyExpieryDate = calculateWarrantyExpiryDate(purchaseDate, warentyMonths);
+
+        const networkEquipmentsQuery = `
+            INSERT INTO NetworkEquipments (
+                Model, DeviceBrand, AccessoriesType, AssetID, MACAddress, IPAddress, SerialNumber,
+                InvoiceNumber, PurchasedCompnay, PurchaseDate, PurchaseAmount,
+                WarentyMonths, SysDate
             ) VALUES (
-                @Device, @Model, @DeviceBrand, @SerialNumber, @AssetID,
-                @PurchaseDate, @ConditionStatus, @CurrentStatus, GETDATE()
+                @Model, @DeviceBrand, @AccessoriesType, @AssetID, @MACAddress,
+                @IPAddress, @SerialNumber,
+                @InvoiceNumber, @PurchasedCompnay, @PurchaseDate, @PurchaseAmount,
+                @WarentyMonths, GETDATE()
             )
         `;
- 
-        await pool.request()
-            .input('Device', sql.VarChar(50), Device)
-            .input('Model', sql.VarChar(50), Model)
-            .input('DeviceBrand', sql.VarChar(50), DeviceBrand)
-            .input('SerialNumber', sql.VarChar(50), SerialNumber)
-            .input('AssetID', sql.VarChar(50), AssetID)
-            .input('PurchaseDate', sql.Date, PurchaseDate)
-            .input('ConditionStatus', sql.VarChar(50), ConditionStatus)
-            .input('CurrentStatus', sql.VarChar(50), CurrentStatus)
-            .query(query);
- 
-        res.status(201).send({ message: 'Accessory added successfully' });
-    } catch (error) {
-        console.error('Error adding accessory:', error.message);
-        if (!res.headersSent) {
-            res.status(500).send({ error: 'Server error: ' + error.message });
+
+        const deviceDetailsQuery = `
+            INSERT INTO DeviceDetails1 (
+                AssetID, DeviceBrand, Model, SerialNumber, InvoiceNumber,
+                PurchaseDate, PurchaseAmount, WarentyMonths, WarrentyExpieryDate, CurrentStatus, SysDate
+            ) VALUES (
+                @AssetID, @DeviceBrand, @Model, @SerialNumber, @InvoiceNumber,
+                @PurchaseDate, @PurchaseAmount, @WarentyMonths, @WarrentyExpieryDate, 'In-Stock', GETDATE()
+            )
+        `;
+
+        const transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
+        try {
+            // Insert into networkEquipment
+            await transaction.request()
+                .input('AccessoriesType', sql.VarChar(255), accessoriesType) 
+                .input('Model', sql.VarChar(50), model)
+                .input('DeviceBrand', sql.VarChar(50), deviceBrand)
+                .input('AssetID', sql.VarChar(50), assetId)
+                .input('MACAddress', sql.VarChar(50), macID)
+                .input('IPAddress', sql.VarChar(50), ipAddress)
+                .input('SerialNumber', sql.VarChar(50), serialNumber)
+                .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
+                .input('PurchaseDate', sql.Date, purchaseDate)
+                .input('PurchasedCompnay',sql.VarChar(50), purchasedCompnay)
+                .input('PurchaseAmount', sql.Decimal(10, 2), purchasedAmount)
+                .input('WarentyMonths', sql.Int, warentyMonths)
+                .query(networkEquipmentsQuery);
+
+            console.log('Inserted into LaptopDetails table');
+
+            // Insert into DeviceDetails
+            await transaction.request()
+                .input('Model', sql.VarChar(50), model)
+                .input('DeviceBrand', sql.VarChar(50), deviceBrand)
+                .input('AssetID', sql.VarChar(50), assetId)
+                .input('SerialNumber', sql.VarChar(50), serialNumber)
+                .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
+                .input('PurchaseDate', sql.Date, purchaseDate)
+                .input('PurchaseAmount', sql.Decimal(10, 2), purchasedAmount)
+                .input('WarentyMonths', sql.Int, warentyMonths)
+                .input('WarrentyExpieryDate', sql.Date, warrentyExpieryDate)
+                .query(deviceDetailsQuery);
+
+            console.log('Inserted into DeviceDetails table');
+
+            await transaction.commit();
+
+            res.status(201).send({ message: 'Device added successfully to both tables' });
+        } catch (error) {
+            console.error('Error during transaction, rolling back:', error.message);
+            await transaction.rollback();
+            res.status(500).send({ error: 'Error inserting data: ' + error.message });
         }
+    } catch (err) {
+        console.error('Error establishing connection or starting transaction:', err.message);
+        res.status(500).send({ error: 'Server error: ' + err.message });
     }
 });
+
+
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

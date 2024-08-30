@@ -63,6 +63,10 @@ const Sidebar = () => {
                     <i className="fas fa-headphones"></i>
                     <span>Accessories</span>
                 </Link>
+                {/* <Link to="/TestingPage" className={`menu-item ${activeSection === 'Accessories' ? 'active' : ''}`} onClick={() => setActiveSection('Testing')}>
+                    <i className="fas fa-headphones"></i>
+                    <span>Accessories</span>
+                </Link> */}
 
                 <div className="section-title">Users</div>
                 <Link to="/EmployeeDetailsPage" className={`menu-item ${activeSection === 'Employees' ? 'active' : ''}`} onClick={() => setActiveSection('Employees')}>

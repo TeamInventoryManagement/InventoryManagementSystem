@@ -1,238 +1,219 @@
-import React, { useState } from "react";
-import "./NetworkEquipment.css";
+import React, { useState } from 'react';
+import './LaptopDetails.css';
+import searchIcon from './images/Search_icon.png';
 
 const NetworkEquipment = () => {
-  const [accessoryType, setAccessoryType] = useState("");
-  const [model, setModel] = useState("");
-  const [manufacturer, setManufacturer] = useState("");
-  const [serialNumber, setSerialNumber] = useState("");
-  const [assetId, setAssetId] = useState("");
-  const [purchaseDate, setPurchaseDate] = useState("");
-  const [storageLocation, setStorageLocation] = useState("");
-  const [condition, setCondition] = useState("");
-  const [operationalStatus, setOperationalStatus] = useState("");
-  const [lastMaintenanceDate, setLastMaintenanceDate] = useState("");
-  const [notes, setNotes] = useState("");
-  const [documentation, setDocumentation] = useState(null);
+    const [formData, setFormData] = useState({
+        deviceBrand: '',
+        model: '',
+        accessoriesType: '',
+        assetId: '',
+        macID: '',
+        ipAddress: '',
+        serialNumber: '',
+        invoiceNumber: '',
+        purchaseDate: '',
+        purchasedCompnay: '',
+        purchasedAmount: '',
+        warentyMonths: ''
+    });
 
+    const [searchAssetId, setSearchAssetId] = useState('');
 
-
-
-  const handleSave = async () => {
-    const accessoryData = {
-      Device: accessoryType,
-      Model: model,
-      DeviceBrand: manufacturer,
-      SerialNumber: serialNumber,
-      AssetID: assetId,
-      PurchaseDate: purchaseDate,
-      ConditionStatus: condition,
-      CurrentStatus: operationalStatus,
-      StorageLocation: storageLocation,
-      LastMaintenanceDate: lastMaintenanceDate,
-      Notes: notes
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
     };
-  
-    try {
-      const response = await fetch('http://localhost:3000/api/networkEquip', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(accessoryData),
-      });
-  
-      const responseData = await response.text();
-  
-      if (response.ok) {
-        alert('Accessory added successfully');
-  
-        // Reset the form fields here after successful save
-        resetForm();
-  
-      } else {
-        console.error("HTTP error", response.status, responseData);
-        alert('Failed to add accessory: ' + responseData);
-      }
-    } catch (error) {
-      console.error("Network error", error);
-      alert('Error adding accessory: ' + error.message);
-    }
-  };
-  
-  // Function to reset all form fields
-  const resetForm = () => {
-    setAccessoryType("");
-    setModel("");
-    setManufacturer("");
-    setSerialNumber("");
-    setAssetId("");
-    setPurchaseDate("");
-    setStorageLocation("");
-    setCondition("");
-    setOperationalStatus("");
-    setLastMaintenanceDate("");
-    setNotes("");
- 
-  };
-  
- 
-  return (
-    <div className="form-container">
-      <h2>Network Equipment</h2>
- 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="accessoryType">Accessory Type</label>
-          <select
-            id="accessoryType"
-            value={accessoryType}
-            onChange={(e) => setAccessoryType(e.target.value)}
-          >
-            <option value="">Select Accessory Type</option>
-            <option value="Keyboard">Keyboard</option>
-            <option value="Mouse">Mouse</option>
-            <option value="Cable">Cable</option>
-            <option value="Adapter">Adapter</option>
-          </select>
-        </div>
-        <div className="form-group">
-          <label htmlFor="model">Model</label>
-          <input
-            id="model"
-            type="text"
-            placeholder="Model"
-            value={model}
-            onChange={(e) => setModel(e.target.value)}
-          />
-        </div>
-      </div>
- 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="manufacturer">Manufacturer</label>
-          <input
-            id="manufacturer"
-            type="text"
-            placeholder="Manufacturer"
-            value={manufacturer}
-            onChange={(e) => setManufacturer(e.target.value)}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="serialNumber">Serial Number</label>
-          <input
-            id="serialNumber"
-            type="text"
-            placeholder="Serial Number"
-            value={serialNumber}
-            onChange={(e) => setSerialNumber(e.target.value)}
-          />
-        </div>
 
-      </div>
- 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="assetId">Asset ID</label>
-          <input
-            id="assetId"
-            type="text"
-            placeholder="Asset ID"
-            value={assetId}
-            onChange={(e) => setAssetId(e.target.value)}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="purchaseDate">Purchase Date</label>
-          <input
-            id="purchaseDate"
-            type="date"
-            value={purchaseDate}
-            onChange={(e) => setPurchaseDate(e.target.value)}
-          />
-        </div>
-      </div>
- 
+    const handleSearchChange = (e) => {
+        setSearchAssetId(e.target.value);
 
- 
-      <h3>Physical Location</h3>
- 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="storageLocation">Storage Location</label>
-          <input
-            id="storageLocation"
-            type="text"
-            placeholder="Storage Location"
-            value={storageLocation}
-            onChange={(e) => setStorageLocation(e.target.value)}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="condition">Condition</label>
-          <select
-            id="condition"
-            value={condition}
-            onChange={(e) => setCondition(e.target.value)}
-          >
-            <option value="">Select Condition</option>
-            <option value="New">New</option>
-            <option value="Used">Used</option>
-            <option value="Damaged">Damaged</option>
-          </select>
-        </div>
-      </div>
- 
-      <h3>Status and Monitoring</h3>
- 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="operationalStatus">Operational Status</label>
-          <select
-            id="operationalStatus"
-            value={operationalStatus}
-            onChange={(e) => setOperationalStatus(e.target.value)}
-          >
-            <option value="">Select Status</option>
-            <option value="In Use">In Use</option>
-            <option value="In Stock">In Stock</option>
-            <option value="Maintenance">Maintenance</option>
-          </select>
-        </div>
-        <div className="form-group">
-          <label htmlFor="lastMaintenanceDate">Last Maintenance Date</label>
-          <input
-            id="lastMaintenanceDate"
-            type="date"
-            value={lastMaintenanceDate}
-            onChange={(e) => setLastMaintenanceDate(e.target.value)}
-          />
-        </div>
-      </div>
- 
-      <h3>Notes and Documentation</h3>
- 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="notes">Notes</label>
-          <textarea
-            id="notes"
-            placeholder="Notes"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-          ></textarea>
-        </div>
-      </div>
- 
-      <div className="form-row action-buttons">
-        <button type="button" className="save-btn" onClick={handleSave}>
-          Save
-        </button>
+        // If the Asset ID field is cleared, reset the form
+        if (e.target.value === '') {
+            resetFormData();
+        }
+    };
 
-      </div>
-    </div>
-  );
+    const handleSearchClick = async () => {
+        if (!searchAssetId) {
+            alert("Please enter an Asset ID to search.");
+            return;
+        }
+
+        try {
+            console.log(`Fetching details for Asset ID: ${searchAssetId}`);
+            const response = await fetch(`http://localhost:3000/api/laptop/${searchAssetId}`);
+
+            if (!response.ok) {
+                // Check if the response is HTML instead of JSON
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("text/html")) {
+                    throw new Error('Received HTML instead of JSON');
+                }
+
+                const errorData = await response.json();
+                console.error('Error data:', errorData);
+                throw new Error(errorData.error || 'Unknown error occurred');
+            }
+
+            const data = await response.json();
+            console.log('Received data:', data); // Log the received data
+            setFormData({
+                deviceBrand: data.DeviceBrand || '',
+                model: data.Model || '',
+                assetId: data.AssetID || '',
+                macID: data.MACAddress || '',
+                ipAddress: data.IPAddress || '',
+                serialNumber: data.SerialNumber || '',
+                invoiceNumber: data.InvoiceNumber || '',
+                purchaseDate: data.PurchaseDate ? data.PurchaseDate.split('T')[0] : '',
+                purchasedCompnay: data.PurchasedCompnay || '',
+                purchasedAmount: data.PurchaseAmount || '',
+                warentyMonths: data.WarentyMonths || '',
+            });
+
+        } catch (error) {
+            console.error('Error fetching device:', error.message);
+            alert('An error occurred while fetching the device details: ' + error.message);
+        }
+    };
+
+    const resetFormData = () => {
+        setFormData({
+            deviceBrand: '',
+            model: '',
+            assetId: '',
+            macID: '',
+            ipAddress: '',
+            serialNumber: '',
+            invoiceNumber: '',
+            purchaseDate: '',
+            purchasedCompnay: '',
+            purchasedAmount: '',
+            warentyMonths: ''
+        });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        
+
+        try {
+            console.log('Submitting form data:', formData);
+            const response = await fetch('http://localhost:3000/api/networkEquipment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert(data.message);
+            } else {
+                console.error('Error response:', data);
+                alert('Error: ' + data.error);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    };
+
+    return (
+        <div className="form-container">
+
+            <h2>Network Equipments</h2><br></br>
+            <form onSubmit={handleSubmit}>
+                <div className="form-row">
+
+                <div className="form-group">
+                        <label>Accessory Type</label>
+                        <select name="accessoriesType" onChange={handleChange} value={formData.accessoriesType}>
+                            <option value="">Select Type</option>
+                            <option value="Firewalls">Firewalls</option>
+                            <option value="Servers">Servers</option>
+                        </select>
+                    </div>
+
+                    <div className="form-group">
+                        <label>Asset ID</label>
+                        <input type="text" name="assetId" placeholder="Asset ID" onChange={handleChange} value={formData.assetId} />
+                    </div>
+                </div>
+               
+                <div className="form-row">
+                    <div className="form-group">
+                        <label>Brand</label>
+                        <input type="text" name="deviceBrand" placeholder="Device Brand" onChange={handleChange} value={formData.deviceBrand} />
+                    </div>
+                    <div className="form-group">
+                        <label>Model</label>
+                        <input type="text" name="model" placeholder="Model" onChange={handleChange} value={formData.model} />
+                    </div>
+                </div>
+
+
+
+                <div className="form-row">
+                    <div className="form-group">
+                        <label>Serial Number</label>
+                        <input type="text" name="serialNumber" placeholder="Serial Number" onChange={handleChange} value={formData.serialNumber} />
+                    </div>
+                </div>
+
+
+                <div className="form-row">
+                    <div className="form-group">
+                        <label>MAC ID</label>
+                        <input type="text" name="macID" placeholder="MAC ID" onChange={handleChange} value={formData.macID} />
+                    </div>
+
+                    <div className="form-group">
+                        <label>IP Address</label>
+                        <input type="text" name="ipAddress" placeholder="IP Address" onChange={handleChange} value={formData.ipAddress} />
+                    </div>
+                </div>
+
+                <h2>Billing Details</h2>
+
+                <div className="form-row">
+                    <div className="form-group">
+                        <label>Invoice Number</label>
+                        <input type="text" name="invoiceNumber" placeholder="Invoice Number" onChange={handleChange} value={formData.invoiceNumber} />
+                    </div>
+                    <div className="form-group">
+                        <label>Purchased Date</label>
+                        <input type="date" name="purchaseDate" onChange={handleChange} value={formData.purchaseDate} />
+                    </div>
+                </div>
+
+                <div className="form-row">
+                <div className="form-group">
+                        <label>Purchased Company</label>
+                        <input type="text" name="purchasedCompnay" placeholder="Purchased Company"  onChange={handleChange} value={formData.purchasedCompnay} />
+                    </div>
+                    <div className="form-group">
+                        <label>Purchased Amount</label>
+                        <input type="text" name="purchasedAmount" placeholder="Purchased Amount" onChange={handleChange} value={formData.purchasedAmount} />
+                    </div>
+                </div>
+
+                <div className="form-row">
+                    <div className="form-group">
+                        <label>Warranty Period (Months)</label>
+                        <input type="number" name="warentyMonths" placeholder="Warranty Months" onChange={handleChange} value={formData.warentyMonths} />
+                    </div>
+                </div>
+
+                <button type="submit" className="submit-btn1">Submit</button>
+            </form>
+        </div>
+    );
 };
- 
+
 export default NetworkEquipment;

@@ -14,6 +14,7 @@ import AccessoriesPage from './pages/AccessoriesPage';
 import InUseDevicePage from './pages/InUseDevicePage';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
+import TestingPage from './pages/TestingPage';
 
 
 ReactDOM.render(
@@ -33,6 +34,7 @@ ReactDOM.render(
         <Route path="InUseDevicePage" element={<InUseDevicePage />} />
         <Route path="RegisterPage" element={<RegisterPage />} />
         <Route path="HomePage" element={<HomePage />} />
+        <Route path="TestingPage" element={<TestingPage />} />
         {/* <Route path="AccessoriesPage" element={<AccessoriesPage />} /> */}
       </Route>
     </Routes>

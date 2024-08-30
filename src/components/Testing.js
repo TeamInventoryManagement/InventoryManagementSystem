@@ -2,19 +2,17 @@ import React, { useState } from 'react';
 import './LaptopDetails.css';
 import searchIcon from './images/Search_icon.png';
 
-const Accessories = () => {
+const Testing = () => {
     const [formData, setFormData] = useState({
         deviceBrand: '',
         model: '',
         assetId: '',
-        accessoriesType: '',
         serialNumber: '',
         invoiceNumber: '',
-        purchaseDate: '',
+        purchasedDate: '',
         purchasedAmount: '',
         warentyMonths: ''
     });
-    
 
     const [searchAssetId, setSearchAssetId] = useState('');
 
@@ -64,7 +62,7 @@ const Accessories = () => {
                 assetId: data.AssetID || '',
                 serialNumber: data.SerialNumber || '',
                 invoiceNumber: data.InvoiceNumber || '',
-                purchaseDate: data.PurchaseDate ? data.PurchaseDate.split('T')[0] : '',
+                purchasedDate: data.PurchaseDate ? data.PurchaseDate.split('T')[0] : '',
                 purchasedAmount: data.PurchaseAmount || '',
                 warentyMonths: data.WarentyMonths || '',
             });
@@ -77,13 +75,12 @@ const Accessories = () => {
 
     const resetFormData = () => {
         setFormData({
-            
             deviceBrand: '',
             model: '',
             assetId: '',
             serialNumber: '',
             invoiceNumber: '',
-            purchaseDate: '',
+            purchasedDate: '',
             purchasedAmount: '',
             warentyMonths: ''
         });
@@ -96,7 +93,7 @@ const Accessories = () => {
 
         try {
             console.log('Submitting form data:', formData);
-            const response = await fetch('http://localhost:3000/api/accessories', {
+            const response = await fetch('http://localhost:3000/api/test', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -119,28 +116,29 @@ const Accessories = () => {
 
     return (
         <div className="form-container">
+            <div className="header">
+                <div className="search-container">
+                    <input
+                        type="text"
+                        placeholder="Search by Asset ID"
+                        className="search-bar"
+                        value={searchAssetId}
+                        onChange={handleSearchChange}
+                    />
+                    <button type="button" className="search-button" onClick={handleSearchClick}>
+                        <img src={searchIcon} alt="Search" style={{ width: '20px', height: '20px' }} />
+                    </button>
+                </div>
+            </div>
 
             <h2>Accessories</h2>
             <form onSubmit={handleSubmit}>
                 <div className="form-row">
-
-                    <div className="form-group">
-                        <label>Accessory Type</label>
-                        <select name="accessoriesType" onChange={handleChange} value={formData.accessoriesType}>
-                            <option value="">Select Type</option>
-                            <option value="Keyboard">Keyboard</option>
-                            <option value="Mouse">Mouse</option>
-                            <option value="Dongle">Dongle</option>
-                        </select>
-                    </div>
-
                     <div className="form-group">
                         <label>Asset ID</label>
                         <input type="text" name="assetId" placeholder="Asset ID" onChange={handleChange} value={formData.assetId} />
                     </div>
-
                 </div>
-
                
                 <div className="form-row">
                     <div className="form-group">
@@ -171,7 +169,7 @@ const Accessories = () => {
                     </div>
                     <div className="form-group">
                         <label>Purchased Date</label>
-                        <input type="date" name="purchaseDate" onChange={handleChange} value={formData.purchaseDate} />
+                        <input type="date" name="purchasedDate" onChange={handleChange} value={formData.purchasedDate} />
                     </div>
                 </div>
 
@@ -195,4 +193,4 @@ const Accessories = () => {
     );
 };
 
-export default Accessories;
+export default Testing;
