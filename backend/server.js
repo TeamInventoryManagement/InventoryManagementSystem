@@ -12,6 +12,34 @@ app.use(express.json());
 
 
 
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer <token>
+    if (!token) return res.sendStatus(401); // No token provided
+
+    jwt.verify(token, process.env.JWT_SECRET_KEY, (err, user) => {
+        if (err) {
+            console.log('Token verification failed', err);
+            return res.sendStatus(403); // Invalid token
+        }
+        req.user = user;
+        console.log('User authenticated', req.user); // Logging the authenticated user
+        next();
+    });
+}
+
+
+
+function requireRole(role) {
+    return (req, res, next) => {
+        if (req.user.role !== role) {
+            return res.status(403).send('Access denied');
+        }
+        next();
+    };
+}
+
+
 // Function to calculate warranty expiry date
 function calculateWarrantyExpiryDate(purchaseDate, warentyMonths) {
     const date = new Date(purchaseDate);
@@ -20,124 +48,132 @@ function calculateWarrantyExpiryDate(purchaseDate, warentyMonths) {
 }
 
 
-// Login route
-// app.post('api/login', (req, res) => {
-//     const { email, password } = req.body;
-//     const sql = 'SELECT * FROM UserDetails WHERE Email = ?';
-//     db.query(sql, [email], (err, results) => {
-//       if (err) throw err;
-//       if (results.length > 0) {
-//         const user = results[0];
-//         bcrypt.compare(password, user.password, (err, isMatch) => {
-//           if (err) throw err;
-//           if (isMatch) {
-//             res.json({ success: true });
-//           } else {
-//             res.json({ success: false });
-//           }
-//         });
-//       } else {
-//         res.json({ success: false });
-//       }
-//     });
-//   });
+const jwtSecretKey = process.env.JWT_SECRET || 'inventory123'; 
+
+app.post('/api/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input('email', sql.VarChar, email)
+            .query('SELECT * FROM UserDetails WHERE Email = @email');
+
+        if (result.recordset.length > 0) {
+            const user = result.recordset[0];
+            if (password === user.Password) { 
+                const token = jwt.sign({
+                    id: user.ID,
+                    role: user.UserRole
+                }, jwtSecretKey, { expiresIn: '1h' });
+
+                res.json({ message: 'Successfully logged in', token });
+            } else {
+                res.status(401).send('Authentication failed');
+            }
+        } else {
+            res.status(404).send('User not found');
+        }
+    } catch (err) {
+        console.error('SQL error', err);
+        res.status(500).send('Server error');
+    }
+});
+
+
+// Authentication Middleware
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+    if (token == null) return res.status(401).send('Token not provided');
+
+    jwt.verify(token, jwtSecretKey, (err, decoded) => {
+        if (err) {
+            console.log('JWT Error:', err.message);
+            return res.status(403).send('Invalid token');
+        }
+        req.user = decoded;
+        next();
+    });
+}
+
+
+// Authorization Middleware
+function authorizeRole(...allowedRoles) {
+    return (req, res, next) => {
+        const userRole = req.user.role.toLowerCase();
+        const allowedRolesLowercase = allowedRoles.map(role => role.toLowerCase());
+        if (!allowedRolesLowercase.includes(userRole)) {
+            return res.status(403).send('Role not permitted');
+        }
+        next();
+    };
+}
+
+  
+  
+
 
 // Inserts laptop details into both LaptopDetails table and DeviceDetails table
 app.post('/api/LaptopDetails', async (req, res) => {
+    const {
+        device, model, deviceBrand, assetId, processor, laptopId, installedRam,
+        serialNumber, systemType, invoiceNumber, purchasedCompany, purchaseDate,
+        purchasedAmount, address, warrantyMonths
+    } = req.body;
+
+    console.log('Received form data:', req.body);
+
+    if (!device || !model || !deviceBrand || !assetId || !processor || !laptopId ||
+        !installedRam || !serialNumber || !systemType || !invoiceNumber ||
+        !purchasedCompany || !purchaseDate || !purchasedAmount || !address || !warrantyMonths) {
+        return res.status(400).send({ error: 'All required fields must be provided' });
+    }
+
+    const warrantyExpiryDate = calculateWarrantyExpiryDate(purchaseDate, warrantyMonths);
+
     try {
         const pool = await poolPromise;
-        const {
-            device, model, deviceBrand, assetId, processor, laptopId, installedRam,
-            serialNumber, systemType, invoiceNumber, purchasedCompnay, purchaseDate,
-            purchasedAmount, address, warentyMonths
-        } = req.body;
-
-        console.log('Received form data:', req.body);
-
-        if (!device || !model || !deviceBrand || !laptopId || !serialNumber || !assetId || !warentyMonths || !purchaseDate) {
-            return res.status(400).send({ error: 'All required fields must be provided' });
-        }
-
-        // Calculate the warranty expiry date
-        const warrentyExpieryDate = calculateWarrantyExpiryDate(purchaseDate, warentyMonths);
+        const transaction = new sql.Transaction(pool);
+        await transaction.begin();
 
         const laptopDetailsQuery = `
             INSERT INTO LaptopDetails1 (
                 Device, Model, DeviceBrand, AssetID, Processor, LaptopId, InstalledRAM, SerialNumber,
                 SystemType, InvoiceNumber, PurchaseDate, PurchaseAmount, Address,
-                WarentyMonths, WarrentyExpieryDate, SysDate
+                WarrantyMonths, WarrantyExpiryDate, SysDate
             ) VALUES (
                 @Device, @Model, @DeviceBrand, @AssetID, @Processor, @LaptopId, @InstalledRAM, @SerialNumber,
                 @SystemType, @InvoiceNumber, @PurchaseDate, @PurchaseAmount, @Address,
-                @WarentyMonths, @WarrentyExpieryDate, GETDATE()
-            )
+                @WarrantyMonths, @WarrantyExpiryDate, GETDATE()
+            );
         `;
 
-        const deviceDetailsQuery = `
-            INSERT INTO DeviceDetails1 (
-                Device, AssetID, DeviceBrand, DeviceID, Model, SerialNumber, SystemType, InvoiceNumber, PurchasedCompnay
-                PurchaseDate, PurchaseAmount, WarentyMonths, WarrentyExpieryDate, CurrentStatus, SysDate
-            ) VALUES (
-                @Device, @AssetID, @DeviceBrand, @LaptopId, @Model, @SerialNumber, @SystemType, @InvoiceNumber, @purchasedCompnay,
-                @PurchaseDate, @PurchaseAmount, @WarentyMonths, @WarrentyExpieryDate, 'In-Stock', GETDATE()
-            )
-        `;
+        const request = new sql.Request(transaction);
+        request.input('Device', sql.VarChar, device)
+               .input('Model', sql.VarChar, model)
+               .input('DeviceBrand', sql.VarChar, deviceBrand)
+               .input('AssetID', sql.VarChar, assetId)
+               .input('Processor', sql.VarChar, processor)
+               .input('LaptopId', sql.VarChar, laptopId)
+               .input('InstalledRAM', sql.VarChar, installedRam)
+               .input('SerialNumber', sql.VarChar, serialNumber)
+               .input('SystemType', sql.VarChar, systemType)
+               .input('InvoiceNumber', sql.VarChar, invoiceNumber)
+               .input('PurchaseDate', sql.Date, new Date(purchaseDate))
+               .input('PurchaseAmount', sql.Decimal(10, 2), purchasedAmount)
+               .input('Address', sql.VarChar, address)
+               .input('WarrantyMonths', sql.Int, warrantyMonths)
+               .input('WarrantyExpiryDate', sql.Date, new Date(warrantyExpiryDate));
 
-        const transaction = new sql.Transaction(pool);
-        await transaction.begin();
+        await request.query(laptopDetailsQuery);
+        console.log('Inserted into LaptopDetails1 table');
 
-        try {
-            // Insert into LaptopDetails
-            await transaction.request()
-                .input('Device', sql.VarChar(50), device)
-                .input('Model', sql.VarChar(50), model)
-                .input('DeviceBrand', sql.VarChar(50), deviceBrand)
-                .input('AssetID', sql.VarChar(50), assetId)
-                .input('Processor', sql.VarChar(50), processor)
-                .input('LaptopId', sql.VarChar(50), laptopId)
-                .input('InstalledRAM', sql.VarChar(50), installedRam)
-                .input('SerialNumber', sql.VarChar(50), serialNumber)
-                .input('SystemType', sql.VarChar(50), systemType)
-                .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
-                .input('PurchaseDate', sql.Date, purchaseDate)
-                .input('PurchaseAmount', sql.Decimal(10, 2), purchasedAmount)
-                .input('Address', sql.VarChar(50), address)
-                .input('WarentyMonths', sql.Int, warentyMonths)
-                .input('WarrentyExpieryDate', sql.Date, warrentyExpieryDate)
-                .query(laptopDetailsQuery);
-
-            console.log('Inserted into LaptopDetails table');
-
-            // Insert into DeviceDetails
-            await transaction.request()
-                .input('Device', sql.VarChar(50), device)
-                .input('Model', sql.VarChar(50), model)
-                .input('DeviceBrand', sql.VarChar(50), deviceBrand)
-                .input('AssetID', sql.VarChar(50), assetId)
-                .input('LaptopId', sql.VarChar(50), laptopId)
-                .input('SerialNumber', sql.VarChar(50), serialNumber)
-                .input('SystemType', sql.VarChar(50), systemType)
-                .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
-                .input('PurchasedCompnay', sql.VarChar(50), purchasedCompnay)
-                .input('PurchaseDate', sql.Date, purchaseDate)
-                .input('PurchaseAmount', sql.Decimal(10, 2), purchasedAmount)
-                .input('WarentyMonths', sql.Int, warentyMonths)
-                .input('WarrentyExpieryDate', sql.Date, warrentyExpieryDate)
-                .query(deviceDetailsQuery);
-
-            console.log('Inserted into DeviceDetails table');
-
-            await transaction.commit();
-
-            res.status(201).send({ message: 'Device added successfully to both tables' });
-        } catch (error) {
-            console.error('Error during transaction, rolling back:', error.message);
-            await transaction.rollback();
-            res.status(500).send({ error: 'Error inserting data: ' + error.message });
-        }
+        await transaction.commit();
+        res.status(201).send({ message: 'Laptop details added successfully.' });
     } catch (err) {
-        console.error('Error establishing connection or starting transaction:', err.message);
-        res.status(500).send({ error: 'Server error: ' + err.message });
+        console.error('Error during transaction, rolling back:', err.message);
+        if (transaction) await transaction.rollback();
+        res.status(500).send({ error: 'Failed to insert laptop details: ' + err.message });
     }
 });
 
@@ -210,7 +246,7 @@ app.get('/api/devices/:assetId', async (req, res) => {
 
 
 //Insert Employee details to the employee details table /employee page
-app.post('/api/employees', async (req, res) => {
+app.post('/api/employees', authenticateToken, requireRole('SuperAdmin'), async (req, res) => {
     try {
         const pool = await poolPromise;
         const { EmployeeID, FullName, Division, Email } = req.body;
@@ -237,6 +273,9 @@ app.post('/api/employees', async (req, res) => {
         res.status(500).send({ error: 'Server error: ' + error.message });
     }
 });
+
+
+
 //Retrive employee details to the transfer form
 app.get('/api/employees/:employeeId', async (req, res) => {
     try {
@@ -297,117 +336,55 @@ app.get('/api/transfer/:assetId', async (req, res) => {
 });
 
 
-//Insert Transfer details to the transferDetails table
-app.post('/api/Transfer', async (req, res) => {
+app.post('/api/transfer', authenticateToken, authorizeRole(1), async (req, res) => {
+    const { assetId, device, deviceBrand, model, serialNumber, conditionStatus, newLocation, transferDate } = req.body;
+
+    // Validate the input data
+    if (!assetId || !device || !deviceBrand || !model || !serialNumber || !conditionStatus || !newLocation || !transferDate) {
+        return res.status(400).send({ error: 'All fields must be provided and valid.' });
+    }
+
     try {
         const pool = await poolPromise;
-        const {
-        assetId,device,deviceBrand,model,serialNumber,conditionStatus,employeeId, fullName, division, email
-        } = req.body;
+        const transaction = new sql.Transaction(pool);
 
-        console.log('Received form _data:', req.body);
+        await transaction.begin();
 
-        const transactionquery = `
-            INSERT INTO TransferDetails (AssetID,Device,DeviceBrand,Model,SerialNumber,ConditionStatus,EmployeeID, FullName, Division, Email,issueDate,CurrentStatus)
-            VALUES (@AssetID,@Device,@DeviceBrand,@Model,@SerialNumber,@conditionStatus,@EmployeeID, @FullName, @Division, @Email,GETDATE(),'In-Use')
+        const transferQuery = `
+            INSERT INTO TransferDetails (AssetID, Device, DeviceBrand, Model, SerialNumber, ConditionStatus, NewLocation, TransferDate)
+            VALUES (@AssetID, @Device, @DeviceBrand, @Model, @SerialNumber, @ConditionStatus, @NewLocation, @TransferDate);
         `;
 
-        // Execute the queries within a transaction
-        const transaction = new sql.Transaction(pool);
-        await transaction.begin();
+        const request = new sql.Request(transaction);
+        request.input('AssetID', sql.VarChar, assetId);
+        request.input('Device', sql.VarChar, device);
+        request.input('DeviceBrand', sql.VarChar, deviceBrand);
+        request.input('Model', sql.VarChar, model);
+        request.input('SerialNumber', sql.VarChar, serialNumber);
+        request.input('ConditionStatus', sql.VarChar, conditionStatus);
+        request.input('NewLocation', sql.VarChar, newLocation);
+        request.input('TransferDate', sql.Date, new Date(transferDate));
 
-        try {
-            // Insert into Transer Table
-            await transaction.request()
-                .input('Device', sql.VarChar(50), device)
-                .input('Model', sql.VarChar(50), model)
-                .input('DeviceBrand', sql.VarChar(50), deviceBrand)
-                .input('AssetID', sql.VarChar(50), assetId)
-                .input('SerialNumber', sql.VarChar(50), serialNumber)
-                .input('conditionStatus', sql.VarChar(50), conditionStatus)
-                .input('EmployeeID', sql.VarChar(50), employeeId)
-                .input('FullName', sql.VarChar(50), fullName)
-                .input('Division', sql.VarChar(50), division)
-                .input('Email', sql.VarChar(50), email)   
-                .query(transactionquery);
+        await request.query(transferQuery);
 
-        console.log('Inserted into Transfer table');
+        // Assuming you might want to update the current status or location of the device in another table
+        const updateDeviceStatusQuery = `
+            UPDATE DeviceDetails
+            SET CurrentStatus = 'Transferred', Location = @NewLocation
+            WHERE AssetID = @AssetID;
+        `;
 
-            // Update DeviceDetails Table
-          const updateDeviceQuery = `
-                UPDATE DeviceDetails1
-                SET CurrentStatus = 'In-Use'
-                WHERE AssetID = @AssetID  
-            `;
-
-           await transaction.request()
-                .input('AssetID', sql.VarChar(50), assetId)
-                .query(updateDeviceQuery);
-
-
-        console.log('Update into DeviceDetails table');
+        request.query(updateDeviceStatusQuery);
 
         await transaction.commit();
-
-
-        res.status(201).send({ message: 'Transfer added successfully' });
-        } catch (error) {
-            console.error('Error during transaction:', error.message);
-            await transaction.rollback();
-            res.status(500).send({ error: 'Server error: ' + error.message });
-        }
-
+        res.status(201).send({ message: 'Transfer data successfully inserted and device status updated.' });
     } catch (error) {
-        console.error('Error adding employee:', error.message);
-        res.status(500).send({ error: 'Server error: ' + error.message });
+        if (transaction) await transaction.rollback();
+        console.error('Failed to insert transfer data:', error);
+        res.status(500).send({ error: 'Failed to process transfer data: ' + error.message });
     }
 });
 
-//Update In-Use current status throught handover button
-app.post('/api/Handover', async (req, res) => {
-    try {
-        const pool = await poolPromise;
-        const {
-        assetId
-        } = req.body;
-
-        console.log('Received form _data:', req.body);
-
-        // Execute the queries within a transaction
-        const transaction = new sql.Transaction(pool);
-        await transaction.begin();
-
-        try {
-
-            // Update DeviceDetails Table
-          const updateDeviceQuery = `
-                UPDATE TransferDetails
-                SET CurrentStatus = 'Handover',
-                HandoverDate = GETDATE()
-                WHERE AssetID = @AssetID and  CurrentStatus = 'In-Use'
-            `;
-
-           await transaction.request()
-                .input('AssetID', sql.VarChar(50), assetId)
-                .query(updateDeviceQuery);
-
-
-        console.log('Updated into DeviceDetails table');
-
-        await transaction.commit();
-
-        res.status(201).send({ message: 'Update Transfer Table record successfully' });
-        } catch (error) {
-            console.error('Error during transaction:', error.message);
-            await transaction.rollback();
-            res.status(500).send({ error: 'Server error: ' + error.message });
-        }
-
-    } catch (error) {
-        console.error('Error update transfer record:', error.message);
-        res.status(500).send({ error: 'Server error: ' + error.message });
-    }
-});
 
 
 //Insert IssueTracker form data to the IssueTracker table

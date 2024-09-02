@@ -164,7 +164,7 @@ const Transfer = () => {
             type="text"
             placeholder="Value"
             value={assetId}
-            readOnly
+            
           />
         </div>
       </div>
@@ -177,7 +177,7 @@ const Transfer = () => {
             type="text"
             placeholder="Value"
             value={model}
-            readOnly
+            
           />
         </div>
       </div>
@@ -190,7 +190,7 @@ const Transfer = () => {
             type="text"
             placeholder="Value"
             value={serialNumber}
-            readOnly
+            
           />
         </div>
         <div className="status-group">

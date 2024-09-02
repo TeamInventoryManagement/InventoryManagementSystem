@@ -48,10 +48,11 @@ const EmployeeDetails = () => {
     }
  
     try {
-      const response = await fetch('http://localhost:3000/api/employees', {  // Replace 3000 with your server port
+      const response = await fetch('http://localhost:3000/api/employees', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`  // Assuming the token is stored in localStorage
         },
         body: JSON.stringify({
           EmployeeID: employeeId,
@@ -69,13 +70,19 @@ const EmployeeDetails = () => {
         setDivision('');
         setEmail('');
       } else {
-        const errorMessage = await response.text();
-        setMessage(`Failed to add employee: ${errorMessage}`);
+        const errorResponse = await response.text();  // Changed from json() to text() to handle non-JSON responses
+        try {
+          const errorJSON = JSON.parse(errorResponse);
+          setMessage(`Failed to add employee: ${errorJSON.error}`);
+        } catch {
+          setMessage(`Failed to add employee: ${errorResponse}`);
+        }
       }
     } catch (error) {
       setMessage('Error adding employee: ' + error.message);
     }
   };
+
  
   return (
     <div>

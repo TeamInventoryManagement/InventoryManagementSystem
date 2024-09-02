@@ -14,6 +14,7 @@ const config = {
     }
 };
 
+// const jwtSecretKey = process.env.JWT_SECRET || 'inventory123'; 
 
 const poolPromise = new sql.ConnectionPool(config)
     .connect()
