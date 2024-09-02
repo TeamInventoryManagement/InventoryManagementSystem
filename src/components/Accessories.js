@@ -126,8 +126,8 @@ const Accessories = () => {
 
                     <div className="form-group">
                         <label>Accessory Type</label>
-                        <select name="accessoriesType" onChange={handleChange} value={formData.accessoriesType}>
-                            <option value="">Select Type</option>
+                        <select name="accessoriesType" placeholder="Asset ID" onChange={handleChange} value={formData.accessoriesType}>
+
                             <option value="Keyboard">Keyboard</option>
                             <option value="Mouse">Mouse</option>
                             <option value="Dongle">Dongle</option>

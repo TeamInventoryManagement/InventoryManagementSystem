@@ -49,6 +49,7 @@ function calculateWarrantyExpiryDate(purchaseDate, warentyMonths) {
 
 
 const jwtSecretKey = process.env.JWT_SECRET || 'inventory123'; 
+const tokenExpiration = '3m'; 
 
 app.post('/api/login', async (req, res) => {
     try {
@@ -57,15 +58,15 @@ app.post('/api/login', async (req, res) => {
         const result = await pool.request()
             .input('email', sql.VarChar, email)
             .query('SELECT * FROM UserDetails WHERE Email = @email');
-
+ 
         if (result.recordset.length > 0) {
             const user = result.recordset[0];
-            if (password === user.Password) { 
+            if (password === user.Password) {
                 const token = jwt.sign({
                     id: user.ID,
                     role: user.UserRole
                 }, jwtSecretKey, { expiresIn: '1h' });
-
+ 
                 res.json({ message: 'Successfully logged in', token });
             } else {
                 res.status(401).send('Authentication failed');
@@ -79,22 +80,22 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-
 // Authentication Middleware
 function authenticateToken(req, res, next) {
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1];
-    if (token == null) return res.status(401).send('Token not provided');
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+        return res.status(401).send('Token not provided');
+    }
 
     jwt.verify(token, jwtSecretKey, (err, decoded) => {
         if (err) {
-            console.log('JWT Error:', err.message);
             return res.status(403).send('Invalid token');
         }
         req.user = decoded;
         next();
     });
 }
+
 
 
 // Authorization Middleware
@@ -438,7 +439,7 @@ app.post('/api/accessories', async (req, res) => {
     try {
         const pool = await poolPromise;
         const {
-            accessoriesType, model, deviceBrand, assetId,
+            accessoriesType, device, model, deviceBrand, assetId,
             serialNumber, invoiceNumber, purchaseDate,
             purchasedAmount, warentyMonths
         } = req.body;
@@ -464,10 +465,10 @@ app.post('/api/accessories', async (req, res) => {
 
         const deviceDetailsQuery = `
             INSERT INTO DeviceDetails1 (
-                AssetID, DeviceBrand, Model, SerialNumber, InvoiceNumber,
+                AssetID, DeviceBrand, Device, Model, SerialNumber, InvoiceNumber,
                 PurchaseDate, PurchaseAmount, WarentyMonths, WarrentyExpieryDate, CurrentStatus, SysDate
             ) VALUES (
-                @AssetID, @DeviceBrand, @Model, @SerialNumber, @InvoiceNumber,
+                @AssetID, @DeviceBrand, @AccessoriesType, @Model, @SerialNumber, @InvoiceNumber,
                 @PurchaseDate, @PurchaseAmount, @WarentyMonths, @WarrentyExpieryDate, 'In-Stock', GETDATE()
             )
         `;
@@ -497,7 +498,7 @@ app.post('/api/accessories', async (req, res) => {
                 .input('Model', sql.VarChar(50), model)
                 .input('DeviceBrand', sql.VarChar(50), deviceBrand)
                 .input('AssetID', sql.VarChar(50), assetId)
-                .input('AccessoryType', sql.VarChar(255), req.body.accessoryType)
+                .input('Device', sql.VarChar(255), device)
                 .input('SerialNumber', sql.VarChar(50), serialNumber)
                 .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
                 .input('PurchaseDate', sql.Date, purchaseDate)
@@ -610,6 +611,162 @@ app.post('/api/networkEquipment', async (req, res) => {
     } catch (err) {
         console.error('Error establishing connection or starting transaction:', err.message);
         res.status(500).send({ error: 'Server error: ' + err.message });
+    }
+});
+
+
+
+//Chart.js
+app.get('/api/totalDevicesByBrand', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        const query = `
+            SELECT DeviceBrand, COUNT(*) as TotalDevices
+            FROM DeviceDetails1
+            where device= 'Laptop'
+            GROUP BY DeviceBrand
+        `;
+        const result = await pool.request().query(query);
+        res.status(200).json(result.recordset);
+    } catch (err) {
+        console.error('Error fetching data:', err);
+        res.status(500).send({ error: 'Error fetching data: ' + err.message });
+    }
+});
+ 
+app.get('/api/countByStatus', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        const query = `
+            SELECT CurrentStatus, COUNT(*) as count
+            FROM DeviceDetails1
+            where device= 'Laptop'
+            GROUP BY CurrentStatus
+        `;
+        const result = await pool.request().query(query);
+        res.status(200).json(result.recordset);
+    } catch (err) {
+        console.error('Error fetching data:', err.message);
+        res.status(500).send({ error: 'Error fetching data: ' + err.message });
+    }
+});
+ 
+app.get('/api/devicesCount', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        const query = `
+             SELECT device, COUNT(*) as count
+            FROM DeviceDetails1
+            where device not in ('Laptop')
+            GROUP BY device`;
+               
+        const result = await pool.request().query(query);
+        res.status(200).json(result.recordset);
+    } catch (err) {
+        console.error('Error fetching data:', err.message);
+        res.status(500).send({ error: 'Error fetching data: ' + err.message });
+    }
+});
+ 
+app.get('/api/conditionStatus', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        const query = `
+           SELECT ConditionStatus, COUNT(*) as TotalCondition
+            FROM DeviceDetails1
+            where device= 'Laptop'
+            GROUP BY ConditionStatus`;
+               
+        const result = await pool.request().query(query);
+        res.status(200).json(result.recordset);
+    } catch (err) {
+        console.error('Error fetching data:', err.message);
+        res.status(500).send({ error: 'Error fetching data: ' + err.message });
+    }
+});
+ 
+ 
+app.get('/api/totalLaptopCount', async (req, res) => {
+    try {
+        // Assuming `poolPromise` is your SQL connection pool promise
+        const pool = await poolPromise;
+       
+        // The SQL query to count laptops
+        const query = `
+            SELECT COUNT(*) AS count
+            FROM DeviceDetails1
+            WHERE device = 'Laptop'`;
+       
+        // Execute the query
+        const result = await pool.request().query(query);
+       
+        // Respond with the count of laptops
+        res.status(200).json(result.recordset[0]);
+    } catch (err) {
+        console.error('Error fetching total laptop count:', err.message);
+        res.status(500).send({ error: 'Error fetching total laptop count: ' + err.message });
+    }
+});
+ 
+  app.get('/api/totalDevicesCount', async (req, res) => {
+    try {
+        // Assuming `poolPromise` is your SQL connection pool promise
+        const pool = await poolPromise;
+       
+        // The SQL query to count laptops
+        const query = `
+            SELECT COUNT(*) AS count FROM DeviceDetails1`;
+       
+        // Execute the query
+        const result = await pool.request().query(query);
+       
+        // Respond with the count of laptops
+        res.status(200).json(result.recordset[0]);
+    } catch (err) {
+        console.error('Error fetching total laptop count:', err.message);
+        res.status(500).send({ error: 'Error fetching total laptop count: ' + err.message });
+    }
+});
+ 
+ 
+app.get('/api/totalAccesoriesCount', async (req, res) => {
+    try {
+        // Assuming `poolPromise` is your SQL connection pool promise
+        const pool = await poolPromise;
+       
+        // The SQL query to count laptops
+        const query = `
+            SELECT COUNT(*) AS count FROM Accessories`;
+       
+        // Execute the query
+        const result = await pool.request().query(query);
+       
+        // Respond with the count of laptops
+        res.status(200).json(result.recordset[0]);
+    } catch (err) {
+        console.error('Error fetching total laptop count:', err.message);
+        res.status(500).send({ error: 'Error fetching total laptop count: ' + err.message });
+    }
+});
+ 
+ 
+app.get('/api/totalNetworkEquipments', async (req, res) => {
+    try {
+        // Assuming `poolPromise` is your SQL connection pool promise
+        const pool = await poolPromise;
+       
+        // The SQL query to count laptops
+        const query = `
+            SELECT COUNT(*) AS count FROM NetworkEquipments`;
+       
+        // Execute the query
+        const result = await pool.request().query(query);
+       
+        // Respond with the count of laptops
+        res.status(200).json(result.recordset[0]);
+    } catch (err) {
+        console.error('Error fetching total laptop count:', err.message);
+        res.status(500).send({ error: 'Error fetching total laptop count: ' + err.message });
     }
 });
 

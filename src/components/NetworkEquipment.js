@@ -61,6 +61,7 @@ const NetworkEquipment = () => {
             const data = await response.json();
             console.log('Received data:', data); // Log the received data
             setFormData({
+                accessoriesType: data.AccessoriesType || '',
                 deviceBrand: data.DeviceBrand || '',
                 model: data.Model || '',
                 assetId: data.AssetID || '',
