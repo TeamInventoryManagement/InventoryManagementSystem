@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import './LaptopDetails.css';
 import searchIcon from './images/Search_icon.png';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import Button from '@mui/material/Button';
+import LoadingButton from '@mui/lab/LoadingButton';
+import SaveIcon from '@mui/icons-material/Save';
+import DescriptionAlerts from "./Alerts.js";
 
 const LaptopDetails = () => {
     const [formData, setFormData] = useState({
@@ -14,14 +19,14 @@ const LaptopDetails = () => {
         serialNumber: '',
         systemType: '',
         invoiceNumber: '',
-        purchasedCompnay: '',
-        purchaseDate: '',
+        purchasedDate: '',
         purchasedAmount: '',
         warentyMonths: '',
         address: ''
     });
 
     const [searchAssetId, setSearchAssetId] = useState('');
+    const [alert, setAlert] = useState({ severity: '', title: '', message: '' });
 
     const handleChange = (e) => {
         setFormData({
@@ -41,7 +46,8 @@ const LaptopDetails = () => {
 
     const handleSearchClick = async () => {
         if (!searchAssetId) {
-            alert("Please enter an Asset ID to search.");
+            //alert("Please enter an Asset ID to search.");
+            setAlert({ severity: 'info', title: 'Info', message: 'Please enter an Asset ID to search' });
             return;
         }
 
@@ -74,8 +80,7 @@ const LaptopDetails = () => {
                 serialNumber: data.SerialNumber || '',
                 systemType: data.SystemType || '',
                 invoiceNumber: data.InvoiceNumber || '',
-                purchasedCompnay: data.PurchasedCompnay || '',
-                purchaseDate: data.PurchaseDate ? data.PurchaseDate.split('T')[0] : '',
+                purchasedDate: data.PurchaseDate ? data.PurchaseDate.split('T')[0] : '',
                 purchasedAmount: data.PurchaseAmount || '',
                 warentyMonths: data.WarentyMonths || '',
                 address: data.Address || '',
@@ -83,7 +88,8 @@ const LaptopDetails = () => {
 
         } catch (error) {
             console.error('Error fetching device:', error.message);
-            alert('An error occurred while fetching the device details: ' + error.message);
+            //alert('An error occurred while fetching the device details: ' + error.message);
+            setAlert({ severity: 'error', title: 'Error', message: 'An error occurred while fetching the device details' });
         }
     };
 
@@ -99,8 +105,7 @@ const LaptopDetails = () => {
             serialNumber: '',
             systemType: '',
             invoiceNumber: '',
-            purchasedCompnay: '',
-            purchaseDate: '',
+            purchasedDate: '',
             purchasedAmount: '',
             warentyMonths: '',
             address: ''
@@ -121,22 +126,99 @@ const LaptopDetails = () => {
             });
 
             const data = await response.json();
+            console.log(data);
             if (response.ok) {
-                alert(data.message);
+                //alert(data.message);
+                setAlert({ severity: 'success', title: 'Success', message: 'Employee Added successfully' });
             } else {
                 console.error('Error response:', data);
-                alert('Error: ' + data.error);
+                //alert('Error: ' + data.error);
+                setAlert({ severity: 'error', title: 'Error', message: data.error });
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('An error occurred. Please try again.');
+            //alert('An error occurred. Please try again.');
+            setAlert({ severity: 'error', title: 'Error', message: 'An error occurred. Please try again' });
         }
     };
 
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+
+        try {
+            console.log('Submitting form data:', formData);
+            const response = await fetch('http://localhost:3000/api/LaptopUpdate', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+            // const data1 =  response.json();
+            
+            if (response.ok) {
+                console.log("checking:", data);
+                //alert(data.message);
+                setAlert({ severity: 'success', title: 'Success', message: 'ok' });
+            } else {
+                console.error('Error response:', data);
+                //alert('Error: ' + data.error);
+                setAlert({ severity: 'error', title: 'Error', message: data.error });
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            //alert('An error occurred. Please try again.');
+            setAlert({ severity: 'error', title: 'Error', message: 'An error occurred. Please try again' });
+        }
+    };
+
+
+    const handleDelete = async (e) => {
+        e.preventDefault();
+
+        try {
+            console.log('Submitting form data:', formData);
+            const response = await fetch('http://localhost:3000/api/LaptopDelete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                //alert(data.message);
+                setAlert({ severity: 'success', title: 'Success', message: 'Deleted Laptop Details Successfully'});
+            } else {
+                console.error('Error response:', data);
+                //alert('Error: ' + data.error);
+                setAlert({ severity: 'error', title: 'Error', message: data.error });
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            //alert('An error occurred. Please try again.');
+            setAlert({ severity: 'error', title: 'Error', message: 'An error occurred. Please try again' });
+        }
+    };
+
+
+
+
     return (
+    <div>
+            <div>
+                    {alert.message && (
+                    <DescriptionAlerts
+                    severity={alert.severity}
+                    title={alert.title}
+                    message={alert.message} />)}
+            </div>
         <div className="form-container">
-            <div className="header">
-                <div className="search-container">
+        <div className="header">
+            <div className="search-container">
                     <input
                         type="text"
                         placeholder="Search by Asset ID"
@@ -148,6 +230,14 @@ const LaptopDetails = () => {
                         <img src={searchIcon} alt="Search" style={{ width: '20px', height: '20px' }} />
                     </button>
                 </div>
+                <ButtonGroup variant="outlined" aria-label="Loading button group">
+                <Button onClick={handleSubmit}>+ Add Device</Button>
+                <Button onClick={handleUpdate}>! Update Device</Button>
+                <Button onClick={handleDelete}>- Delete Device</Button>
+                <LoadingButton loading loadingPosition="start" startIcon={<SaveIcon />}>
+                    Save
+                </LoadingButton>
+                </ButtonGroup>
             </div>
 
             <h2>Device Specifications</h2>
@@ -155,7 +245,8 @@ const LaptopDetails = () => {
                 <div className="form-row">
                     <div className="form-group">
                         <label>Asset ID</label>
-                        <input type="text" name="assetId" placeholder="Asset ID" onChange={handleChange} value={formData.assetId} />
+                        <input type="text" name="assetId" placeholder="Asset ID" 
+                        onChange={handleChange} value={formData.assetId} />
                     </div>
                 </div>
                
@@ -206,17 +297,9 @@ const LaptopDetails = () => {
                         <label>Invoice Number</label>
                         <input type="text" name="invoiceNumber" placeholder="Invoice Number" onChange={handleChange} value={formData.invoiceNumber} />
                     </div>
-
                     <div className="form-group">
-                        <label>Purchased Company</label>
-                        <input type="text" name="purchasedCompnay" placeholder="Purchased Compnay" onChange={handleChange} value={formData.purchasedCompnay} />
-                    </div>
-                </div>
-
-                <div className="form-row">
-                     <div className="form-group">
                         <label>Purchased Date</label>
-                        <input type="date" name="purchaseDate" onChange={handleChange} value={formData.purchaseDate} />
+                        <input type="date" name="purchasedDate" onChange={handleChange} value={formData.purchasedDate} />
                     </div>
                 </div>
 
@@ -241,9 +324,11 @@ const LaptopDetails = () => {
                     </div>
                 </div>
 
-                <button type="submit" className="submit-btn1">Submit</button>
+                <button type="submit" className="submit-btn1" onClick={handleSubmit}>Add Device</button>
+                <button type="submit" className="submit-btn1">Update</button>
             </form>
         </div>
+    </div>
     );
 };
 

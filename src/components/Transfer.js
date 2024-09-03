@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./TransferHandover.css";
 import searchIcon from './images/Search_icon.png';
+import ColorChips from "./Chips.js";
 
 const Transfer = () => {
   const [device, setDevice] = useState("");
@@ -112,6 +113,7 @@ const Transfer = () => {
     }
   };
 
+
   return (
     <div className="form-container">
       <button type="submit" className="search-button" style={{ width: '20px', height: '20px', marginLeft: '310px', position: 'relative', top: '28px' }}>
@@ -164,7 +166,7 @@ const Transfer = () => {
             type="text"
             placeholder="Value"
             value={assetId}
-            
+            readOnly
           />
         </div>
       </div>
@@ -177,7 +179,7 @@ const Transfer = () => {
             type="text"
             placeholder="Value"
             value={model}
-            
+            readOnly
           />
         </div>
       </div>
@@ -190,7 +192,7 @@ const Transfer = () => {
             type="text"
             placeholder="Value"
             value={serialNumber}
-            
+            readOnly
           />
         </div>
         <div className="status-group">
@@ -198,9 +200,8 @@ const Transfer = () => {
             <span className="material-symbols-outlined">keyboard_command_key</span>
             <label className="status-label">{conditionStatus}</label>
           </div>
-          <div className="status-label">
-            <span className="material-symbols-outlined">keyboard_command_key</span>
-            <label className="status-label">{currentStatus}</label>
+          <div>
+          <ColorChips label={currentStatus} />
           </div>
         </div>
       </div>

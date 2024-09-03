@@ -8,7 +8,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [isLoginSuccess, setIsLoginSuccess] = useState(null); 
+  const [isLoginSuccess, setIsLoginSuccess] = useState(null); // New state for login success
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
