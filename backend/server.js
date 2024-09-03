@@ -458,73 +458,91 @@ app.get('/api/transfer/:assetId', async (req, res) => {
 });
 
 
+
 //Insert Transfer details
 // Route to handle transfer details
 app.post('/api/Transfer', async (req, res) => {
     try {
         const pool = await poolPromise;
         const {
-        assetId,device,deviceBrand,model,serialNumber,conditionStatus,employeeId, fullName, division, email
+            assetId, device, deviceBrand, model, serialNumber, conditionStatus, employeeId, fullName, division, email
         } = req.body;
 
-        console.log('Received form _data:', req.body);
+        console.log('Received form data:', req.body);
 
-        const transactionquery = `
-            INSERT INTO TransferDetails (AssetID,Device,DeviceBrand,Model,SerialNumber,ConditionStatus,EmployeeID, FullName, Division, Email,issueDate,CurrentStatus)
-            VALUES (@AssetID,@Device,@DeviceBrand,@Model,@SerialNumber,@conditionStatus,@EmployeeID, @FullName, @Division, @Email,GETDATE(),'In-Use')
-        `;
-
-        // Execute the queries within a transaction
         const transaction = new sql.Transaction(pool);
         await transaction.begin();
 
         try {
-            // Insert into Transer Table
-            await transaction.request()
-                .input('Device', sql.VarChar(50), device)
-                .input('Model', sql.VarChar(50), model)
-                .input('DeviceBrand', sql.VarChar(50), deviceBrand)
+            // Check if there's already an 'In-Use' record for this AssetID
+            const checkQuery = `
+                SELECT COUNT(*) AS count 
+                FROM TransferDetails 
+                WHERE AssetID = @AssetID AND CurrentStatus = 'In-Use'
+            `;
+
+            const checkResult = await transaction.request()
                 .input('AssetID', sql.VarChar(50), assetId)
+                .query(checkQuery);
+
+            const inUseCount = checkResult.recordset[0].count;
+
+            if (inUseCount > 0) {
+                await transaction.rollback();
+                return res.status(400).send({ error: 'This asset is already marked as "In-Use" in the Transfer table.' });
+            }
+
+            // Insert into TransferDetails table
+            const insertQuery = `
+                INSERT INTO TransferDetails 
+                (AssetID, Device, DeviceBrand, Model, SerialNumber, ConditionStatus, EmployeeID, FullName, Division, Email, issueDate, CurrentStatus)
+                VALUES 
+                (@AssetID, @Device, @DeviceBrand, @Model, @SerialNumber, @ConditionStatus, @EmployeeID, @FullName, @Division, @Email, GETDATE(), 'In-Use')
+            `;
+
+            await transaction.request()
+                .input('AssetID', sql.VarChar(50), assetId)
+                .input('Device', sql.VarChar(50), device)
+                .input('DeviceBrand', sql.VarChar(50), deviceBrand)
+                .input('Model', sql.VarChar(50), model)
                 .input('SerialNumber', sql.VarChar(50), serialNumber)
-                .input('conditionStatus', sql.VarChar(50), conditionStatus)
+                .input('ConditionStatus', sql.VarChar(50), conditionStatus)
                 .input('EmployeeID', sql.VarChar(50), employeeId)
                 .input('FullName', sql.VarChar(50), fullName)
                 .input('Division', sql.VarChar(50), division)
-                .input('Email', sql.VarChar(50), email)   
-                .query(transactionquery);
+                .input('Email', sql.VarChar(50), email)
+                .query(insertQuery);
 
-        console.log('Inserted into Transfer table');
+            console.log('Inserted into Transfer table');
 
-            // Update DeviceDetails Table
-          const updateDeviceQuery = `
+            // Update DeviceDetails table
+            const updateDeviceQuery = `
                 UPDATE DeviceDetails1
                 SET CurrentStatus = 'In-Use'
                 WHERE AssetID = @AssetID  
             `;
 
-           await transaction.request()
+            await transaction.request()
                 .input('AssetID', sql.VarChar(50), assetId)
                 .query(updateDeviceQuery);
 
+            console.log('Updated DeviceDetails table');
 
-        console.log('Update into DeviceDetails table');
+            await transaction.commit();
 
-        await transaction.commit();
-
-
-        res.status(201).send({ message: 'Transfer added successfully' });
+            res.status(201).send({ message: 'Transfer added successfully' });
         } catch (error) {
             console.error('Error during transaction:', error.message);
             await transaction.rollback();
             res.status(500).send({ error: 'Server error: ' + error.message });
         }
-
     } catch (error) {
-        console.error('Error adding employee:', error.message);
+        console.error('Error adding transfer:', error.message);
         res.status(500).send({ error: 'Server error: ' + error.message });
     }
 });
 
+ 
 
 app.post('/api/Handover', async (req, res) => {
     try {
