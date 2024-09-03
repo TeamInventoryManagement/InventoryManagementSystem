@@ -1,85 +1,83 @@
 .login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f5f5f5;
-  }
-  
-  form {
-    background-color: white;
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
-    width: 300px;
-    text-align: center;
-  }
-  
-  .header-logo {
-    width: 100px; /* Adjust width as needed */
-    margin-bottom: 30px;
-  }
-  
-  /* Styling for each form group */
-  .form-group {
-    margin-bottom: 20px;
-    text-align: left;
-  }
-  
-  /* Labels for input fields */
-  .form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-    color: #333;
-  }
-  
-  /* Input fields */
-  .form-group input,
-  .form-group select {
-    width: 100%;
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-    box-sizing: border-box;
-  }
-  
-  .login-button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff; 
-    color: white;
-    border: none;
-    border-radius: 4px; 
-    cursor: pointer;
-    font-size: 16px;
-    margin-bottom: 10px;
-  }
-  
-  .login-button:hover {
-    background-color: #0056b3; 
-  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f5f5f5;
+}
 
-
-  
-.message {
+form1 {
+  background-color: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+  width: 300px;
   text-align: center;
-  margin-top: 20px;
+}
+
+.header-logo {
+  width: 100px; /* Adjust width as needed */
+  margin-bottom: 30px;
+}
+
+/* Styling for each form group */
+.form1-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+/* Labels for input fields */
+.form1-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Input fields */
+.form1-group input,
+.form1-group select {
+  width: 100%;
   padding: 10px;
   border-radius: 4px;
+  border: 1px solid #ccc;
   font-size: 14px;
-  color: #ffffff; 
+  box-sizing: border-box;
+}
+
+.login-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.login-button:hover {
+  background-color: #0056b3;
+}
+
+
+
+.message {
+text-align: center;
+margin-top: 20px;
+padding: 10px;
+border-radius: 4px;
+font-size: 14px;
+color: #ffffff;
 }
 
 
 .error {
-  background-color: #d9534f; 
+background-color: #d9534f;
 }
 
 /* Specific styles for success messages */
 .success {
-  background-color: #5cb85c; /* Green background for successful actions */
+background-color: #5cb85c; /* Green background for successful actions */
 }
-
-  

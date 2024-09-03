@@ -17,31 +17,25 @@ const Transfer = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
 
-  // Fetch device details when assetId changes
   useEffect(() => {
     if (assetId) {
       fetchDeviceDetails(assetId);
     }
   }, [assetId]);
 
-  // Fetch employee details when employeeId changes
   useEffect(() => {
     if (employeeId) {
       fetchEmployeeDetails(employeeId);
     }
   }, [employeeId]);
 
-  // Function to fetch device details
   const fetchDeviceDetails = async (id) => {
     try {
       const response = await fetch(`http://localhost:3000/api/devices/${id}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch device details: ${response.statusText}`);
       }
-
       const data = await response.json();
-
-      // Update state with fetched data
       setDevice(data.Device);
       setDeviceBrand(data.DeviceBrand);
       setModel(data.Model);
@@ -53,17 +47,13 @@ const Transfer = () => {
     }
   };
 
-  // Function to fetch employee details
   const fetchEmployeeDetails = async (id) => {
     try {
       const response = await fetch(`http://localhost:3000/api/employees/${id}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch employee details: ${response.statusText}`);
       }
-
       const data = await response.json();
-
-      // Update state with fetched data
       setDivision(data.Division);
       setFullName(data.FullName);
       setEmail(data.Email);
@@ -72,7 +62,20 @@ const Transfer = () => {
     }
   };
 
-  // Function to handle the transfer button click
+  const resetForm = () => {
+    setDevice("");
+    setAssetId("");
+    setDeviceBrand("");
+    setModel("");
+    setSerialNumber("");
+    setConditionStatus("Condition Status");
+    setCurrentStatus("Status");
+    setEmployeeId("");
+    setDivision("");
+    setFullName("");
+    setEmail("");
+  };
+
   const handleTransfer = async () => {
     const transferData = {
       assetId,
@@ -80,14 +83,14 @@ const Transfer = () => {
       deviceBrand,
       model,
       serialNumber,
-      conditionStatus, // Updated field name
-      currentStatus, // Updated field name
+      conditionStatus,
+      currentStatus,
       employeeId,
       division,
       fullName,
       email,
       issueDate: new Date().toISOString().split('T')[0],
-      handoverDate: null // Explicitly set handoverDate to null
+      handoverDate: null
     };
 
     try {
@@ -99,12 +102,11 @@ const Transfer = () => {
         body: JSON.stringify(transferData),
       });
 
-      const data = await response.json();
-
       if (response.ok) {
         alert('Transfer successful!');
+        resetForm(); // Reset the form after a successful transfer
       } else {
-        console.error('Error response:', data);
+        const data = await response.json();
         alert('Error: ' + data.error);
       }
     } catch (error) {
@@ -196,9 +198,8 @@ const Transfer = () => {
           />
         </div>
         <div className="status-group">
-          <div className="status-label">
-            <span className="material-symbols-outlined">keyboard_command_key</span>
-            <label className="status-label">{conditionStatus}</label>
+          <div>
+            <ColorChips label={conditionStatus} />
           </div>
           <div>
           <ColorChips label={currentStatus} />

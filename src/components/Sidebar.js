@@ -55,7 +55,7 @@ const Sidebar = () => {
                     <i className="fas fa-laptop"></i>
                     <span>Laptop</span>
                 </Link>
-                <Link to="/NetworkEquipmentPage" className={`menu-item ${activeSection === 'Network Equipment' ? 'active' : ''}`} onClick={() => setActiveSection('Network Equipment')}>
+                <Link to="/NetworkEquipmentPage" className={`menu-item ${activeSection === 'Label' ? 'active' : ''}`} onClick={() => setActiveSection('NetworkEquipment')}>
                     <i className="fas fa-tag"></i>
                     <span>Network Equipment</span>
                 </Link>
@@ -77,11 +77,11 @@ const Sidebar = () => {
                 <div className="section-title">Reports</div>
                 <Link to="/InUseDevicePage" className={`menu-item ${activeSection === 'InUseDevices' ? 'active' : ''}`} onClick={() => setActiveSection('InUseDevices')}>
                     <i className="fas fa-clipboard-check"></i>
-                    <span>In Use Devices</span>
+                    <span>Device Details</span>
                 </Link>
-                <Link to="/in-stock-devices" className={`menu-item ${activeSection === 'InStockDevices' ? 'active' : ''}`} onClick={() => setActiveSection('InStockDevices')}>
+                <Link to="/TransferDevicesPage" className={`menu-item ${activeSection === 'TransferDetails' ? 'active' : ''}`} onClick={() => setActiveSection('TransferDetails')}>
                     <i className="fas fa-clipboard-list"></i>
-                    <span>In Stock Devices</span>
+                    <span>Transfer Details</span>
                 </Link>
             </div>
         </>

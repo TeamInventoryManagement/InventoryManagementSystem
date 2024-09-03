@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./TransferHandover.css";
 import searchIcon from './images/Search_icon.png';
-
+ 
 const RepairForm = () => {
   const [device, setDevice] = useState("");
   const [assetId, setAssetId] = useState("");
@@ -15,29 +15,57 @@ const RepairForm = () => {
   const [receivedDate, setReceivedDate] = useState('');
   const [repairCost, setRepairCost] = useState('');
   const [repairNote, setRepairNote] = useState('');
-
+ 
   useEffect(() => {
     if (assetId) {
       fetchDeviceDetails(assetId);
     }
   }, [assetId]);
-
+ 
   const fetchDeviceDetails = async (id) => {
-    try {
-      const response = await fetch(`http://localhost:3000/api/devices/${id}`);
-      if (!response.ok) {
+   
+  try {
+    const response = await fetch(`http://localhost:3000/api/devicesR/${id}`);
+    if (!response.ok) {
         throw new Error(`Failed to fetch device details: ${response.statusText}`);
-      }
-      const data = await response.json();
-      setDevice(data.Device);
-      setDeviceBrand(data.DeviceBrand);
-      setModel(data.Model);
-      setSerialNumber(data.SerialNumber);
-    } catch (error) {
-      console.error('Error fetching device details:', error);
     }
-  };
-
+    const data = await response.json();
+    console.log('Fetched data:', data);  // Check what data is returned
+ 
+    // Fill state variables based on the returned data
+    setDevice(data.Device || '');
+    setDeviceBrand(data.DeviceBrand || '');
+    setModel(data.Model || '');
+    setSerialNumber(data.SerialNumber || '');
+ 
+    // Check if additional data is present
+    if (data.RepairStatus !== undefined) {
+      setRepairStatus(data.RepairStatus || '');
+        setRepairInvoiceNumber(data.InvoiceNumber || '');
+        setVendor(data.vendor || '');
+        setIssueDate(data.IssueDateToVendor || '');
+        setReceivedDate(data.ReceivedDatefromVendor || '');
+        setRepairCost(data.RepairCost || '');
+       
+    } else {
+        // Clear additional fields if not present
+        setRepairStatus('');
+        setRepairInvoiceNumber('');
+        setVendor('');
+        setIssueDate('');
+        setReceivedDate('');
+        setRepairCost('');
+       
+    }
+   
+} catch (error) {
+    console.error('Error fetching device details:', error);
+}
+};
+ 
+ 
+ 
+ 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
@@ -69,7 +97,7 @@ const RepairForm = () => {
       alert('Failed to submit repair data');
     }
   };
-
+ 
   return (
     <div className="form-container">
       <form onSubmit={handleSubmit}>
@@ -94,7 +122,7 @@ const RepairForm = () => {
             </div>
           </div>
         </div>
-
+ 
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="deviceBrand">Device Brand</label>
@@ -105,26 +133,26 @@ const RepairForm = () => {
             <input id="assetId" type="text" value={assetId} readOnly />
           </div>
         </div>
-
+ 
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="model">Model</label>
             <input id="model" type="text" value={model} readOnly />
           </div>
-
+ 
           <div className="form-group">
             <label htmlFor="serialNumber">Serial Number</label>
             <input id="serialNumber" type="text" value={serialNumber} readOnly />
           </div>
         </div>
-
+ 
         <div className="divider-container">
           <hr className="section-divider" />
           <span className="divider-text">Repair Details</span>
           <hr className="section-divider" />
         </div>
-
-
+ 
+ 
         <div className="form-row">
         <div className="form-group">
           <label htmlFor="repairstatus">Repair Status</label>
@@ -140,7 +168,7 @@ const RepairForm = () => {
           </select>
         </div>
         </div>
-
+ 
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="RepairInvoiceNumber">Repair Invoice Number</label>
@@ -153,7 +181,7 @@ const RepairForm = () => {
               className="form-input"
             />
           </div>
-
+ 
           <div className="form-group">
             <label htmlFor="vendor">Vendor</label>
             <input
@@ -166,8 +194,8 @@ const RepairForm = () => {
             />
           </div>
         </div>
-
-
+ 
+ 
         <div className="form-row">
           <div className="form-group date-field">
             <label htmlFor="issueDate">Issued Date to Vendor</label>
@@ -190,7 +218,7 @@ const RepairForm = () => {
             />
           </div>
         </div>
-
+ 
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="repairCost">Repair Cost (LKR)</label>
@@ -204,7 +232,7 @@ const RepairForm = () => {
             />
           </div>
         </div>
-
+ 
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="repairNote">Repair Note</label>
@@ -218,16 +246,20 @@ const RepairForm = () => {
             />
           </div>
         </div>
-
-
+ 
+ 
         <div className="form-row action-buttons">
           <button type="button" className="Add-btn" onClick={handleSubmit}>
-            Update
+            Submit
           </button>
+          {/* <button type="button" className="Update-btn" onClick={handleUpdate}>
+            Update
+          </button> */}
         </div>
       </form>
     </div>
   );
 };
-
+ 
 export default RepairForm;
+ 

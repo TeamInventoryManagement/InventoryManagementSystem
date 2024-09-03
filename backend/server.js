@@ -1032,6 +1032,57 @@ app.get('/api/totalNetworkEquipments', async (req, res) => {
     }
 });
 
+app.get('/api/devicesR/:assetId', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        const assetId = req.params.assetId;
+        console.log(`Fetching device details for Asset ID: ${assetId}`);
+       
+        // Query to check if asset ID exists in the Repair table
+        const repairQuery = `
+            SELECT Device, DeviceBrand, Model, SerialNumber,RepairStatus,InvoiceNumber
+            ,vendor,IssueDateToVendor,ReceivedDatefromVendor,RepairCost
+            FROM IssueTracker
+            WHERE AssetID = @AssetID and RepairStatus not in ('Resolved')
+        `;
+ 
+        // Query to check if asset ID exists in the DeviceDetails1 table
+        const deviceQuery = `
+            SELECT Device, DeviceBrand, Model, SerialNumber
+            FROM DeviceDetails1
+            WHERE AssetID = @AssetID
+        `;
+ 
+        // First, check the Repair table
+        let result = await pool.request()
+            .input('AssetID', sql.VarChar(50), assetId)
+            .query(repairQuery);
+ 
+        if (result.recordset.length > 0) {
+            console.log('Device found in Repair table:', result.recordset);
+            return res.json(result.recordset[0]);
+        }
+ 
+        // If not found in Repair table, check the DeviceDetails1 table
+        result = await pool.request()
+            .input('AssetID', sql.VarChar(50), assetId)
+            .query(deviceQuery);
+ 
+        if (result.recordset.length > 0) {
+            console.log('Device found in DeviceDetails1 table:', result.recordset);
+            return res.json(result.recordset[0]);
+        }
+ 
+        // If not found in either table
+        res.status(404).send('Device not found');
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+
+
 
 
 const port = process.env.PORT || 3000;

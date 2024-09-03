@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './LaptopDetails.css';
+import './StyleSheet.css';
 import searchIcon from './images/Search_icon.png';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import Button from '@mui/material/Button';
@@ -9,7 +9,7 @@ import DescriptionAlerts from "./Alerts.js";
 
 const LaptopDetails = () => {
     const [formData, setFormData] = useState({
-        device: 'Laptop', // Hardcoded value for device
+        device: 'Laptop',
         deviceBrand: '',
         model: '',
         assetId: '',
@@ -26,6 +26,7 @@ const LaptopDetails = () => {
     });
 
     const [searchAssetId, setSearchAssetId] = useState('');
+    const [assetIdSearched, setAssetIdSearched] = useState(false);
     const [alert, setAlert] = useState({ severity: '', title: '', message: '' });
 
     const handleChange = (e) => {
@@ -37,8 +38,7 @@ const LaptopDetails = () => {
 
     const handleSearchChange = (e) => {
         setSearchAssetId(e.target.value);
-
-        // If the Asset ID field is cleared, reset the form
+        setAssetIdSearched(false);
         if (e.target.value === '') {
             resetFormData();
         }
@@ -46,30 +46,23 @@ const LaptopDetails = () => {
 
     const handleSearchClick = async () => {
         if (!searchAssetId) {
-            //alert("Please enter an Asset ID to search.");
             setAlert({ severity: 'info', title: 'Info', message: 'Please enter an Asset ID to search' });
             return;
         }
 
         try {
-            console.log(`Fetching details for Asset ID: ${searchAssetId}`);
             const response = await fetch(`http://localhost:3000/api/laptop/${searchAssetId}`);
-
             if (!response.ok) {
-                // Check if the response is HTML instead of JSON
                 const contentType = response.headers.get("content-type");
                 if (contentType && contentType.includes("text/html")) {
                     throw new Error('Received HTML instead of JSON');
                 }
-
                 const errorData = await response.json();
-                console.error('Error data:', errorData);
                 throw new Error(errorData.error || 'Unknown error occurred');
             }
-
             const data = await response.json();
-            console.log('Received data:', data); // Log the received data
             setFormData({
+                ...formData,
                 device: data.Device || '',
                 deviceBrand: data.DeviceBrand || '',
                 model: data.Model || '',
@@ -85,10 +78,8 @@ const LaptopDetails = () => {
                 warentyMonths: data.WarentyMonths || '',
                 address: data.Address || '',
             });
-
+            setAssetIdSearched(true);
         } catch (error) {
-            console.error('Error fetching device:', error.message);
-            //alert('An error occurred while fetching the device details: ' + error.message);
             setAlert({ severity: 'error', title: 'Error', message: 'An error occurred while fetching the device details' });
         }
     };
@@ -110,125 +101,94 @@ const LaptopDetails = () => {
             warentyMonths: '',
             address: ''
         });
+        setSearchAssetId('');
+        setAssetIdSearched(false);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         try {
-            console.log('Submitting form data:', formData);
             const response = await fetch('http://localhost:3000/api/LaptopDetails', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
-
             const data = await response.json();
-            console.log(data);
             if (response.ok) {
-                //alert(data.message);
-                setAlert({ severity: 'success', title: 'Success', message: 'Employee Added successfully' });
+                setAlert({ severity: 'success', title: 'Success', message: 'Device Added successfully' });
+                resetFormData();
             } else {
-                console.error('Error response:', data);
-                //alert('Error: ' + data.error);
                 setAlert({ severity: 'error', title: 'Error', message: data.error });
             }
         } catch (error) {
-            console.error('Error:', error);
-            //alert('An error occurred. Please try again.');
             setAlert({ severity: 'error', title: 'Error', message: 'An error occurred. Please try again' });
         }
     };
 
     const handleUpdate = async (e) => {
         e.preventDefault();
-
         try {
-            console.log('Submitting form data:', formData);
             const response = await fetch('http://localhost:3000/api/LaptopUpdate', {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
-
             const data = await response.json();
-            // const data1 =  response.json();
-            
             if (response.ok) {
-                console.log("checking:", data);
-                //alert(data.message);
-                setAlert({ severity: 'success', title: 'Success', message: 'ok' });
+                setAlert({ severity: 'success', title: 'Success', message: 'Device Updated successfully' });
+                resetFormData();
             } else {
-                console.error('Error response:', data);
-                //alert('Error: ' + data.error);
                 setAlert({ severity: 'error', title: 'Error', message: data.error });
             }
         } catch (error) {
-            console.error('Error:', error);
-            //alert('An error occurred. Please try again.');
             setAlert({ severity: 'error', title: 'Error', message: 'An error occurred. Please try again' });
         }
     };
-
 
     const handleDelete = async (e) => {
         e.preventDefault();
-
         try {
-            console.log('Submitting form data:', formData);
             const response = await fetch('http://localhost:3000/api/LaptopDelete', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ assetId: formData.assetId })
             });
-
             const data = await response.json();
             if (response.ok) {
-                //alert(data.message);
-                setAlert({ severity: 'success', title: 'Success', message: 'Deleted Laptop Details Successfully'});
+                setAlert({ severity: 'success', title: 'Success', message: 'Deleted Laptop Details Successfully' });
+                resetFormData();
             } else {
-                console.error('Error response:', data);
-                //alert('Error: ' + data.error);
                 setAlert({ severity: 'error', title: 'Error', message: data.error });
             }
         } catch (error) {
-            console.error('Error:', error);
-            //alert('An error occurred. Please try again.');
             setAlert({ severity: 'error', title: 'Error', message: 'An error occurred. Please try again' });
         }
     };
-
 
 
 
     return (
-    <div>
+        <div>
             <div>
-                    {alert.message && (
-                    <DescriptionAlerts
-                    severity={alert.severity}
-                    title={alert.title}
-                    message={alert.message} />)}
+                {alert.message && (
+                <DescriptionAlerts
+                severity={alert.severity}
+                title={alert.title}
+                message={alert.message} />)}
             </div>
-        <div className="form-container">
-        <div className="header">
-            <div className="search-container">
-                    <input
-                        type="text"
-                        placeholder="Search by Asset ID"
-                        className="search-bar"
-                        value={searchAssetId}
-                        onChange={handleSearchChange}
-                    />
-                    <button type="button" className="search-button" onClick={handleSearchClick}>
-                        <img src={searchIcon} alt="Search" style={{ width: '20px', height: '20px' }} />
-                    </button>
+            <div className="form-container">
+                <div className="header">
+                    <div className="search-container">
+                        <input
+                            type="text"
+                            placeholder="Search by Asset ID"
+                            className="search-bar"
+                            value={searchAssetId}
+                            onChange={handleSearchChange}
+                        />
+                        <button type="button" className="search-button" onClick={handleSearchClick}>
+                            <img src={searchIcon} alt="Search" style={{ width: '20px', height: '20px' }} />
+                        </button>
                 </div>
                 <ButtonGroup variant="outlined" aria-label="Loading button group">
                 <Button onClick={handleSubmit}>+ Add Device</Button>
@@ -245,8 +205,8 @@ const LaptopDetails = () => {
                 <div className="form-row">
                     <div className="form-group">
                         <label>Asset ID</label>
-                        <input type="text" name="assetId" placeholder="Asset ID" 
-                        onChange={handleChange} value={formData.assetId} />
+                        <input type="text" name="assetId" placeholder="Asset ID"
+                            onChange={handleChange} value={formData.assetId} disabled={assetIdSearched} />
                     </div>
                 </div>
                

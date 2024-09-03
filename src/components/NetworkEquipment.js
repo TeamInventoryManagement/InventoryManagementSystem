@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './LaptopDetails.css';
+import './StyleSheet.css';
 import searchIcon from './images/Search_icon.png';
  
 const NetworkEquipment = () => {
@@ -18,7 +18,7 @@ const NetworkEquipment = () => {
         warentyMonths: ''
     });
  
-    const [searchAssetId, setSearchAssetId] = useState('');
+    //const [searchAssetId, setSearchAssetId] = useState('');
  
     const handleChange = (e) => {
         setFormData({
@@ -27,16 +27,16 @@ const NetworkEquipment = () => {
         });
     };
  
-    const handleSearchChange = (e) => {
-        setSearchAssetId(e.target.value);
+    // const handleSearchChange = (e) => {
+    //     setSearchAssetId(e.target.value);
  
-        // If the Asset ID field is cleared, reset the form
-        if (e.target.value === '') {
-            resetFormData();
-        }
-    };
+    //     // If the Asset ID field is cleared, reset the form
+    //     if (e.target.value === '') {
+    //         resetFormData();
+    //     }
+    // };
  
-    const handleSearchClick = async () => {
+    /*const handleSearchClick = async () => {
         if (!searchAssetId) {
             alert("Please enter an Asset ID to search.");
             return;
@@ -78,12 +78,13 @@ const NetworkEquipment = () => {
             console.error('Error fetching device:', error.message);
             alert('An error occurred while fetching the device details: ' + error.message);
         }
-    };
+    };*/
  
     const resetFormData = () => {
         setFormData({
             deviceBrand: '',
             model: '',
+            accessoriesType: '',
             assetId: '',
             macID: '',
             deviceId: '',
@@ -99,8 +100,6 @@ const NetworkEquipment = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
  
-       
- 
         try {
             console.log('Submitting form data:', formData);
             const response = await fetch('http://localhost:3000/api/networkEquipment', {
@@ -114,6 +113,7 @@ const NetworkEquipment = () => {
             const data = await response.json();
             if (response.ok) {
                 alert(data.message);
+                resetFormData();  // Reset the form after successful submission
             } else {
                 console.error('Error response:', data);
                 alert('Error: ' + data.error);
@@ -126,12 +126,11 @@ const NetworkEquipment = () => {
  
     return (
         <div className="form-container">
- 
-            <h2>Network Equipments</h2><br></br>
+            <h2>Network Equipments</h2>
+            <br />
             <form onSubmit={handleSubmit}>
                 <div className="form-row">
- 
-                <div className="form-group">
+                    <div className="form-group">
                         <label>Accessory Type</label>
                         <select name="accessoriesType" onChange={handleChange} value={formData.accessoriesType}>
                             <option value="">Select Type</option>
@@ -145,7 +144,7 @@ const NetworkEquipment = () => {
                         <input type="text" name="assetId" placeholder="Asset ID" onChange={handleChange} value={formData.assetId} />
                     </div>
                 </div>
-               
+ 
                 <div className="form-row">
                     <div className="form-group">
                         <label>Brand</label>
@@ -157,15 +156,12 @@ const NetworkEquipment = () => {
                     </div>
                 </div>
  
- 
- 
                 <div className="form-row">
                     <div className="form-group">
                         <label>Serial Number</label>
                         <input type="text" name="serialNumber" placeholder="Serial Number" onChange={handleChange} value={formData.serialNumber} />
                     </div>
                 </div>
- 
  
                 <div className="form-row">
                     <div className="form-group">
@@ -175,7 +171,7 @@ const NetworkEquipment = () => {
  
                     <div className="form-group">
                         <label>Equipment ID (Device ID)</label>
-                        <input type="text" name="deviceId" placeholder="Equipment ID" onChange={handleChange} value={formData.ipAddress} />
+                        <input type="text" name="deviceId" placeholder="Equipment ID" onChange={handleChange} value={formData.deviceId} />
                     </div>
                 </div>
  
@@ -193,10 +189,7 @@ const NetworkEquipment = () => {
                 </div>
  
                 <div className="form-row">
-                <div className="form-group">
-                        <label>Purchased Company</label>
-                        <input type="text" name="purchasedCompnay" placeholder="Purchased Company"  onChange={handleChange} value={formData.purchasedCompnay} />
-                    </div>
+
                     <div className="form-group">
                         <label>Purchased Amount</label>
                         <input type="text" name="purchasedAmount" placeholder="Purchased Amount" onChange={handleChange} value={formData.purchasedAmount} />

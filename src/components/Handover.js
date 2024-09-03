@@ -18,17 +18,9 @@ const Handover = () => {
 
   useEffect(() => {
     if (assetId) {
-      console.log(`Fetching data for Asset ID: ${assetId}`);
       fetch(`http://localhost:3000/api/transfer/${assetId}`)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-          console.log('TransferDetails data retrieved:', data);
-
           setDevice(data.Device);
           setDeviceBrand(data.DeviceBrand);
           setModel(data.Model);
@@ -40,19 +32,29 @@ const Handover = () => {
           setDivision(data.Division);
           setEmail(data.Email);
         })
-        .catch(error => {
-          console.error('Error fetching transfer details:', error);
-        });
+        .catch(error => console.error('Error fetching transfer details:', error));
     }
   }, [assetId]);
+
+  const resetForm = () => {
+    setAssetId("");
+    setDevice("");
+    setDeviceBrand("");
+    setModel("");
+    setSerialNumber("");
+    setConditionStatus("Condition Status");
+    setCurrentStatus("Status");
+    setEmployeeId("");
+    setDivision("");
+    setFullName("");
+    setEmail("");
+  };
 
   const handleHandover = async () => {
     try {
       const response = await fetch('http://localhost:3000/api/handover', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           assetId,
           currentStatus: 'Handover',
@@ -60,22 +62,15 @@ const Handover = () => {
         }),
       });
 
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        console.log('error testing')
-        const data = await response.json();
-        if (response.ok) {
-          alert('Handover successful!');
-        } else {
-          alert('Error: ' + data.error);
-        }
+      if (response.ok) {
+        alert('Handover successful!');
+        resetForm(); // Reset the form after successful handover
       } else {
-        const textResponse = await response.text();
-        console.error('Unexpected response:', textResponse);
-        alert('An unexpected error occurred. Please check the server response.');
+        const errorData = await response.json();
+        alert('Error: ' + errorData.error);
       }
     } catch (error) {
-      console.error('Error during handover:', error.message);
+      console.error('Error during handover:', error);
       alert('An error occurred: ' + error.message);
     }
   };

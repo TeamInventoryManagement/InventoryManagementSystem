@@ -3,14 +3,14 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import logo from './images/Altria-logo.png';
 import "./Login.css";
-
+ 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [isLoginSuccess, setIsLoginSuccess] = useState(null); // New state for login success
   const navigate = useNavigate();
-
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -27,12 +27,12 @@ const Login = () => {
       setIsLoginSuccess(false);
     }
   };
-
+ 
   return (
     <div className="login-container">
       <form onSubmit={handleSubmit}>
         <img src={logo} alt="Altria Logo" className="header-logo" />
-        <div className="form-group">
+        <div className="form1-group">
           <label>Email:</label>
           <input
             id="email"
@@ -42,7 +42,7 @@ const Login = () => {
             required
           />
         </div>
-        <div className="form-group">
+        <div className="form1-group">
           <label>Password:</label>
           <input
             id="password"
@@ -58,5 +58,5 @@ const Login = () => {
     </div>
   );
 };
-
+ 
 export default Login;

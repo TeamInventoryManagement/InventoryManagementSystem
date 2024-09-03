@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './LaptopDetails.css';
+import './StyleSheet.css';
 import searchIcon from './images/Search_icon.png';
  
 const Accessories = () => {
@@ -14,7 +14,6 @@ const Accessories = () => {
         purchasedAmount: '',
         warentyMonths: ''
     });
-   
  
     const [searchAssetId, setSearchAssetId] = useState('');
  
@@ -77,10 +76,10 @@ const Accessories = () => {
  
     const resetFormData = () => {
         setFormData({
-           
             deviceBrand: '',
             model: '',
             assetId: '',
+            accessoriesType: '',
             serialNumber: '',
             invoiceNumber: '',
             purchaseDate: '',
@@ -91,8 +90,6 @@ const Accessories = () => {
  
     const handleSubmit = async (e) => {
         e.preventDefault();
- 
-       
  
         try {
             console.log('Submitting form data:', formData);
@@ -107,6 +104,7 @@ const Accessories = () => {
             const data = await response.json();
             if (response.ok) {
                 alert(data.message);
+                resetFormData(); // Reset the form after a successful submission
             } else {
                 console.error('Error response:', data);
                 alert('Error: ' + data.error);
@@ -119,11 +117,9 @@ const Accessories = () => {
  
     return (
         <div className="form-container">
- 
             <h2>Accessories</h2>
             <form onSubmit={handleSubmit}>
                 <div className="form-row">
- 
                     <div className="form-group">
                         <label>Accessory Type</label>
                         <select name="accessoriesType" placeholder="Select Type" onChange={handleChange} value={formData.accessoriesType}>
@@ -137,10 +133,8 @@ const Accessories = () => {
                         <label>Asset ID</label>
                         <input type="text" name="assetId" placeholder="Asset ID" onChange={handleChange} value={formData.assetId} />
                     </div>
- 
                 </div>
  
-               
                 <div className="form-row">
                     <div className="form-group">
                         <label>Brand</label>
@@ -151,8 +145,6 @@ const Accessories = () => {
                         <input type="text" name="model" placeholder="Model" onChange={handleChange} value={formData.model} />
                     </div>
                 </div>
- 
- 
  
                 <div className="form-row">
                     <div className="form-group">
@@ -175,6 +167,10 @@ const Accessories = () => {
                 </div>
  
                 <div className="form-row">
+                <div className="form-group">
+                        <label>Purchased Company</label>
+                        <input type="text" name="purchasedAmount" placeholder="Purchased Amount" onChange={handleChange} value={formData.purchasedAmount} />
+                    </div>
                     <div className="form-group">
                         <label>Purchased Amount</label>
                         <input type="text" name="purchasedAmount" placeholder="Purchased Amount" onChange={handleChange} value={formData.purchasedAmount} />

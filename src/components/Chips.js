@@ -5,11 +5,17 @@ import Stack from '@mui/material/Stack';
 const ColorChips = ({ label }) => {
   let chipColor = 'default';
 
-  if (label === 'In-Use') {
+  if (label === 'Good-Condition' || label === 'In-Use') {
     chipColor = 'success';
   } else if (label === 'In-Stock') {
     chipColor = 'primary';
-  }
+  } else if (label === 'Issue-Identify') {
+    chipColor = 'warning';
+  } else if (label === 'Send-to-Repair') {
+    chipColor = 'secondary';
+  } else if (label === 'Disposal') {
+    chipColor = 'error';
+  } 
 
   return (
     <Stack spacing={1} sx={{ alignItems: 'center' }}>
