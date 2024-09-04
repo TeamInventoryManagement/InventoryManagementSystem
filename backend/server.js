@@ -1037,42 +1037,61 @@ app.get('/api/devicesR/:assetId', async (req, res) => {
         const pool = await poolPromise;
         const assetId = req.params.assetId;
         console.log(`Fetching device details for Asset ID: ${assetId}`);
-       
+
         // Query to check if asset ID exists in the Repair table
         const repairQuery = `
-            SELECT Device, DeviceBrand, Model, SerialNumber,RepairStatus,InvoiceNumber
-            ,vendor,IssueDateToVendor,ReceivedDatefromVendor,RepairCost
+            SELECT Device, DeviceBrand, Model, SerialNumber, RepairStatus, InvoiceNumber,
+            Vendor, IssueDateToVendor, ReceivedDatefromVendor, RepairCost
             FROM IssueTracker
-            WHERE AssetID = @AssetID and RepairStatus not in ('Resolved')
+            WHERE AssetID = @AssetID AND RepairStatus NOT IN ('Resolved')
         `;
- 
+
         // Query to check if asset ID exists in the DeviceDetails1 table
         const deviceQuery = `
             SELECT Device, DeviceBrand, Model, SerialNumber
             FROM DeviceDetails1
             WHERE AssetID = @AssetID
         `;
- 
+
+        const updateDeviceDetailsBadQuery = `
+        UPDATE DeviceDetails1
+        SET ConditionStatus = 'Bad'
+        WHERE AssetID = @AssetID
+    `;
+
+    await pool.request()
+    .input('AssetID', sql.VarChar(50), assetId)
+    .query(updateDeviceDetailsBadQuery);
+
+console.log(`ConditionStatus updated to 'Good' for Asset ID: ${assetId}`);
+
         // First, check the Repair table
         let result = await pool.request()
             .input('AssetID', sql.VarChar(50), assetId)
             .query(repairQuery);
- 
+
         if (result.recordset.length > 0) {
-            console.log('Device found in Repair table:', result.recordset);
-            return res.json(result.recordset[0]);
+            const data = result.recordset[0];
+            // Convert date fields to string format for consistent frontend handling
+            data.IssueDateToVendor = data.IssueDateToVendor ? data.IssueDateToVendor.toISOString().split('T')[0] : null;
+            data.ReceivedDatefromVendor = data.ReceivedDatefromVendor ? data.ReceivedDatefromVendor.toISOString().split('T')[0] : null;
+            
+            console.log('Device found in Repair table:', data);
+            return res.json(data);
         }
- 
+
+
+
         // If not found in Repair table, check the DeviceDetails1 table
         result = await pool.request()
             .input('AssetID', sql.VarChar(50), assetId)
             .query(deviceQuery);
- 
+
         if (result.recordset.length > 0) {
             console.log('Device found in DeviceDetails1 table:', result.recordset);
             return res.json(result.recordset[0]);
         }
- 
+
         // If not found in either table
         res.status(404).send('Device not found');
     } catch (error) {
@@ -1083,6 +1102,72 @@ app.get('/api/devicesR/:assetId', async (req, res) => {
 
 
 
+
+app.put('/api/repair/update', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        const {
+            assetId,
+            repairStatus, 
+            repairInvoiceNumber, 
+            vendor, 
+            issueDate, 
+            receivedDate, 
+            repairCost
+        } = req.body;
+
+        console.log('Received form data:', req.body);
+
+        const IssueTrackerUpdateQuery = `
+            UPDATE IssueTracker
+            SET RepairStatus = @RepairStatus, 
+                InvoiceNumber = @InvoiceNumber, 
+                Vendor = @Vendor, 
+                IssueDateToVendor = @IssueDateToVendor, 
+                ReceivedDatefromVendor = @ReceivedDatefromVendor, 
+                RepairCost = @RepairCost
+            WHERE AssetID = @AssetID AND RepairStatus NOT IN ('Resolved');
+        `;
+
+        const transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
+        try {
+            const request = transaction.request();
+            request.input('RepairStatus', sql.VarChar(50), repairStatus)
+                   .input('InvoiceNumber', sql.VarChar(50), repairInvoiceNumber)
+                   .input('Vendor', sql.VarChar(50), vendor)
+                   .input('IssueDateToVendor', sql.Date, issueDate)  
+                   .input('ReceivedDatefromVendor', sql.Date, receivedDate)
+                   .input('RepairCost', sql.Decimal(10, 2), repairCost)  
+                //    .input('RepairNote', sql.VarChar(500), repairNote) 
+                   .input('AssetID', sql.VarChar(50), assetId);  
+
+        // If the repair status is "Resolved", update the DeviceDetails1 table
+        if (repairStatus === "Resolved") {
+            const updateDevice1Query = `
+                UPDATE DeviceDetails1
+                SET ConditionStatus = 'Good'
+                WHERE AssetID = @AssetID;
+            `;
+            await request.query(updateDevice1Query);
+            console.log('ConditionStatus updated to Good for Asset ID:', assetId);
+        }
+
+            await request.query(IssueTrackerUpdateQuery);
+            console.log('Updated into Issue Tracker table successfully');
+            await transaction.commit();
+            res.status(201).send({ message: 'Updated Issue successfully' });
+        } catch (error) {
+            console.error('Error during transaction, rolling back:', error.message);
+            await transaction.rollback();
+            res.status(500).send({ error: 'Error inserting data: ' + error.message });
+        }
+    } catch (err) {
+        console.error('Error establishing connection or starting transaction:', err.message);
+        res.status(500).send({ error: 'Server error: ' + err.message });
+    }
+});
 
 
 const port = process.env.PORT || 3000;

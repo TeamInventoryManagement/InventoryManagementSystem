@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./TransferHandover.css";
+import "./RepairForm.css";
 import searchIcon from './images/Search_icon.png';
  
 const RepairForm = () => {
@@ -14,7 +14,7 @@ const RepairForm = () => {
   const [issueDate, setIssueDate] = useState('');
   const [receivedDate, setReceivedDate] = useState('');
   const [repairCost, setRepairCost] = useState('');
-  const [repairNote, setRepairNote] = useState('');
+  // const [repairNote, setRepairNote] = useState('');
  
   useEffect(() => {
     if (assetId) {
@@ -63,40 +63,87 @@ const RepairForm = () => {
 }
 };
  
+const resetForm = () => {
+  setDevice("");
+  setAssetId("");
+  setDeviceBrand("");
+  setModel("");
+  setSerialNumber("");
+  setRepairStatus("");
+  setRepairInvoiceNumber("");
+  setVendor("");
+  setIssueDate("");
+  setReceivedDate("");
+  setRepairCost("");
+};
  
  
- 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    try {
-      const response = await fetch('http://localhost:3000/api/repair', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          assetId,
-          device,
-          deviceBrand,
-          model,
-          serialNumber,
-          repairStatus,
-          repairInvoiceNumber,
-          vendor,
-          issueDate,
-          receivedDate,
-          repairCost
-        })
-      });
-      if (!response.ok) {
-        throw new Error('Failed to submit repair data');
-      }
-      alert('Repair data submitted successfully!');
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('Failed to submit repair data');
+const handleSubmit = async (event) => {
+  event.preventDefault();
+  try {
+    const response = await fetch('http://localhost:3000/api/repair', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        assetId,
+        device,
+        deviceBrand,
+        model,
+        serialNumber,
+        repairStatus,
+        repairInvoiceNumber,
+        vendor,
+        issueDate,
+        receivedDate,
+        repairCost
+      })
+    });
+    if (!response.ok) {
+      throw new Error('Failed to submit repair data');
     }
-  };
+    alert('Repair data submitted successfully!');
+    resetForm(); // Reset form after successful submission
+  } catch (error) {
+    console.error('Error submitting form:', error);
+    alert('Failed to submit repair data');
+  }
+};
+
+const handleUpdate = async () => {
+  try {
+    const response = await fetch('http://localhost:3000/api/repair/update', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        assetId,
+        device,
+        deviceBrand,
+        model,
+        serialNumber,
+        repairStatus,
+        repairInvoiceNumber,
+        vendor,
+        issueDate,
+        receivedDate,
+        repairCost
+      })
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update repair data');
+    }
+    alert('Repair data updated successfully!');
+    resetForm(); // Reset form after successful update
+  } catch (error) {
+    console.error('Error updating repair data:', error);
+    alert('Failed to update repair data');
+  }
+};
+
+  
  
   return (
     <div className="form-container">
@@ -232,29 +279,16 @@ const RepairForm = () => {
             />
           </div>
         </div>
- 
-        <div className="form-row">
-          <div className="form-group">
-            <label htmlFor="repairNote">Repair Note</label>
-            <textarea
-              id="repairNote"
-              type="text"
-              placeholder='repair Note'
-              value={repairNote}
-              onChange={(e) => setRepairNote(e.target.value)}
-              className="form-input"
-            />
-          </div>
-        </div>
+
  
  
         <div className="form-row action-buttons">
-          <button type="button" className="Add-btn" onClick={handleSubmit}>
+          <button type="button" className="Add-btn-1" onClick={handleSubmit}>
             Submit
           </button>
-          {/* <button type="button" className="Update-btn" onClick={handleUpdate}>
+          <button type="button" className="Update-btn-1" onClick={handleUpdate}>
             Update
-          </button> */}
+          </button>
         </div>
       </form>
     </div>

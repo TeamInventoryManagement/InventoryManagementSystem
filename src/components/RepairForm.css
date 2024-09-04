@@ -71,8 +71,8 @@
   margin-bottom: 30px;
 }
  
-.submit-button {
-  background-color: #1f1664;
+.Add-btn-1 {
+  background-color: #1f1664; 
   color: white;
   padding: 10px 20px;
   border: none;
@@ -81,9 +81,33 @@
   cursor: pointer;
   margin-top: 10px;
   align-self: flex-end;
+  width: 100px; 
+  display: block; 
 }
  
-.submit-button:hover {
+.Add-btn-1:hover {
   background-color: #26139e;
 }
  
+ 
+.Update-btn-1{
+  background-color: #ffa55b; 
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  align-self: flex-end;
+  width: 100px; 
+  display: block; 
+}
+ 
+.Update-btn-1:hover {
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+}
+ 
+.Add-btn-1:hover {
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+}
