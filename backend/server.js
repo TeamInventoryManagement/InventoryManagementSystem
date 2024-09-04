@@ -4,12 +4,10 @@ const bcrypt = require('bcrypt');
 const { sql, poolPromise } = require('./db'); 
 const jwt = require('jsonwebtoken');
 
-
 const app = express();
 
 app.use(cors());
 app.use(express.json());
-
 
 
 // Function to calculate warranty expiry date
@@ -467,7 +465,7 @@ app.post('/api/Transfer', async (req, res) => {
     try {
         const pool = await poolPromise;
         const {
-            assetId, device, deviceBrand, model, serialNumber, conditionStatus, employeeId, fullName, division, email
+        assetId, device, deviceBrand, model, serialNumber, conditionStatus, employeeId, fullName, division, email
         } = req.body;
 
         console.log('Received form data:', req.body);
@@ -594,31 +592,64 @@ app.post('/api/Handover', async (req, res) => {
 
 
 app.post('/api/repair', async (req, res) => {
-    console.log("Received data:", req.body);
 
-    try {
-        const pool = await poolPromise;
-        const { assetId, device, deviceBrand, model, serialNumber, repairStatus, repairInvoiceNumber, vendor, 
-        issueDate, receivedDate, repairCost } = req.body;
-        
-    const repairinsertquery = `
-    INSERT INTO IssueTracker (
-        AssetID, Device, DeviceBrand, Model, SerialNumber, RepairStatus, 
-        InvoiceNumber, Vendor, IssueDateToVendor, ReceivedDatefromVendor, RepairCost
-    ) VALUES (
-        @AssetID, @Device, @DeviceBrand, @Model, @SerialNumber, @RepairStatus, 
-        @InvoiceNumber, @Vendor, @IssueDateToVendor, @ReceivedDateFromVendor, @RepairCost
-    )`;
+console.log('Checking...1');
 
-    const repairupdatedevicequery = `
-    UPDATE DeviceDetails1 SET(
-    ConditionStatus = @RepairStatus
-    ) WHERE AssetID=@AsstID` ;   
+try {
+    const pool = await poolPromise;
+    const { assetId, device, deviceBrand, model, serialNumber, repairStatus, repairInvoiceNumber, vendor, 
+    issueDate, receivedDate, repairCost } = req.body;
 
     // Execute the queries within a transaction
     const transaction = new sql.Transaction(pool);
     await transaction.begin();
 
+console.log('Checking...2');
+
+    try {
+
+    console.log('Checking...3');
+
+           // Check if there's already an 'Issue-Identified' record for this AssetID
+            const checkQuery = `
+                SELECT COUNT(*) AS count 
+                FROM IssueTracker
+                WHERE AssetID = @AssetID AND RepairStatus = 'Issue-Identified'
+            `;
+
+            const checkResult = await transaction.request()
+                .input('AssetID', sql.VarChar(50), assetId)
+                .query(checkQuery);
+
+            const inUseCount = checkResult.recordset[0].count;
+
+            console.log('Validation Checking');
+
+            console.log(inUseCount);
+
+            if (inUseCount !== 0) {
+                console.log('Validation : Failed');
+                await transaction.rollback();
+                return res.status(400).send({ error: 'No Issue-Identified' });
+            }
+
+            console.log('Validation : PASS');
+
+        const repairinsertquery = `
+        INSERT INTO IssueTracker (
+            AssetID, Device, DeviceBrand, Model, SerialNumber, RepairStatus, 
+            InvoiceNumber, Vendor, IssueDateToVendor, ReceivedDatefromVendor, RepairCost
+        ) VALUES (
+            @AssetID, @Device, @DeviceBrand, @Model, @SerialNumber, @RepairStatus, 
+            @InvoiceNumber, @Vendor, @IssueDateToVendor, @ReceivedDateFromVendor, @RepairCost)
+        `;
+
+        const repairupdatedevicequery = `
+        UPDATE DeviceDetails1
+        SET ConditionStatus = @RepairStatus
+        WHERE AssetID = @AssetID
+        `;
+ 
     await transaction.request()
         .input('AssetID', sql.VarChar(50), assetId)
         .input('Device', sql.VarChar(50), device)
@@ -633,17 +664,25 @@ app.post('/api/repair', async (req, res) => {
         .input('RepairCost', sql.Decimal(10, 2), repairCost || null)
         .query(repairinsertquery);
 
+     console.log('Insert to Issue Tracker');
 
         await transaction.request()
         .input('AssetID', sql.VarChar(50), assetId)
         .input('RepairStatus', sql.VarChar(50), repairStatus)
         .query(repairupdatedevicequery);
 
+    console.log('Update Condition Status in DeviceDetails');
+
         await transaction.commit();
 
         res.status(201).send({ message: 'Repair data added successfully' });
+
     } catch (error) {
         console.error('Failed to process repair data:', error);
+        res.status(500).send({ error: 'Server error: ' + error.message });
+    }
+    } catch (error) {
+        console.error('Error adding transfer:', error.message);
         res.status(500).send({ error: 'Server error: ' + error.message });
     }
 });
@@ -1066,9 +1105,7 @@ app.get('/api/devicesR/:assetId', async (req, res) => {
             WHERE AssetID = @AssetID
         `;
 
-
-
-console.log(`ConditionStatus updated to 'Good' for Asset ID: ${assetId}`);
+        console.log(`ConditionStatus updated to 'Good' for Asset ID: ${assetId}`);
 
         // First, check the Repair table
         let result = await pool.request()
@@ -1169,7 +1206,7 @@ app.put('/api/repair/update', async (req, res) => {
         else  {
             const updateDevice1Query = `
                 UPDATE DeviceDetails1
-                SET ConditionStatus = 'Good'
+                SET ConditionStatus = 'Good-Condition'
                 WHERE AssetID = @AssetID;`
             await request.query(updateDevice1Query);
             console.log('ConditionStatus updated to Good for Asset ID:', assetId);
@@ -1187,6 +1224,42 @@ app.put('/api/repair/update', async (req, res) => {
     } catch (err) {
         console.error('Error establishing connection or starting transaction:', err.message);
         res.status(500).send({ error: 'Server error: ' + err.message });
+    }
+});
+
+
+
+app.get('/api/Inventory', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        
+        console.log(`Fetching inventory details`);
+        
+        const invquery = `
+            SELECT device
+            ,TotalDeviceCount
+            ,InstockCount
+            ,InUseCount
+            ,InstockGoodCount
+            ,InstockFairCount
+            ,InUseGoodCount
+            ,InUseFairCount
+            FROM InventorySummary
+        `;
+
+        const result = await pool.request()
+            .query(invquery);
+
+        console.log('Query executed successfully. Result:', result.recordset);
+
+        if (result.recordset.length > 0) {
+            res.json(result.recordset);
+        } else {
+            res.status(404).send('Device not found');
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).send('Server error');
     }
 });
 

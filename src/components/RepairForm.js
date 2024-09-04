@@ -33,28 +33,28 @@ const RepairForm = () => {
     console.log('Fetched data:', data);  // Check what data is returned
  
     // Fill state variables based on the returned data
-    setDevice(data.Device || '');
-    setDeviceBrand(data.DeviceBrand || '');
-    setModel(data.Model || '');
-    setSerialNumber(data.SerialNumber || '');
+    setDevice(data.Device || null);
+    setDeviceBrand(data.DeviceBrand || null);
+    setModel(data.Model || null);
+    setSerialNumber(data.SerialNumber || null);
  
     // Check if additional data is present
     if (data.RepairStatus !== undefined) {
-      setRepairStatus(data.RepairStatus || '');
-        setRepairInvoiceNumber(data.InvoiceNumber || '');
-        setVendor(data.vendor || '');
-        setIssueDate(data.IssueDateToVendor || '');
-        setReceivedDate(data.ReceivedDatefromVendor || '');
-        setRepairCost(data.RepairCost || '');
+      setRepairStatus(data.RepairStatus || null);
+        setRepairInvoiceNumber(data.InvoiceNumber || null);
+        setVendor(data.vendor || null);
+        setIssueDate(data.IssueDateToVendor || null);
+        setReceivedDate(data.ReceivedDatefromVendor || null);
+        setRepairCost(data.RepairCost || null);
        
     } else {
         // Clear additional fields if not present
-        setRepairStatus('');
-        setRepairInvoiceNumber('');
-        setVendor('');
-        setIssueDate('');
-        setReceivedDate('');
-        setRepairCost('');
+        setRepairStatus(null);
+        setRepairInvoiceNumber(null);
+        setVendor(null);
+        setIssueDate(null);
+        setReceivedDate(null);
+        setRepairCost(null);
        
     }
    

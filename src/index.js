@@ -15,6 +15,7 @@ import InUseDevicePage from './pages/InUseDevicePage';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
 import TransferDevicesPage from './pages/TransferDevicesPage';
+import InventoryPage from './pages/InventoryPage';
 
 
 ReactDOM.render(
@@ -35,6 +36,7 @@ ReactDOM.render(
         <Route path="RegisterPage" element={<RegisterPage />} />
         <Route path="HomePage" element={<HomePage />} />
         <Route path="TransferDevicesPage" element={<TransferDevicesPage />} />
+        <Route path="InventoryPage" element={<InventoryPage />} />
         {/* <Route path="AccessoriesPage" element={<AccessoriesPage />} /> */}
       </Route>
     </Routes>

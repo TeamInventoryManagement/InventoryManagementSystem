@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./TransferHandover.css";
 import searchIcon from './images/Search_icon.png';
+import ColorChips from "./Chips.js";
 
 const Handover = () => {
   const [assetId, setAssetId] = useState("");
@@ -157,14 +158,12 @@ const Handover = () => {
           />
         </div>
         <div className="status-group">
-          <div className="status-label">
-            <span className="material-symbols-outlined">keyboard_command_key</span>
-            <label className="status-label">{conditionStatus}</label>
+        <div>
+            <ColorChips label={conditionStatus} />
           </div>
-          <div className="status-label">
-            <span className="material-symbols-outlined">keyboard_command_key</span>
-            <label className="status-label">{currentStatus}</label>
-          </div>
+          <div>
+          <ColorChips label={currentStatus} />
+          </div>         
         </div>
       </div>
 

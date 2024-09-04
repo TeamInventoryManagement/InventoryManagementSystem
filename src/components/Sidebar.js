@@ -29,12 +29,8 @@ const Sidebar = () => {
                     <i className="fas fa-home"></i>
                     <span>Home</span>
                 </Link>
-                <Link 
-                    to="/inventory" 
-                    className={`menu-item ${activeSection === 'Inventory' ? 'active' : ''}`}
-                    onClick={() => setActiveSection('Inventory')}
-                >
-                    <i className="fas fa-tasks"></i>
+                <Link to="/InventoryPage" className={`menu-item ${activeSection === 'Inventory' ? 'active' : ''}`} onClick={() => setActiveSection('Inventory')}>
+                    <i className="fas fa-exchange-alt"></i>
                     <span>Inventory</span>
                 </Link>
                 <Link to="/TransferPage" className={`menu-item ${activeSection === 'Transfer' ? 'active' : ''}`} onClick={() => setActiveSection('Transfer')}>
