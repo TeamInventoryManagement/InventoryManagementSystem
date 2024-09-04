@@ -76,17 +76,19 @@ app.post('/api/LaptopDetails', async (req, res) => {
             )
         `;
 
+
         // Query to insert data into DeviceDetails table
         const deviceDetailsQuery = `
             INSERT INTO DeviceDetails1 (
                 Device, AssetID, DeviceBrand, DeviceID, Model, SerialNumber, SystemType, InvoiceNumber,
-                PurchaseDate, PurchaseAmount, WarentyMonths, WarrentyExpieryDate, CurrentStatus, SysDate
+                PurchaseDate, PurchaseAmount, WarentyMonths, WarrentyExpieryDate, CurrentStatus,
+                ConditionStatus, SysDate
             ) VALUES (
                 @Device, @AssetID, @DeviceBrand, @LaptopId, @Model, @SerialNumber, @SystemType, @InvoiceNumber,
-                @PurchaseDate, @PurchaseAmount, @WarentyMonths, @WarrentyExpieryDate, 'In-Stock', GETDATE()
+                @PurchaseDate, @PurchaseAmount, @WarentyMonths, @WarrentyExpieryDate, 'In-Stock',
+                'Good-Condition', GETDATE()
             )
         `;
-
         // Execute the queries within a transaction
         const transaction = new sql.Transaction(pool);
         await transaction.begin();
@@ -253,9 +255,9 @@ app.post('/api/LaptopDelete', async (req, res) => {
 
         console.log('Received form data:', req.body);
 
-        if (!model || !assetId) {
-            return res.status(400).send({ error: 'All required fields must be provided' });
-        }
+        // if (!model || !assetId) {
+        //     return res.status(400).send({ error: 'All required fields must be provided' });
+        // }
 
         // Query to insert data into LaptopDetails table
         const deletelaptopDetailsQuery = `
@@ -599,7 +601,7 @@ app.post('/api/repair', async (req, res) => {
         const { assetId, device, deviceBrand, model, serialNumber, repairStatus, repairInvoiceNumber, vendor, 
         issueDate, receivedDate, repairCost } = req.body;
         
-    const repairquery = `
+    const repairinsertquery = `
     INSERT INTO IssueTracker (
         AssetID, Device, DeviceBrand, Model, SerialNumber, RepairStatus, 
         InvoiceNumber, Vendor, IssueDateToVendor, ReceivedDatefromVendor, RepairCost
@@ -607,6 +609,11 @@ app.post('/api/repair', async (req, res) => {
         @AssetID, @Device, @DeviceBrand, @Model, @SerialNumber, @RepairStatus, 
         @InvoiceNumber, @Vendor, @IssueDateToVendor, @ReceivedDateFromVendor, @RepairCost
     )`;
+
+    const repairupdatedevicequery = `
+    UPDATE DeviceDetails1 SET(
+    ConditionStatus = @RepairStatus
+    ) WHERE AssetID=@AsstID` ;   
 
     // Execute the queries within a transaction
     const transaction = new sql.Transaction(pool);
@@ -624,7 +631,13 @@ app.post('/api/repair', async (req, res) => {
         .input('IssueDateToVendor', sql.Date, issueDate || null)
         .input('ReceivedDateFromVendor', sql.Date, receivedDate || null)
         .input('RepairCost', sql.Decimal(10, 2), repairCost || null)
-        .query(repairquery);
+        .query(repairinsertquery);
+
+
+        await transaction.request()
+        .input('AssetID', sql.VarChar(50), assetId)
+        .input('RepairStatus', sql.VarChar(50), repairStatus)
+        .query(repairupdatedevicequery);
 
         await transaction.commit();
 
@@ -1053,15 +1066,7 @@ app.get('/api/devicesR/:assetId', async (req, res) => {
             WHERE AssetID = @AssetID
         `;
 
-        const updateDeviceDetailsBadQuery = `
-        UPDATE DeviceDetails1
-        SET ConditionStatus = 'Bad'
-        WHERE AssetID = @AssetID
-    `;
 
-    await pool.request()
-    .input('AssetID', sql.VarChar(50), assetId)
-    .query(updateDeviceDetailsBadQuery);
 
 console.log(`ConditionStatus updated to 'Good' for Asset ID: ${assetId}`);
 
@@ -1144,12 +1149,28 @@ app.put('/api/repair/update', async (req, res) => {
                    .input('AssetID', sql.VarChar(50), assetId);  
 
         // If the repair status is "Resolved", update the DeviceDetails1 table
-        if (repairStatus === "Resolved") {
+        if (repairStatus === "Issue-Identified") {
+            const issueQuery = `
+                UPDATE DeviceDetails1
+                SET ConditionStatus = 'Issue-Identified'
+                WHERE AssetID = @AssetID;`
+
+                await request.query(issueQuery);
+                console.log('ConditionStatus updated to Issue-Identified for Asset ID:', assetId);    
+         }else if(repairStatus === "Send-to-Repair"){
+                const issueSendQuery = `
+                UPDATE DeviceDetails1
+                SET ConditionStatus = 'Send-to-Repair'
+                WHERE AssetID = @AssetID;`
+
+                await request.query(issueSendQuery);
+                console.log('ConditionStatus updated to Send-to-Repair for Asset ID:', assetId);   
+            }
+        else  {
             const updateDevice1Query = `
                 UPDATE DeviceDetails1
                 SET ConditionStatus = 'Good'
-                WHERE AssetID = @AssetID;
-            `;
+                WHERE AssetID = @AssetID;`
             await request.query(updateDevice1Query);
             console.log('ConditionStatus updated to Good for Asset ID:', assetId);
         }

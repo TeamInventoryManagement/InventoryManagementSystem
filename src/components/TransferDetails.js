@@ -46,7 +46,7 @@ export default function TransferDevices() {
 
   useEffect(() => {
     // Fetch data from your API
-    fetch('/api/TransferDevices')
+    fetch('http://localhost:3000/api/TransferDevices')
       .then((response) => response.json())
       .then((data) => {
         // Assuming data is an array of device details
