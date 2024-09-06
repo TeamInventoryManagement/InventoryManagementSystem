@@ -559,7 +559,7 @@ app.post('/api/Handover', async (req, res) => {
 
         try {
 
-            // Update DeviceDetails Table
+            // Update TransferDetails Table
           const updateDeviceQuery = `
                 UPDATE TransferDetails
                 SET CurrentStatus = 'Handover',
@@ -571,7 +571,18 @@ app.post('/api/Handover', async (req, res) => {
                 .input('AssetID', sql.VarChar(50), assetId)
                 .query(updateDeviceQuery);
 
+           // Update DeviceDetails Table
+          const updateDeviceTableQuery = `
+                UPDATE DeviceDetails1
+                SET CurrentStatus = 'In-Stock'
+                WHERE AssetID = @AssetID
+            `;
 
+           await transaction.request()
+                .input('AssetID', sql.VarChar(50), assetId)
+                .query(updateDeviceTableQuery);
+
+            
         console.log('Updated into DeviceDetails table');
 
         await transaction.commit();
@@ -650,6 +661,7 @@ console.log('Checking...2');
         WHERE AssetID = @AssetID
         `;
  
+
     await transaction.request()
         .input('AssetID', sql.VarChar(50), assetId)
         .input('Device', sql.VarChar(50), device)
@@ -754,7 +766,7 @@ app.post('/api/accessories', async (req, res) => {
         const pool = await poolPromise;
         const {
             accessoriesType, model, deviceBrand, assetId,
-            serialNumber, invoiceNumber, purchaseDate,
+            serialNumber, invoiceNumber, purchaseDate, purchaseCompany,
             purchasedAmount, warentyMonths
         } = req.body;
  
@@ -768,11 +780,11 @@ app.post('/api/accessories', async (req, res) => {
         const accessoriesDetailsQuery = `
             INSERT INTO Accessories (
                 Model, DeviceBrand, AssetID, AssetType, SerialNumber,
-                InvoiceNumber, PurchaseDate, PurchaseAmount,
+                InvoiceNumber, PurchaseDate, PurchaseCompany, PurchaseAmount,
                 WarentyMonths, WarrentyExpieryDate, SysDate
             ) VALUES (
                 @Model, @DeviceBrand, @AssetID, @AccessoriesType, @SerialNumber,
-                @InvoiceNumber, @PurchaseDate, @PurchaseAmount,
+                @InvoiceNumber, @PurchaseDate,@PurchaseCompany, @PurchaseAmount,
                 @WarentyMonths, @WarrentyExpieryDate, GETDATE()
             )
         `;
@@ -780,10 +792,10 @@ app.post('/api/accessories', async (req, res) => {
         const deviceDetailsQuery = `
             INSERT INTO DeviceDetails1 (
                 AssetID, Device, DeviceBrand, Model, SerialNumber, InvoiceNumber,
-                PurchaseDate, PurchaseAmount, WarentyMonths, WarrentyExpieryDate, CurrentStatus, SysDate
+                PurchaseDate, PurchaseAmount, WarentyMonths, WarrentyExpieryDate, CurrentStatus, ConditionStatus, SysDate
             ) VALUES (
                 @AssetID, @AccessoriesType, @DeviceBrand, @Model, @SerialNumber, @InvoiceNumber,
-                @PurchaseDate, @PurchaseAmount, @WarentyMonths, @WarrentyExpieryDate, 'In-Stock', GETDATE()
+                @PurchaseDate, @PurchaseAmount, @WarentyMonths, @WarrentyExpieryDate, 'In-Stock', 'Good-Condition', GETDATE()
             )
         `;
  
@@ -800,6 +812,7 @@ app.post('/api/accessories', async (req, res) => {
                 .input('SerialNumber', sql.VarChar(50), serialNumber)
                 .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
                 .input('PurchaseDate', sql.Date, purchaseDate)
+                .input('PurchaseCompany', sql.VarChar(50), purchaseCompany)
                 .input('PurchaseAmount', sql.Decimal(10, 2), purchasedAmount)
                 .input('WarentyMonths', sql.Int, warentyMonths)
                 .input('WarrentyExpieryDate', sql.Date, warrentyExpieryDate)
@@ -870,10 +883,10 @@ app.post('/api/networkEquipment', async (req, res) => {
         const deviceDetailsQuery = `
             INSERT INTO DeviceDetails1 (
                 AssetID, Device,DeviceBrand, DeviceID, Model, SerialNumber, InvoiceNumber,
-                PurchaseDate, PurchaseAmount, WarentyMonths, WarrentyExpieryDate, CurrentStatus, SysDate
+                PurchaseDate, PurchaseAmount, WarentyMonths, WarrentyExpieryDate, CurrentStatus, ConditionStatus, SysDate
             ) VALUES (
                 @AssetID, @AccessoriesType, @DeviceBrand, @DeviceID, @Model, @SerialNumber, @InvoiceNumber,
-                @PurchaseDate, @PurchaseAmount, @WarentyMonths, @WarrentyExpieryDate, 'In-Stock', GETDATE()
+                @PurchaseDate, @PurchaseAmount, @WarentyMonths, @WarrentyExpieryDate, 'In-Stock', 'Good-Condition', GETDATE()
             )
         `;
  
@@ -971,7 +984,6 @@ app.get('/api/devicesCount', async (req, res) => {
         const query = `
              SELECT device, COUNT(*) as count
             FROM DeviceDetails1
-            where device not in ('Laptop')
             GROUP BY device`;
                
         const result = await pool.request().query(query);
@@ -1262,6 +1274,41 @@ app.get('/api/Inventory', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
+
+app.get('/api/EmployeeChart', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        
+        console.log(`Fetching employee details`);
+        
+        const invquery = `
+            SELECT EmployeeID
+            ,FullName
+            ,Division
+            ,Email
+            FROM Employees
+        `;
+
+        const result = await pool.request()
+            .query(invquery);
+
+        console.log('Query executed successfully. Result:', result.recordset);
+
+        if (result.recordset.length > 0) {
+            res.json(result.recordset);
+        } else {
+            res.status(404).send('Employee not found');
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+
+
+
 
 
 const port = process.env.PORT || 3000;

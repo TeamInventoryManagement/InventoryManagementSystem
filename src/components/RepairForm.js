@@ -81,6 +81,7 @@ const resetForm = () => {
 const handleSubmit = async (event) => {
   event.preventDefault();
   try {
+    if (repairStatus !== 'Resolved' && repairStatus !== 'Send-to-Repair'){
     const response = await fetch('http://localhost:3000/api/repair', {
       method: 'POST',
       headers: {
@@ -99,12 +100,16 @@ const handleSubmit = async (event) => {
         receivedDate,
         repairCost
       })
-    });
+    })
     if (!response.ok) {
       throw new Error('Failed to submit repair data');
     }
     alert('Repair data submitted successfully!');
     resetForm(); // Reset form after successful submission
+  } else {
+    alert('No-Issue Found. Plrase Insert Issue.');
+  }
+    
   } catch (error) {
     console.error('Error submitting form:', error);
     alert('Failed to submit repair data');

@@ -11,6 +11,7 @@ const Accessories = () => {
         serialNumber: '',
         invoiceNumber: '',
         purchaseDate: '',
+        purchaseCompany: '',
         purchasedAmount: '',
         warentyMonths: ''
     });
@@ -64,6 +65,7 @@ const Accessories = () => {
                 serialNumber: data.SerialNumber || '',
                 invoiceNumber: data.InvoiceNumber || '',
                 purchaseDate: data.PurchaseDate ? data.PurchaseDate.split('T')[0] : '',
+                purchaseCompany: data.PurchaseCompany || '',
                 purchasedAmount: data.PurchaseAmount || '',
                 warentyMonths: data.WarentyMonths || '',
             });
@@ -83,6 +85,7 @@ const Accessories = () => {
             serialNumber: '',
             invoiceNumber: '',
             purchaseDate: '',
+            purchaseCompany: '',
             purchasedAmount: '',
             warentyMonths: ''
         });
@@ -123,6 +126,7 @@ const Accessories = () => {
                     <div className="form-group">
                         <label>Accessory Type</label>
                         <select name="accessoriesType" placeholder="Select Type" onChange={handleChange} value={formData.accessoriesType}>
+                            <option value="Select Type">Select Type</option>\
                             <option value="Keyboard">Keyboard</option>
                             <option value="Mouse">Mouse</option>
                             <option value="Dongle">Dongle</option>
@@ -169,7 +173,7 @@ const Accessories = () => {
                 <div className="form-row">
                 <div className="form-group">
                         <label>Purchased Company</label>
-                        <input type="text" name="purchasedAmount" placeholder="Purchased Amount" onChange={handleChange} value={formData.purchasedAmount} />
+                        <input type="text" name="purchaseCompany" placeholder="Purchased Company" onChange={handleChange} value={formData.purchaseCompany} />
                     </div>
                     <div className="form-group">
                         <label>Purchased Amount</label>

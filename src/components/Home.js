@@ -386,21 +386,29 @@ const fetchTotalDeviceCount = async () => {
           {statusError && <p style={{ color: 'red', textAlign: 'center' }}>Error: {statusError}</p>}
           {!statusLoading && !statusError && statusChartData && (
             <Doughnut
-              data={statusChartData}
-              options={{
-                responsive: true,
-                maintainAspectRatio: true,
-                aspectRatio: 2,
-                plugins: {
-                  legend: {
-                    position: 'top',
-                  },
-                  tooltip: {
-                    enabled: true,
+            data={statusChartData}
+            options={{
+              responsive: true,
+              maintainAspectRatio: true,
+              aspectRatio: 2,
+              plugins: {
+                legend: {
+                  position: 'top',
+                },
+                tooltip: {
+                  callbacks: {
+                    label: function (tooltipItem) {
+                      const data = tooltipItem.chart.data.datasets[0].data;
+                      const total = data.reduce((acc, val) => acc + val, 0);
+                      const currentValue = data[tooltipItem.dataIndex];
+                      const percentage = ((currentValue / total) * 100).toFixed(2); // Calculate percentage
+                      return `${tooltipItem.label}: ${currentValue} (${percentage}%)`;
+                    },
                   },
                 },
-              }}
-            />
+              },
+            }}
+          />
           )}
         </div>
       </div>
@@ -458,21 +466,29 @@ const fetchTotalDeviceCount = async () => {
           {conditionError && <p style={{ color: 'red', textAlign: 'center' }}>Error: {conditionError}</p>}
           {!conditionLoading && !conditionError && conditionChartData && (
             <Doughnut
-              data={conditionChartData}
-              options={{
-                responsive: true,
-                maintainAspectRatio: true,
-                aspectRatio: 2,
-                plugins: {
-                  legend: {
-                    position: 'top',
-                  },
-                  tooltip: {
-                    enabled: true,
+            data={conditionChartData}
+            options={{
+              responsive: true,
+              maintainAspectRatio: true,
+              aspectRatio: 2,
+              plugins: {
+                legend: {
+                  position: 'top',
+                },
+                tooltip: {
+                  callbacks: {
+                    label: function (tooltipItem) {
+                      const data = tooltipItem.chart.data.datasets[0].data;
+                      const total = data.reduce((acc, val) => acc + val, 0);
+                      const currentValue = data[tooltipItem.dataIndex];
+                      const percentage = ((currentValue / total) * 100).toFixed(2); // Calculate percentage
+                      return `${tooltipItem.label}: ${currentValue} (${percentage}%)`;
+                    },
                   },
                 },
-              }}
-            />
+              },
+            }}
+          />
           )}
         </div>
       </div>

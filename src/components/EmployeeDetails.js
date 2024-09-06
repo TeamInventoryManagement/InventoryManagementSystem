@@ -151,9 +151,9 @@ const EmployeeDetails = () => {
             onChange={(e) => setDivision(e.target.value)}
           >
             <option value="">Select Division</option>
-            <option value="HR">HR</option>
-            <option value="IT">IT</option>
-            <option value="Finance">Finance</option>
+            <option value="HR">ERP</option>
+            <option value="IT">Analytics</option>
+            <option value="Finance">Admin</option>
           </select>
         </div>
         <div className="form-group">

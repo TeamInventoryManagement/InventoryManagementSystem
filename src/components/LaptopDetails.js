@@ -284,8 +284,7 @@ const LaptopDetails = () => {
                     </div>
                 </div>
 
-                <button type="submit" className="submit-btn1" onClick={handleSubmit}>Add Device</button>
-                <button type="submit" className="submit-btn1">Update</button>
+        
             </form>
         </div>
     </div>

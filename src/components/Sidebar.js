@@ -4,7 +4,7 @@ import './Sidebar.css';
 import logo from './images/Altria-logo.png';
 
 const Sidebar = () => {
-    const [activeSection, setActiveSection] = useState('Inventory');
+    const [activeSection, setActiveSection] = useState('');
     const [isSidebarOpen, setSidebarOpen] = useState(false);
 
     const toggleSidebar = () => {
@@ -30,7 +30,7 @@ const Sidebar = () => {
                     <span>Home</span>
                 </Link>
                 <Link to="/InventoryPage" className={`menu-item ${activeSection === 'Inventory' ? 'active' : ''}`} onClick={() => setActiveSection('Inventory')}>
-                    <i className="fas fa-exchange-alt"></i>
+                    <i className="fas fa-book"></i>
                     <span>Inventory</span>
                 </Link>
                 <Link to="/TransferPage" className={`menu-item ${activeSection === 'Transfer' ? 'active' : ''}`} onClick={() => setActiveSection('Transfer')}>
@@ -38,7 +38,7 @@ const Sidebar = () => {
                     <span>Transfer</span>
                 </Link>
                 <Link to="/HandoverPage" className={`menu-item ${activeSection === 'Handover' ? 'active' : ''}`} onClick={() => setActiveSection('Handover')}>
-                    <i className="fas fa-exchange-alt"></i>
+                    <i className="fas fa-handshake"></i>
                     <span>Handover</span>
                 </Link>
                 <Link to="/RepairFormPage" className={`menu-item ${activeSection === 'IssueTracker' ? 'active' : ''}`} onClick={() => setActiveSection('IssueTracker')}>
@@ -51,7 +51,7 @@ const Sidebar = () => {
                     <i className="fas fa-laptop"></i>
                     <span>Laptop</span>
                 </Link>
-                <Link to="/NetworkEquipmentPage" className={`menu-item ${activeSection === 'Label' ? 'active' : ''}`} onClick={() => setActiveSection('NetworkEquipment')}>
+                <Link to="/NetworkEquipmentPage" className={`menu-item ${activeSection === 'NetworkEquipment' ? 'active' : ''}`} onClick={() => setActiveSection('NetworkEquipment')}>
                     <i className="fas fa-tag"></i>
                     <span>Network Equipment</span>
                 </Link>
@@ -78,6 +78,11 @@ const Sidebar = () => {
                 <Link to="/TransferDevicesPage" className={`menu-item ${activeSection === 'TransferDetails' ? 'active' : ''}`} onClick={() => setActiveSection('TransferDetails')}>
                     <i className="fas fa-clipboard-list"></i>
                     <span>Transfer Details</span>
+                </Link>
+
+                <Link to="/EmployeeChartPage" className={`menu-item ${activeSection === 'EmployeeChart' ? 'active' : ''}`} onClick={() => setActiveSection('EmployeeChart')}>
+                    <i className="fas fa-clipboard-list"></i>
+                    <span>Employee Details</span>
                 </Link>
             </div>
         </>
