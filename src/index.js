@@ -17,6 +17,7 @@ import HomePage from './pages/HomePage';
 import TransferDevicesPage from './pages/TransferDevicesPage';
 import InventoryPage from './pages/InventoryPage';
 import EmployeeChartPage from './pages/EmployeeChartPage';
+import DashboardPage from './pages/DashboardPage';
 
 
 ReactDOM.render(
@@ -39,6 +40,7 @@ ReactDOM.render(
         <Route path="TransferDevicesPage" element={<TransferDevicesPage />} />
         <Route path="InventoryPage" element={<InventoryPage />} />
         <Route path="EmployeeChartPage" element={<EmployeeChartPage />} />
+        <Route path="DashboardPage" element={<DashboardPage />} />
         {/* <Route path="AccessoriesPage" element={<AccessoriesPage />} /> */}
       </Route>
     </Routes>

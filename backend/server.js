@@ -65,11 +65,11 @@ app.post('/api/LaptopDetails', async (req, res) => {
         const laptopDetailsQuery = `
             INSERT INTO LaptopDetails1 (
                 Device, Model, DeviceBrand, AssetID, Processor, LaptopId, InstalledRAM, SerialNumber,
-                SystemType, InvoiceNumber, PurchaseDate, PurchaseAmount, Address,
+                SystemType, InvoiceNumber, PurchaseDate, PurchaseAmount,
                 WarentyMonths, WarrentyExpieryDate, SysDate
             ) VALUES (
                 @Device, @Model, @DeviceBrand, @AssetID, @Processor, @LaptopId, @InstalledRAM, @SerialNumber,
-                @SystemType, @InvoiceNumber, @PurchaseDate, @PurchaseAmount, @Address,
+                @SystemType, @InvoiceNumber, @PurchaseDate, @PurchaseAmount,
                 @WarentyMonths, @WarrentyExpieryDate, GETDATE()
             )
         `;
@@ -518,7 +518,7 @@ app.post('/api/Transfer', async (req, res) => {
             // Update DeviceDetails table
             const updateDeviceQuery = `
                 UPDATE DeviceDetails1
-                SET CurrentStatus = 'In-Use'
+                SET CurrentStatus = 'In-Use', conditionStatus='Good-Condition'
                 WHERE AssetID = @AssetID  
             `;
 
@@ -1252,6 +1252,9 @@ app.get('/api/Inventory', async (req, res) => {
             ,TotalDeviceCount
             ,InstockCount
             ,InUseCount
+            ,GoodCount
+            ,IssueCount
+            ,RepairCount
             ,InstockGoodCount
             ,InstockFairCount
             ,InUseGoodCount
@@ -1261,6 +1264,36 @@ app.get('/api/Inventory', async (req, res) => {
 
         const result = await pool.request()
             .query(invquery);
+
+        console.log('Query executed successfully. Result:', result.recordset);
+
+        if (result.recordset.length > 0) {
+            res.json(result.recordset);
+        } else {
+            res.status(404).send('Device not found');
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+
+
+app.get('/api/LaptopAge', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        
+        console.log(`Fetching LaptopAge details`);
+        
+        const agequery = `
+            SELECT LaptopAgeToToday
+            ,Count
+            FROM LaptopAge
+        `;
+
+        const result = await pool.request()
+            .query(agequery);
 
         console.log('Query executed successfully. Result:', result.recordset);
 
@@ -1307,6 +1340,35 @@ app.get('/api/EmployeeChart', async (req, res) => {
 });
 
 
+
+app.get('/api/WarrExp', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        
+        console.log(`Fetching warranty details`);
+        
+        const warexpquery = `
+            SELECT WarExpYear
+            ,WarExpCount
+            ,CumExpCount 
+            FROM warrantyexpire
+        `;
+
+        const result = await pool.request()
+            .query(warexpquery);
+
+        console.log('Query executed successfully. Result:', result.recordset);
+
+        if (result.recordset.length > 0) {
+            res.json(result.recordset);
+        } else {
+            res.status(404).send('Device not found');
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).send('Server error');
+    }
+});
 
 
 
