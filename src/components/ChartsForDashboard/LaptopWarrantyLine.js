@@ -2,9 +2,12 @@ import * as React from 'react';
 import { LineChart } from '@mui/x-charts/LineChart';
 import { useState, useEffect } from 'react';
 import { Typography, Card, CardContent, Stack } from '@mui/material';
+import Chip from '@mui/material/Chip';
 
 export default function LaptopWarrStats() {
   const [laptopWarrData, setLaptopWarrData] = useState(null);
+  const [laptopTotal, setLaptopTotal] = useState(null);
+  const [laptopWarExpTotal, setLaptopWarExpTotal] = useState(null);
 
   // Fetch Laptop Warranty Data
   const fetchLaptopWarrData = async () => {
@@ -26,8 +29,34 @@ export default function LaptopWarrStats() {
     }
   };
 
+  const fetchLaptopTotal = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/totalLaptopCount');
+      const data = await response.json();
+
+      setLaptopTotal(data.count);  // Directly setting laptopTotal
+      console.log(data.count);
+    } catch (error) {
+      console.error('Error fetching data for laptops:', error);
+    }
+  };
+
+  const fetchLaptopWarExpTotal = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/totalLaptopExpCount');
+      const data = await response.json();
+
+      setLaptopWarExpTotal(data.countWarExp);  // Directly setting laptopTotal
+      console.log(data.countWarExp);
+    } catch (error) {
+      console.error('Error fetching data for laptops:', error);
+    }
+  };
+
   useEffect(() => {
     fetchLaptopWarrData();
+    fetchLaptopTotal();
+    fetchLaptopWarExpTotal();
   }, []);
 
   // Conditional rendering for the chart
@@ -36,6 +65,10 @@ export default function LaptopWarrStats() {
   }
 
   const years = laptopWarrData.labels; // Extract the years as strings
+
+  // Calculate the laptop expired percentage
+  const LaptopExpPercentage = laptopWarExpTotal && laptopTotal ? 
+    ((laptopWarExpTotal / laptopTotal) * 100).toFixed(2) : 0; // Percentage rounded to two decimal places
 
   return (
     <Card variant="outlined" sx={{ width: '100%' }}>
@@ -52,9 +85,17 @@ export default function LaptopWarrStats() {
               gap: 1,
             }}
           >
+            <Typography variant="h4" component="p">
+              {laptopWarExpTotal} Units
+            </Typography>
+            <Chip 
+              size="small" 
+              color="error" 
+              label={`${LaptopExpPercentage}% Expired`}  // Display percentage with label
+            />
           </Stack>
           <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            Years: {years.join(', ')}
+            Expired Laptop Count upto date
           </Typography>
         </Stack>
         <LineChart
@@ -79,7 +120,6 @@ export default function LaptopWarrStats() {
               area: true,
               min: 0,
             },
-
           ]}
           height={300}
           slotProps={{

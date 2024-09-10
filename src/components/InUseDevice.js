@@ -2,30 +2,51 @@ import * as React from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { useState, useEffect } from 'react';
 import ColorChips from './Chips.js'; //
+import { Chip } from '@mui/material';
 
 const columns = [
-  { field: 'AssetID', headerName: 'Asset ID', width: 70 },
+  { field: 'AssetID', headerName: 'Asset ID', width: 150 },
   { field: 'Device', headerName: 'Device', width: 130 },
   { field: 'DeviceBrand', headerName: 'Device Brand', width: 130 },
   { field: 'Model', headerName: 'Model', width: 130 },
-  { field: 'SerialNumber', headerName: 'Serial Number', width: 130 },
-  { field: 'ConditionStatus', headerName: 'Condition Status', width: 130 },  
+  { field: 'SerialNumber', headerName: 'Serial Number', width: 160 },
+  { field: 'ConditionStatus', headerName: 'Condition Status', width: 180 ,
+    renderCell: (params) => {
+      let statuslabel = 'default';
+      //const [labelstatus, setstatuslabel] = useState(null);
+        if (params.value === 'Good-Condition') {
+          statuslabel = 'success';
+          //setstatuslabel(statuslabel)
+        } else if (params.value === 'Issue-Identified') {
+          statuslabel = 'warning';
+        }  else if (params.value === 'Send-to-Repair') {
+          statuslabel = 'secondary';
+        } else if (params.value === 'Disposal') {
+          statuslabel = 'error';
+        } 
+        return (
+            <Chip variant="outlined" size="small" color={statuslabel} label={params.value} />
+        );
+      }  
+  },  
   { 
     field: 'CurrentStatus', 
     headerName: 'Current Status', 
     width: 130,
     renderCell: (params) => {
-    /*  let color = 'black'; // default color
-      if (params.value === 'In-Use') {
-        color = 'green';
-      } else if (params.value === 'In-Stock') {
-        color = 'blue';
-      } */
 
+        let statuslabel = 'default';
+        //const [labelstatus, setstatuslabel] = useState(null);
+          if (params.value === 'In-Use') {
+            statuslabel = 'success';
+            //setstatuslabel(statuslabel)
+          } else if (params.value === 'In-Stock') {
+            statuslabel = 'primary';
+          } else if (params.value === 'Disposal') {
+            statuslabel = 'error';
+          } 
       return (
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <ColorChips label={params.value} />
-        </div>
+        <Chip variant="outlined" size="small" color={statuslabel} label={params.value} />
       );
     }  
   },  

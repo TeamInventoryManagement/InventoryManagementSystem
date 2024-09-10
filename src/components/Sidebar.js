@@ -88,6 +88,10 @@ const Sidebar = () => {
                     <i className="fas fa-clipboard-list"></i>
                     <span>Employee Details</span>
                 </Link>
+                <Link to="/IssueTrackerPage2" className={`menu-item ${activeSection === 'IssueTracker2' ? 'active' : ''}`} onClick={() => setActiveSection('IssueTracker2')}>
+                    <i className="fas fa-clipboard-list"></i>
+                    <span>Issue Tracker 02</span>
+                </Link>
             </div>
         </>
     );

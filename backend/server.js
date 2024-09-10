@@ -606,6 +606,22 @@ app.post('/api/repair', async (req, res) => {
 
 console.log('Checking...1');
 
+        const repairinsertquery = `
+        INSERT INTO IssueTracker (
+            AssetID, Device, DeviceBrand, Model, SerialNumber, RepairStatus, 
+            InvoiceNumber, Vendor, IssueDateToVendor, ReceivedDatefromVendor, RepairCost
+        ) VALUES (
+            @AssetID, @Device, @DeviceBrand, @Model, @SerialNumber, @RepairStatus, 
+            @InvoiceNumber, @Vendor, @IssueDateToVendor, @ReceivedDateFromVendor, @RepairCost)
+        `;
+
+        const repairupdatedevicequery = `
+        UPDATE DeviceDetails1
+        SET ConditionStatus = @RepairStatus
+        WHERE AssetID = @AssetID
+        `;
+ 
+
 try {
     const pool = await poolPromise;
     const { assetId, device, deviceBrand, model, serialNumber, repairStatus, repairInvoiceNumber, vendor, 
@@ -615,7 +631,7 @@ try {
     const transaction = new sql.Transaction(pool);
     await transaction.begin();
 
-console.log('Checking...2');
+    console.log('Checking...2');
 
     try {
 
@@ -646,21 +662,7 @@ console.log('Checking...2');
 
             console.log('Validation : PASS');
 
-        const repairinsertquery = `
-        INSERT INTO IssueTracker (
-            AssetID, Device, DeviceBrand, Model, SerialNumber, RepairStatus, 
-            InvoiceNumber, Vendor, IssueDateToVendor, ReceivedDatefromVendor, RepairCost
-        ) VALUES (
-            @AssetID, @Device, @DeviceBrand, @Model, @SerialNumber, @RepairStatus, 
-            @InvoiceNumber, @Vendor, @IssueDateToVendor, @ReceivedDateFromVendor, @RepairCost)
-        `;
 
-        const repairupdatedevicequery = `
-        UPDATE DeviceDetails1
-        SET ConditionStatus = @RepairStatus
-        WHERE AssetID = @AssetID
-        `;
- 
 
     await transaction.request()
         .input('AssetID', sql.VarChar(50), assetId)
@@ -1033,6 +1035,29 @@ app.get('/api/totalLaptopCount', async (req, res) => {
         res.status(500).send({ error: 'Error fetching total laptop count: ' + err.message });
     }
 });
+
+app.get('/api/totalLaptopExpCount', async (req, res) => {
+    try {
+        // Assuming `poolPromise` is your SQL connection pool promise
+        const pool = await poolPromise;
+       
+        // The SQL query to count laptops
+        const query = `
+        SELECT COUNT(*) AS countWarExp
+        FROM DeviceDetails1
+        WHERE device = 'Laptop' and WarrentyExpieryDate<CURRENT_DATE;`;
+       
+        // Execute the query
+        const result = await pool.request().query(query);
+       
+        // Respond with the count of laptops
+        res.status(200).json(result.recordset[0]);
+    } catch (err) {
+        console.error('Error fetching : ', err.message);
+        res.status(500).send({ error: 'Error fetching total laptop count: ' + err.message });
+    }
+});
+ 
  
   app.get('/api/totalDevicesCount', async (req, res) => {
     try {
