@@ -1,10 +1,10 @@
 import React from 'react';
-import RepairForm from '../components/RepairForm';
+import PopupForm from '../components/IssueForm';
 
 const RepairFormPage = () => {
   return (
     <>
-      <RepairForm />
+      <PopupForm />
     </>
   );
 };

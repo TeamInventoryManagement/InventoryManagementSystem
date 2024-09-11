@@ -72,6 +72,7 @@ const Accessories = () => {
             const data = await response.json();
             console.log('Received data:', data); // Log the received data
             setFormData({
+                accessoriesType: data.AssetType|| '',
                 deviceBrand: data.DeviceBrand || '',
                 model: data.Model || '',
                 assetId: data.AssetID || '',

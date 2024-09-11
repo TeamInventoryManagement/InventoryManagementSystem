@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "./TransferHandover.css";
 import searchIcon from './images/Search_icon.png';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import Button from '@mui/material/Button';
+import LoadingButton from '@mui/lab/LoadingButton';
+import SaveIcon from '@mui/icons-material/Save';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import ColorChips from "./Chips.js";
 
 const Handover = () => {
@@ -63,31 +69,79 @@ const Handover = () => {
         }),
       });
 
-      if (response.ok) {
-        alert('Handover successful!');
-        resetForm(); // Reset the form after successful handover
-      } else {
-        const errorData = await response.json();
-        alert('Error: ' + errorData.error);
-      }
-    } catch (error) {
-      console.error('Error during handover:', error);
-      alert('An error occurred: ' + error.message);
-    }
-  };
+  //     if (response.ok) {
+  //       alert('Handover successful!');
+  //       resetForm(); // Reset the form after successful handover
+  //     } else {
+  //       const errorData = await response.json();
+  //       alert('Error: ' + errorData.error);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error during handover:', error);
+  //     alert('An error occurred: ' + error.message);
+  //   }
+  // };
+
+          // Show initial toast and save the ID
+          const toastId = toast.loading("Checking Details...", { position: "top-center" });
+            
+          // After a delay of 1 second, update the toast based on the response
+          setTimeout(() => {
+              if (response.ok) {
+                  toast.update(toastId, {
+                      render: "Handover successful!", 
+                      type: "success", 
+                      isLoading: false, 
+                      autoClose: 2000, 
+                      closeOnClick: true
+                  });
+                  resetForm();
+              } else {
+                  toast.update(toastId, {
+                      render: "Failed to Handover Device", 
+                      type: "error", 
+                      isLoading: false, 
+                      autoClose: 2000,
+                      closeOnClick: true
+                  });
+              }
+          }, 1000); 
+
+          } catch (error) {
+                console.error('Error during handover:', error);
+                toast.error("An error occurred. Please try again", { position: "top-center" });
+          }
+        };
 
   return (
-    <div className="form-container">
-      <button type="submit" className="search-button" style={{ width: '20px', height: '20px', marginLeft: '310px', position: 'relative', top: '28px' }}>
+    <div className="form-container" >
+    {/* First Line: Asset ID Search Bar */}
+    <div className="form-row">
+      <div className="form-group" >
+        <label htmlFor="assetSearch">Search by Asset ID</label>
+        <div className="search-container" >
+          <input
+            id="assetSearch"
+            type="text"
+            placeholder="Search by asset id"
+            value={assetId}
+            onChange={(e) => setAssetId(e.target.value)}
+          />
+        </div>
+      </div>
+      <button type="submit" className="search-button" style={{ width: '20px', height: '20px', marginRight: '810px', position: 'relative', top: '28px' }}>
         <img
           src={searchIcon}
           alt="Search"
-          style={{ width: '20px', height: '20px', marginLeft: '180px', position: 'relative', top: '28px' }}
+          style={{ width: '20px', height: '20px', marginLeft: '250px', position: 'relative', top: '-120px' }}
         />
       </button>
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="device">Device</label>
+    </div>
+ 
+    {/* Second Line: Device Dropdown and Asset ID */}
+    <div className="form-row" style={{ marginTop: '-50px' }}>
+      <div className="form-group">
+      <label htmlFor="device">Device</label>
           <input
             id="device"
             type="text"
@@ -96,42 +150,31 @@ const Handover = () => {
             readOnly
           />
         </div>
-        <div className="form-group">
-          <label htmlFor="assetSearch">Search by asset id</label>
-          <div className="search-container">
-            <input
-              id="assetSearch"
-              type="text"
-              placeholder="Search by asset id"
-              value={assetId}
-              onChange={(e) => setAssetId(e.target.value)}
-            />
-          </div>
-        </div>
+      <div className="form-group">
+        <label htmlFor="assetId">Asset ID</label>
+        <input
+          id="assetId"
+          type="text"
+          placeholder="Value"
+          value={assetId}
+          readOnly
+        />
       </div>
-
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="deviceName">Device Brand</label>
-          <input
-            id="deviceName"
-            type="text"
-            placeholder="Value"
-            value={deviceBrand}
-            readOnly
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="assetId">Asset ID</label>
-          <input
-            id="assetId"
-            type="text"
-            placeholder="Value"
-            value={assetId}
-            readOnly
-          />
-        </div>
+    </div>
+ 
+    {/* Third Line: Device Name */}
+    <div className="form-row">
+      <div className="form-group">
+        <label htmlFor="deviceName">Device Name</label>
+        <input
+          id="deviceName"
+          type="text"
+          placeholder="Value"
+          value={deviceBrand}
+          readOnly
+        />
       </div>
+    </div>
 
       <div className="form-row">
         <div className="form-group">
@@ -247,11 +290,15 @@ const Handover = () => {
         </div>
       </div>
 
-      <div className="form-row action-buttons">
-        <button type="button" className="handover-btn" onClick={handleHandover}>
-          Handover
-        </button>
-      </div>
+      <div className="form-group" >
+        <ButtonGroup
+                variant="outlined"
+                aria-label="Loading button group"
+                style={{ marginTop: '-1027px' ,marginLeft:'610px'}}>
+                <Button onClick={handleHandover}>Handover Device</Button>
+        </ButtonGroup>
+        </div>
+        <ToastContainer />
     </div>
   );
 };
