@@ -9,6 +9,7 @@ const Transfer = () => {
   const [deviceBrand, setDeviceBrand] = useState("");
   const [model, setModel] = useState("");
   const [serialNumber, setSerialNumber] = useState("");
+  const [bitLockerKey, setBitLockerKey] = useState("");
   const [conditionStatus, setConditionStatus] = useState("Condition Status");
   const [currentStatus, setCurrentStatus] = useState("Status");
 
@@ -40,6 +41,7 @@ const Transfer = () => {
       setDeviceBrand(data.DeviceBrand);
       setModel(data.Model);
       setSerialNumber(data.SerialNumber);
+      setBitLockerKey(data.BitLockerKey);
       setConditionStatus(data.ConditionStatus);
       setCurrentStatus(data.CurrentStatus);
     } catch (error) {
@@ -68,6 +70,7 @@ const Transfer = () => {
     setDeviceBrand("");
     setModel("");
     setSerialNumber("");
+    setBitLockerKey("");
     setConditionStatus("Condition Status");
     setCurrentStatus("Status");
     setEmployeeId("");
@@ -83,6 +86,7 @@ const Transfer = () => {
       deviceBrand,
       model,
       serialNumber,
+      bitLockerKey,
       conditionStatus,
       currentStatus,
       employeeId,
@@ -286,6 +290,21 @@ const Transfer = () => {
           />
         </div>
       </div>
+
+      <div className="form-row">
+        <div className="form-group">
+          <label htmlFor="bitLockerKey">BitLocker Key</label>
+          <input
+            id="bitLockerKey"
+            type="text"
+            placeholder="Enter BitLocker Key"
+            value={bitLockerKey}
+            onChange={(e) => setBitLockerKey(e.target.value)}
+            required
+          />
+        </div>
+      </div>
+
 
       <div className="form-row action-buttons">
         <button type="button" className="transfer-btn" onClick={handleTransfer}>

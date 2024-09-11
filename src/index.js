@@ -16,8 +16,8 @@ import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
 import TransferDevicesPage from './pages/TransferDevicesPage';
 import InventoryPage from './pages/InventoryPage';
+import UsersRolesPage from './pages/UsersRolesPage';
 import EmployeeChartPage from './pages/EmployeeChartPage';
-
 
 ReactDOM.render(
   <Router>
@@ -38,8 +38,9 @@ ReactDOM.render(
         <Route path="HomePage" element={<HomePage />} />
         <Route path="TransferDevicesPage" element={<TransferDevicesPage />} />
         <Route path="InventoryPage" element={<InventoryPage />} />
+        <Route path="UsersRolesPage" element={<UsersRolesPage />} />
+        <Route path="InventoryPage" element={<InventoryPage />} />
         <Route path="EmployeeChartPage" element={<EmployeeChartPage />} />
-        {/* <Route path="AccessoriesPage" element={<AccessoriesPage />} /> */}
       </Route>
     </Routes>
   </Router>,

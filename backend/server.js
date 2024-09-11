@@ -42,19 +42,21 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
+  
+
 // Route to handle device addition (inserts into both LaptopDetails and DeviceDetails)
 app.post('/api/LaptopDetails', async (req, res) => {
     try {
         const pool = await poolPromise;
         const {
             device, model, deviceBrand, assetId, processor, laptopId, installedRam,
-            serialNumber, systemType, invoiceNumber, purchasedDate,
-            purchasedAmount, address, warentyMonths
+            serialNumber, systemType, invoiceNumber, screenSize, purchasedDate, resolution, purchaseCompany,
+            purchasedAmount, warentyMonths
         } = req.body;
 
         console.log('Received form data:', req.body);
 
-        if (!device || !model || !deviceBrand || !laptopId || !serialNumber || !assetId || !warentyMonths || !purchasedDate) {
+        if (!device || !model || !deviceBrand || !laptopId || !serialNumber || !assetId || !warentyMonths || !purchasedDate || !purchaseCompany || !screenSize || !resolution) {
             return res.status(400).send({ error: 'All required fields must be provided' });
         }
 
@@ -65,11 +67,11 @@ app.post('/api/LaptopDetails', async (req, res) => {
         const laptopDetailsQuery = `
             INSERT INTO LaptopDetails1 (
                 Device, Model, DeviceBrand, AssetID, Processor, LaptopId, InstalledRAM, SerialNumber,
-                SystemType, InvoiceNumber, PurchaseDate, PurchaseAmount, Address,
+                SystemType, InvoiceNumber, ScreenSize, PurchaseDate, Resolution, PurchaseAmount, PurchaseCompany,
                 WarentyMonths, WarrentyExpieryDate, SysDate
             ) VALUES (
                 @Device, @Model, @DeviceBrand, @AssetID, @Processor, @LaptopId, @InstalledRAM, @SerialNumber,
-                @SystemType, @InvoiceNumber, @PurchaseDate, @PurchaseAmount, @Address,
+                @SystemType, @InvoiceNumber, @ScreenSize, @PurchaseDate, @Resolution, @PurchaseAmount, @PurchaseCompany,
                 @WarentyMonths, @WarrentyExpieryDate, GETDATE()
             )
         `;
@@ -79,12 +81,12 @@ app.post('/api/LaptopDetails', async (req, res) => {
         const deviceDetailsQuery = `
             INSERT INTO DeviceDetails1 (
                 Device, AssetID, DeviceBrand, DeviceID, Model, SerialNumber, SystemType, InvoiceNumber,
-                PurchaseDate, PurchaseAmount, WarentyMonths, WarrentyExpieryDate, CurrentStatus,
+                PurchaseDate, PurchaseAmount, PurchaseCompany, WarentyMonths, WarrentyExpieryDate, CurrentStatus,
                 ConditionStatus, SysDate
             ) VALUES (
                 @Device, @AssetID, @DeviceBrand, @LaptopId, @Model, @SerialNumber, @SystemType, @InvoiceNumber,
-                @PurchaseDate, @PurchaseAmount, @WarentyMonths, @WarrentyExpieryDate, 'In-Stock',
-                'Good-Condition', GETDATE()
+                @PurchaseDate, @PurchaseAmount, @PurchaseCompany, @WarentyMonths, @WarrentyExpieryDate, 'In-Stock',
+                'Brand-New', GETDATE()
             )
         `;
         // Execute the queries within a transaction
@@ -104,9 +106,11 @@ app.post('/api/LaptopDetails', async (req, res) => {
                 .input('SerialNumber', sql.VarChar(50), serialNumber)
                 .input('SystemType', sql.VarChar(50), systemType)
                 .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
+                .input('ScreenSize', sql.VarChar(50), screenSize)
                 .input('PurchaseDate', sql.Date, purchasedDate)
+                .input('Resolution', sql.VarChar(50), resolution)
                 .input('PurchaseAmount', sql.Decimal(10, 2), purchasedAmount)
-                .input('Address', sql.VarChar(50), address)
+                .input('PurchaseCompany', sql.VarChar(50), purchaseCompany)
                 .input('WarentyMonths', sql.Int, warentyMonths)
                 .input('WarrentyExpieryDate', sql.Date, warrentyExpieryDate)
                 .query(laptopDetailsQuery);
@@ -125,6 +129,7 @@ app.post('/api/LaptopDetails', async (req, res) => {
                 .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
                 .input('PurchaseDate', sql.Date, purchasedDate)
                 .input('PurchaseAmount', sql.Decimal(10, 2), purchasedAmount)
+                .input('PurchaseCompany', sql.VarChar(50), purchaseCompany)
                 .input('WarentyMonths', sql.Int, warentyMonths)
                 .input('WarrentyExpieryDate', sql.Date, warrentyExpieryDate)
                 .query(deviceDetailsQuery);
@@ -152,13 +157,13 @@ app.put('/api/LaptopUpdate', async (req, res) => {
         const pool = await poolPromise;
         const {
             device, model, deviceBrand, assetId, processor, laptopId, installedRam,
-            serialNumber, systemType, invoiceNumber, purchasedDate,
-            purchasedAmount, address, warentyMonths
+            serialNumber, systemType, invoiceNumber, screenSize, purchasedDate, resolution, purchaseCompany,
+            purchasedAmount, warentyMonths
         } = req.body;
 
         console.log('Received form data:', req.body);
 
-        if (!device || !model || !deviceBrand || !laptopId || !serialNumber || !assetId || !warentyMonths || !purchasedDate) {
+        if (!device || !model || !processor || !deviceBrand || !laptopId || !serialNumber || !assetId || !warentyMonths || !purchasedDate || !purchaseCompany || !screenSize || !resolution) {
             return res.status(400).send({ error: 'All required fields must be provided' });
         }
 
@@ -168,10 +173,10 @@ app.put('/api/LaptopUpdate', async (req, res) => {
         // Query to insert data into LaptopDetails table
         const updatelaptopDetailsQuery = `
             UPDATE LaptopDetails1 SET
-                Device=@Device, Model=@Model, DeviceBrand=@DeviceBrand, Processor=@Processor, 
-                LaptopId=@LaptopId, InstalledRAM=@InstalledRAM, SerialNumber=@SerialNumber,
-                SystemType=@SystemType, InvoiceNumber=@InvoiceNumber, PurchaseDate=@PurchaseDate, 
-                PurchaseAmount=@PurchaseAmount, Address=@Address,
+                Device = @Device, Model = @Model, DeviceBrand = @DeviceBrand, Processor = @Processor, 
+                LaptopId = @LaptopId, InstalledRAM = @InstalledRAM, SerialNumber = @SerialNumber,
+                SystemType=@SystemType, InvoiceNumber=@InvoiceNumber, ScreenSize=@ScreenSize, Resolution=@Resolution, PurchaseDate=@PurchaseDate, 
+                PurchaseAmount=@PurchaseAmount, PurchaseCompany=@PurchaseCompany,
                 WarentyMonths=@WarentyMonths, WarrentyExpieryDate=@WarrentyExpieryDate
                 WHERE AssetID=@AssetID`;
 
@@ -180,7 +185,7 @@ app.put('/api/LaptopUpdate', async (req, res) => {
             UPDATE DeviceDetails1 SET
                 Device=@Device, DeviceBrand=@DeviceBrand, DeviceID=@LaptopId, Model=@Model, 
                 SerialNumber=@SerialNumber, SystemType=@SystemType, InvoiceNumber=@InvoiceNumber,
-                PurchaseDate=@PurchaseDate, PurchaseAmount=@PurchaseAmount, WarentyMonths=@WarentyMonths, 
+                PurchaseDate=@PurchaseDate, PurchaseAmount=@PurchaseAmount, PurchaseCompany=@PurchaseCompany, WarentyMonths=@WarentyMonths, 
                 WarrentyExpieryDate=@WarrentyExpieryDate
                 WHERE AssetID=@AssetID`;
 
@@ -198,12 +203,14 @@ app.put('/api/LaptopUpdate', async (req, res) => {
                 .input('Processor', sql.VarChar(50), processor)
                 .input('LaptopId', sql.VarChar(50), laptopId)
                 .input('InstalledRAM', sql.VarChar(50), installedRam)
+                .input('ScreenSize', sql.VarChar(50), screenSize)
+                .input('Resolution', sql.VarChar(50), resolution)
                 .input('SerialNumber', sql.VarChar(50), serialNumber)
                 .input('SystemType', sql.VarChar(50), systemType)
                 .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
                 .input('PurchaseDate', sql.Date, purchasedDate)
                 .input('PurchaseAmount', sql.Decimal(10, 2), purchasedAmount)
-                .input('Address', sql.VarChar(50), address)
+                .input('PurchaseCompany', sql.VarChar(50), purchaseCompany)
                 .input('WarentyMonths', sql.Int, warentyMonths)
                 .input('WarrentyExpieryDate', sql.Date, warrentyExpieryDate)
                 .query(updatelaptopDetailsQuery);
@@ -222,6 +229,7 @@ app.put('/api/LaptopUpdate', async (req, res) => {
                 .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
                 .input('PurchaseDate', sql.Date, purchasedDate)
                 .input('PurchaseAmount', sql.Decimal(10, 2), purchasedAmount)
+                .input('PurchaseCompany', sql.VarChar(50), purchaseCompany)
                 .input('WarentyMonths', sql.Int, warentyMonths)
                 .input('WarrentyExpieryDate', sql.Date, warrentyExpieryDate)
                 .query(updatedeviceDetailsQuery);
@@ -253,9 +261,9 @@ app.post('/api/LaptopDelete', async (req, res) => {
 
         console.log('Received form data:', req.body);
 
-        // if (!model || !assetId) {
-        //     return res.status(400).send({ error: 'All required fields must be provided' });
-        // }
+        if (!assetId) {
+            return res.status(400).send({ error: 'All required fields must be provided' });
+        }
 
         // Query to insert data into LaptopDetails table
         const deletelaptopDetailsQuery = `
@@ -312,8 +320,8 @@ app.get('/api/laptop/:assetId', async (req, res) => {
 
         const query = `
             SELECT Device, AssetID, DeviceBrand, LaptopId, Model, SerialNumber,
-                   Processor, InstalledRAM, SystemType, InvoiceNumber, PurchaseDate,
-                   PurchaseAmount, Address, WarentyMonths, WarrentyExpieryDate, SysDate
+                   Processor, InstalledRAM, SystemType, InvoiceNumber, ScreenSize, Resolution, PurchaseDate,
+                   PurchaseAmount, PurchaseCompany, WarentyMonths, WarrentyExpieryDate, SysDate
             FROM LaptopDetails1
             WHERE AssetID = @AssetID
         `;
@@ -334,6 +342,10 @@ app.get('/api/laptop/:assetId', async (req, res) => {
         res.status(500).send({ error: 'Server error: ' + err.message });
     }
 });
+
+
+
+
 
 
 //Retrieve data to the transfer page
@@ -460,12 +472,11 @@ app.get('/api/transfer/:assetId', async (req, res) => {
 
 
 //Insert Transfer details
-// Route to handle transfer details
 app.post('/api/Transfer', async (req, res) => {
     try {
         const pool = await poolPromise;
         const {
-        assetId, device, deviceBrand, model, serialNumber, conditionStatus, employeeId, fullName, division, email
+            assetId, device, deviceBrand, model, serialNumber, bitLockerKey, conditionStatus, employeeId, fullName, division, email
         } = req.body;
 
         console.log('Received form data:', req.body);
@@ -474,38 +485,33 @@ app.post('/api/Transfer', async (req, res) => {
         await transaction.begin();
 
         try {
-            // Check if there's already an 'In-Use' record for this AssetID
             const checkQuery = `
                 SELECT COUNT(*) AS count 
                 FROM TransferDetails 
                 WHERE AssetID = @AssetID AND CurrentStatus = 'In-Use'
             `;
-
             const checkResult = await transaction.request()
                 .input('AssetID', sql.VarChar(50), assetId)
                 .query(checkQuery);
 
-            const inUseCount = checkResult.recordset[0].count;
-
-            if (inUseCount > 0) {
+            if (checkResult.recordset[0].count > 0) {
                 await transaction.rollback();
                 return res.status(400).send({ error: 'This asset is already marked as "In-Use" in the Transfer table.' });
             }
 
-            // Insert into TransferDetails table
             const insertQuery = `
                 INSERT INTO TransferDetails 
-                (AssetID, Device, DeviceBrand, Model, SerialNumber, ConditionStatus, EmployeeID, FullName, Division, Email, issueDate, CurrentStatus)
+                (AssetID, Device, DeviceBrand, Model, SerialNumber, BitLockerKey, ConditionStatus, EmployeeID, FullName, Division, Email, IssueDate, CurrentStatus)
                 VALUES 
-                (@AssetID, @Device, @DeviceBrand, @Model, @SerialNumber, @ConditionStatus, @EmployeeID, @FullName, @Division, @Email, GETDATE(), 'In-Use')
+                (@AssetID, @Device, @DeviceBrand, @Model, @SerialNumber, @BitLockerKey, @ConditionStatus, @EmployeeID, @FullName, @Division, @Email, GETDATE(), 'In-Use')
             `;
-
             await transaction.request()
                 .input('AssetID', sql.VarChar(50), assetId)
                 .input('Device', sql.VarChar(50), device)
                 .input('DeviceBrand', sql.VarChar(50), deviceBrand)
                 .input('Model', sql.VarChar(50), model)
                 .input('SerialNumber', sql.VarChar(50), serialNumber)
+                .input('BitLockerKey', sql.VarChar(50), bitLockerKey)
                 .input('ConditionStatus', sql.VarChar(50), conditionStatus)
                 .input('EmployeeID', sql.VarChar(50), employeeId)
                 .input('FullName', sql.VarChar(50), fullName)
@@ -513,23 +519,38 @@ app.post('/api/Transfer', async (req, res) => {
                 .input('Email', sql.VarChar(50), email)
                 .query(insertQuery);
 
-            console.log('Inserted into Transfer table');
-
-            // Update DeviceDetails table
             const updateDeviceQuery = `
                 UPDATE DeviceDetails1
                 SET CurrentStatus = 'In-Use'
                 WHERE AssetID = @AssetID  
             `;
-
             await transaction.request()
                 .input('AssetID', sql.VarChar(50), assetId)
                 .query(updateDeviceQuery);
 
-            console.log('Updated DeviceDetails table');
+            const updateConditionQuery = `
+                UPDATE DeviceDetails1
+                SET ConditionStatus = 'Good-Condition'
+                WHERE AssetID = @AssetID AND ConditionStatus = 'Brand-new'
+ 
+            `;
+            const updateConditionResult = await transaction.request()
+                .input('AssetID', sql.VarChar(50), assetId)
+                .query(updateConditionQuery);
+
+            //     const updateTransferDetailsQuery = `
+            //     UPDATE TransferDetails
+            //     SET ConditionStatus = 'Good-Condition'
+            //     WHERE AssetID = @AssetID AND ConditionStatus = 'Brand-new'
+ 
+            // `;
+            // const updateTransferDetailsQuery = await transaction.request()
+            //     .input('AssetID', sql.VarChar(50), assetId)
+            //     .query(updateTransferDetailsQuery);
+                
+            console.log('Updated DeviceDetails table:', updateConditionResult);
 
             await transaction.commit();
-
             res.status(201).send({ message: 'Transfer added successfully' });
         } catch (error) {
             console.error('Error during transaction:', error.message);
@@ -542,7 +563,10 @@ app.post('/api/Transfer', async (req, res) => {
     }
 });
 
+
  
+
+// 
 
 app.post('/api/Handover', async (req, res) => {
     try {
@@ -601,104 +625,103 @@ app.post('/api/Handover', async (req, res) => {
 });
 
 
-
 app.post('/api/repair', async (req, res) => {
 
-console.log('Checking...1');
-
-try {
-    const pool = await poolPromise;
-    const { assetId, device, deviceBrand, model, serialNumber, repairStatus, repairInvoiceNumber, vendor, 
-    issueDate, receivedDate, repairCost } = req.body;
-
-    // Execute the queries within a transaction
-    const transaction = new sql.Transaction(pool);
-    await transaction.begin();
-
-console.log('Checking...2');
-
+    console.log('Checking...1');
+    
     try {
-
-    console.log('Checking...3');
-
-           // Check if there's already an 'Issue-Identified' record for this AssetID
-            const checkQuery = `
-                SELECT COUNT(*) AS count 
-                FROM IssueTracker
-                WHERE AssetID = @AssetID AND RepairStatus = 'Issue-Identified'
+        const pool = await poolPromise;
+        const { assetId, device, deviceBrand, model, serialNumber, repairStatus, repairInvoiceNumber, vendor, 
+        issueDate, receivedDate, repairCost } = req.body;
+    
+        // Execute the queries within a transaction
+        const transaction = new sql.Transaction(pool);
+        await transaction.begin();
+    
+    console.log('Checking...2');
+    
+        try {
+    
+        console.log('Checking...3');
+    
+               // Check if there's already an 'Issue-Identified' record for this AssetID
+                const checkQuery = `
+                    SELECT COUNT(*) AS count 
+                    FROM IssueTracker
+                    WHERE AssetID = @AssetID AND RepairStatus = 'Issue-Identified'
+                `;
+    
+                const checkResult = await transaction.request()
+                    .input('AssetID', sql.VarChar(50), assetId)
+                    .query(checkQuery);
+    
+                const inUseCount = checkResult.recordset[0].count;
+    
+                console.log('Validation Checking');
+    
+                console.log(inUseCount);
+    
+                if (inUseCount !== 0) {
+                    console.log('Validation : Failed');
+                    await transaction.rollback();
+                    return res.status(400).send({ error: 'No Issue-Identified' });
+                }
+    
+                console.log('Validation : PASS');
+    
+            const repairinsertquery = `
+            INSERT INTO IssueTracker (
+                AssetID, Device, DeviceBrand, Model, SerialNumber, RepairStatus, 
+                InvoiceNumber, Vendor, IssueDateToVendor, ReceivedDatefromVendor, RepairCost
+            ) VALUES (
+                @AssetID, @Device, @DeviceBrand, @Model, @SerialNumber, @RepairStatus, 
+                @InvoiceNumber, @Vendor, @IssueDateToVendor, @ReceivedDateFromVendor, @RepairCost)
             `;
-
-            const checkResult = await transaction.request()
-                .input('AssetID', sql.VarChar(50), assetId)
-                .query(checkQuery);
-
-            const inUseCount = checkResult.recordset[0].count;
-
-            console.log('Validation Checking');
-
-            console.log(inUseCount);
-
-            if (inUseCount !== 0) {
-                console.log('Validation : Failed');
-                await transaction.rollback();
-                return res.status(400).send({ error: 'No Issue-Identified' });
-            }
-
-            console.log('Validation : PASS');
-
-        const repairinsertquery = `
-        INSERT INTO IssueTracker (
-            AssetID, Device, DeviceBrand, Model, SerialNumber, RepairStatus, 
-            InvoiceNumber, Vendor, IssueDateToVendor, ReceivedDatefromVendor, RepairCost
-        ) VALUES (
-            @AssetID, @Device, @DeviceBrand, @Model, @SerialNumber, @RepairStatus, 
-            @InvoiceNumber, @Vendor, @IssueDateToVendor, @ReceivedDateFromVendor, @RepairCost)
-        `;
-
-        const repairupdatedevicequery = `
-        UPDATE DeviceDetails1
-        SET ConditionStatus = @RepairStatus
-        WHERE AssetID = @AssetID
-        `;
- 
-
-    await transaction.request()
-        .input('AssetID', sql.VarChar(50), assetId)
-        .input('Device', sql.VarChar(50), device)
-        .input('DeviceBrand', sql.VarChar(50), deviceBrand)
-        .input('Model', sql.VarChar(50), model)
-        .input('SerialNumber', sql.VarChar(50), serialNumber)
-        .input('RepairStatus', sql.VarChar(50), repairStatus)
-        .input('InvoiceNumber', sql.VarChar(50), repairInvoiceNumber || null)
-        .input('Vendor', sql.VarChar(50), vendor || null)
-        .input('IssueDateToVendor', sql.Date, issueDate || null)
-        .input('ReceivedDateFromVendor', sql.Date, receivedDate || null)
-        .input('RepairCost', sql.Decimal(10, 2), repairCost || null)
-        .query(repairinsertquery);
-
-     console.log('Insert to Issue Tracker');
-
+    
+            const repairupdatedevicequery = `
+            UPDATE DeviceDetails1
+            SET ConditionStatus = @RepairStatus
+            WHERE AssetID = @AssetID
+            `;
+     
+    
         await transaction.request()
-        .input('AssetID', sql.VarChar(50), assetId)
-        .input('RepairStatus', sql.VarChar(50), repairStatus)
-        .query(repairupdatedevicequery);
-
-    console.log('Update Condition Status in DeviceDetails');
-
-        await transaction.commit();
-
-        res.status(201).send({ message: 'Repair data added successfully' });
-
-    } catch (error) {
-        console.error('Failed to process repair data:', error);
-        res.status(500).send({ error: 'Server error: ' + error.message });
-    }
-    } catch (error) {
-        console.error('Error adding transfer:', error.message);
-        res.status(500).send({ error: 'Server error: ' + error.message });
-    }
-});
-
+            .input('AssetID', sql.VarChar(50), assetId)
+            .input('Device', sql.VarChar(50), device)
+            .input('DeviceBrand', sql.VarChar(50), deviceBrand)
+            .input('Model', sql.VarChar(50), model)
+            .input('SerialNumber', sql.VarChar(50), serialNumber)
+            .input('RepairStatus', sql.VarChar(50), repairStatus)
+            .input('InvoiceNumber', sql.VarChar(50), repairInvoiceNumber || null)
+            .input('Vendor', sql.VarChar(50), vendor || null)
+            .input('IssueDateToVendor', sql.Date, issueDate || null)
+            .input('ReceivedDateFromVendor', sql.Date, receivedDate || null)
+            .input('RepairCost', sql.Decimal(10, 2), repairCost || null)
+            .query(repairinsertquery);
+    
+         console.log('Insert to Issue Tracker');
+    
+            await transaction.request()
+            .input('AssetID', sql.VarChar(50), assetId)
+            .input('RepairStatus', sql.VarChar(50), repairStatus)
+            .query(repairupdatedevicequery);
+    
+        console.log('Update Condition Status in DeviceDetails');
+    
+            await transaction.commit();
+    
+            res.status(201).send({ message: 'Repair data added successfully' });
+    
+        } catch (error) {
+            console.error('Failed to process repair data:', error);
+            res.status(500).send({ error: 'Server error: ' + error.message });
+        }
+        } catch (error) {
+            console.error('Error adding transfer:', error.message);
+            res.status(500).send({ error: 'Server error: ' + error.message });
+        }
+    });
+    
 
 app.get('/api/InUse', async (req, res) => {
     try {
@@ -765,25 +788,27 @@ app.post('/api/accessories', async (req, res) => {
     try {
         const pool = await poolPromise;
         const {
-            accessoriesType, model, deviceBrand, assetId,
+            accessoriesType, model, deviceBrand, assetId, deviceId,
             serialNumber, invoiceNumber, purchaseDate, purchaseCompany,
             purchasedAmount, warentyMonths
         } = req.body;
  
         console.log('Received form data:', req.body);
  
- 
+        if (!accessoriesType || !deviceBrand || !model || !assetId || !purchaseCompany || !deviceId || !serialNumber || !invoiceNumber || !purchaseDate || !purchasedAmount) {
+            return res.status(400).send({ error: 'All required fields must be provided' });
+        }
  
         // Calculate the warranty expiry date
         const warrentyExpieryDate = calculateWarrantyExpiryDate(purchaseDate, warentyMonths);
  
         const accessoriesDetailsQuery = `
             INSERT INTO Accessories (
-                Model, DeviceBrand, AssetID, AssetType, SerialNumber,
+                Model, DeviceBrand, AssetID, AssetType, DeviceID, SerialNumber,
                 InvoiceNumber, PurchaseDate, PurchaseCompany, PurchaseAmount,
                 WarentyMonths, WarrentyExpieryDate, SysDate
             ) VALUES (
-                @Model, @DeviceBrand, @AssetID, @AccessoriesType, @SerialNumber,
+                @Model, @DeviceBrand, @AssetID, @AccessoriesType, @DeviceID, @SerialNumber,
                 @InvoiceNumber, @PurchaseDate,@PurchaseCompany, @PurchaseAmount,
                 @WarentyMonths, @WarrentyExpieryDate, GETDATE()
             )
@@ -791,11 +816,11 @@ app.post('/api/accessories', async (req, res) => {
  
         const deviceDetailsQuery = `
             INSERT INTO DeviceDetails1 (
-                AssetID, Device, DeviceBrand, Model, SerialNumber, InvoiceNumber,
-                PurchaseDate, PurchaseAmount, WarentyMonths, WarrentyExpieryDate, CurrentStatus, ConditionStatus, SysDate
+                AssetID, Device, DeviceBrand, Model, DeviceID, SerialNumber, InvoiceNumber,
+                PurchaseDate, PurchaseCompany, PurchaseAmount, WarentyMonths, WarrentyExpieryDate, CurrentStatus, ConditionStatus, SysDate
             ) VALUES (
-                @AssetID, @AccessoriesType, @DeviceBrand, @Model, @SerialNumber, @InvoiceNumber,
-                @PurchaseDate, @PurchaseAmount, @WarentyMonths, @WarrentyExpieryDate, 'In-Stock', 'Good-Condition', GETDATE()
+                @AssetID, @AccessoriesType, @DeviceBrand, @Model, @DeviceID, @SerialNumber, @InvoiceNumber,
+                @PurchaseDate, @PurchaseCompany, @PurchaseAmount, @WarentyMonths, @WarrentyExpieryDate, 'In-Stock', 'Brand-New', GETDATE()
             )
         `;
  
@@ -809,6 +834,7 @@ app.post('/api/accessories', async (req, res) => {
                 .input('Model', sql.VarChar(50), model)
                 .input('DeviceBrand', sql.VarChar(50), deviceBrand)
                 .input('AssetID', sql.VarChar(50), assetId)
+                .input('DeviceID', sql.VarChar(50), deviceId)
                 .input('SerialNumber', sql.VarChar(50), serialNumber)
                 .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
                 .input('PurchaseDate', sql.Date, purchaseDate)
@@ -826,9 +852,11 @@ app.post('/api/accessories', async (req, res) => {
                 .input('DeviceBrand', sql.VarChar(50), deviceBrand)
                 .input('AssetID', sql.VarChar(50), assetId)
                 .input('AccessoriesType', sql.VarChar(255), accessoriesType)
+                .input('DeviceID', sql.VarChar(50), deviceId)
                 .input('SerialNumber', sql.VarChar(50), serialNumber)
                 .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
                 .input('PurchaseDate', sql.Date, purchaseDate)
+                .input('PurchaseCompany', sql.VarChar(50), purchaseCompany)
                 .input('PurchaseAmount', sql.Decimal(10, 2), purchasedAmount)
                 .input('WarentyMonths', sql.Int, warentyMonths)
                 .input('WarrentyExpieryDate', sql.Date, warrentyExpieryDate)
@@ -856,7 +884,7 @@ app.post('/api/networkEquipment', async (req, res) => {
         const pool = await poolPromise;
         const {
             accessoriesType, model, deviceBrand, assetId, macID, deviceId,
-            serialNumber, invoiceNumber, purchasedCompnay, purchaseDate,
+            serialNumber, invoiceNumber, purchaseCompany, purchaseDate,
             purchasedAmount, warentyMonths
         } = req.body;
  
@@ -870,12 +898,12 @@ app.post('/api/networkEquipment', async (req, res) => {
         const networkEquipmentsQuery = `
             INSERT INTO NetworkEquipments (
                 Model, DeviceBrand, AssetType, AssetID, MACAddress, DeviceID, SerialNumber,
-                InvoiceNumber, PurchasedCompnay, PurchaseDate, PurchaseAmount,
+                InvoiceNumber, PurchaseCompany, PurchaseDate, PurchaseAmount,
                 WarentyMonths, SysDate
             ) VALUES (
                 @Model, @DeviceBrand, @AccessoriesType, @AssetID, @MACAddress,
                 @DeviceID, @SerialNumber,
-                @InvoiceNumber, @PurchasedCompnay, @PurchaseDate, @PurchaseAmount,
+                @InvoiceNumber, @PurchaseCompany, @PurchaseDate, @PurchaseAmount,
                 @WarentyMonths, GETDATE()
             )
         `;
@@ -905,7 +933,7 @@ app.post('/api/networkEquipment', async (req, res) => {
                 .input('SerialNumber', sql.VarChar(50), serialNumber)
                 .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
                 .input('PurchaseDate', sql.Date, purchaseDate)
-                .input('PurchasedCompnay',sql.VarChar(50), purchasedCompnay)
+                .input('PurchaseCompany',sql.VarChar(50), purchaseCompany)
                 .input('PurchaseAmount', sql.Decimal(10, 2), purchasedAmount)
                 .input('WarentyMonths', sql.Int, warentyMonths)
                 .query(networkEquipmentsQuery);
@@ -942,8 +970,182 @@ app.post('/api/networkEquipment', async (req, res) => {
         res.status(500).send({ error: 'Server error: ' + err.message });
     }
 });
-
-
+ 
+//Search
+// Route to get Network Equipments details by Asset ID from Networks table
+app.get('/api/networkEquipmentSearch/:assetId', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        const assetId = req.params.assetId;
+ 
+        console.log(`Fetching network equipments details for Asset ID: ${assetId}`);
+ 
+        const query = `
+            SELECT AssetType, DeviceBrand, Model, AssetID, MACAddress, DeviceID, SerialNumber,
+                InvoiceNumber, PurchaseDate, PurchaseCompany,
+                PurchaseAmount, WarentyMonths
+            FROM NetworkEquipments
+            WHERE AssetID = @AssetID
+        `;
+ 
+        const result = await pool.request()
+            .input('AssetID', sql.VarChar(50), assetId)
+            .query(query);
+ 
+        if (result.recordset.length > 0) {
+            console.log('Network equipment details found:', result.recordset[0]);
+            res.status(200).json(result.recordset[0]);
+        } else {
+            console.log('Network equipment not found.');
+            res.status(404).send({ message: 'Network equipment not found' });
+        }
+    } catch (err) {
+        console.error('Error fetching network equipment details:', err.message);
+        res.status(500).send({ error: 'Server error: ' + err.message });
+    }
+});
+ 
+ 
+//Update
+app.put('/api/NetworkEquipmentsUpdate', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        const {
+            accessoriesType, deviceBrand, model, assetId, macID, deviceId,
+            serialNumber, invoiceNumber, purchaseDate, purchaseCompany,
+            purchasedAmount, warentyMonths // This should be "warrantyMonths"
+        } = req.body;
+ 
+        console.log('Received form data:', req.body);
+ 
+        if (!accessoriesType || !deviceBrand || !model || !assetId || !macID || !deviceId || !serialNumber || !invoiceNumber || !purchaseDate) {
+            return res.status(400).send({ error: 'All required fields must be provided' });
+        }
+ 
+        
+        // Corrected SQL Query: Updated field names and added missing fields
+        const updatedNetworkEquipmentQuery = `
+            UPDATE NetworkEquipments SET
+                AssetType = @AccessoriesType, DeviceBrand = @DeviceBrand, Model = @Model, AssetID = @AssetID, MACAddress = @MACAddress,
+                DeviceID = @DeviceId, SerialNumber = @SerialNumber,  
+                InvoiceNumber = @InvoiceNumber, PurchaseDate = @PurchaseDate, PurchaseCompany = @PurchaseCompany,
+                PurchaseAmount = @PurchaseAmount, WarentyMonths = @WarentyMonths
+                WHERE AssetID = @AssetID`;
+ 
+        const updatedeviceDetailsQuery = `
+            UPDATE DeviceDetails1 SET
+                Device = @AccessoriesType, Model = @Model, DeviceBrand = @DeviceBrand, AssetID = @AssetID,
+                SerialNumber = @SerialNumber, InvoiceNumber = @InvoiceNumber, PurchaseDate = @PurchaseDate, PurchaseCompany = @PurchaseCompany,
+                PurchaseAmount = @PurchaseAmount, WarentyMonths = @WarentyMonths
+                WHERE AssetID = @AssetID`;
+ 
+        // Execute the queries within a transaction
+        const transaction = new sql.Transaction(pool);
+        await transaction.begin();
+ 
+        try {
+            // Update into NetworkEquipments
+            await transaction.request()
+                .input('AccessoriesType', sql.VarChar(50), accessoriesType)
+                .input('AssetID', sql.VarChar(50), assetId)
+                .input('DeviceBrand', sql.VarChar(50), deviceBrand)
+                .input('Model', sql.VarChar(50), model)
+                .input('SerialNumber', sql.VarChar(50), serialNumber)
+                .input('MACAddress', sql.VarChar(50), macID) // Corrected input name
+                .input('DeviceID', sql.VarChar(50), deviceId)
+                .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
+                .input('PurchaseDate', sql.Date, purchaseDate)
+                .input('PurchaseCompany', sql.VarChar(50), purchaseCompany)
+                .input('PurchaseAmount', sql.Decimal(10, 2), purchasedAmount)
+                .input('WarentyMonths', sql.Int, warentyMonths)
+                .query(updatedNetworkEquipmentQuery);
+ 
+            console.log('Updated into Network Equipments table');
+ 
+            // Update into DeviceDetails1
+            await transaction.request()
+                .input('AccessoriesType', sql.VarChar(50), accessoriesType)
+                .input('Model', sql.VarChar(50), model)
+                .input('DeviceBrand', sql.VarChar(50), deviceBrand)
+                .input('AssetID', sql.VarChar(50), assetId)
+                .input('SerialNumber', sql.VarChar(50), serialNumber)
+                .input('InvoiceNumber', sql.VarChar(50), invoiceNumber)
+                .input('PurchaseDate', sql.Date, purchaseDate)
+                .input('PurchaseCompany', sql.VarChar(50), purchaseCompany)
+                .input('PurchaseAmount', sql.Decimal(10, 2), purchasedAmount)
+                .input('WarentyMonths', sql.Int, warentyMonths)
+                .query(updatedeviceDetailsQuery);
+ 
+            console.log('Updated into Device Details table');
+ 
+            await transaction.commit();
+ 
+            res.status(201).send({ message: 'Updated Device successfully in both tables' });
+        } catch (error) {
+            console.error('Error during transaction, rolling back:', error.message);
+            await transaction.rollback();
+            res.status(500).send({ error: 'Error updating data: ' + error.message });
+        }
+    } catch (err) {
+        console.error('Error establishing connection or starting transaction:', err.message);
+        res.status(500).send({ error: 'Server error: ' + err.message });
+    }
+});
+ 
+//Delete
+app.post('/api/NetworkEquipmentDelete', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        const {
+            assetId,model
+        } = req.body;
+ 
+        console.log('Received form data:', req.body);
+ 
+       
+ 
+        // Query to insert data into LaptopDetails table
+        const deleteaccessoriesDetailsQuery = `
+            DELETE FROM NetworkEquipments WHERE AssetID=@AssetID`;
+ 
+        // Query to insert data into DeviceDetails table
+        const deletedeviceDetailsQuery = `
+            DELETE FROM DeviceDetails1 WHERE AssetID=@AssetID`;
+ 
+        // Execute the queries within a transaction
+        const transaction = new sql.Transaction(pool);
+        await transaction.begin();
+ 
+        try {
+            // Insert into LaptopDetails
+            await transaction.request()
+                .input('Model', sql.VarChar(50), model)
+                .input('AssetID', sql.VarChar(50), assetId)
+                .query(deleteaccessoriesDetailsQuery);
+ 
+            console.log('Deleted Network Equipment table');
+ 
+            // Insert into DeviceDetails
+            await transaction.request()
+                .input('Model', sql.VarChar(50), model)
+                .input('AssetID', sql.VarChar(50), assetId)
+                .query(deletedeviceDetailsQuery);
+ 
+            console.log('Deleted Device Details table');
+ 
+            await transaction.commit();
+ 
+            res.status(201).send({ message: 'Deleted Device successfully to both tables' });
+        } catch (error) {
+            console.error('Error during transaction, rolling back:', error.message);
+            await transaction.rollback();
+            res.status(500).send({ error: 'Error inserting data: ' + error.message });
+        }
+    } catch (err) {
+        console.error('Error establishing connection or starting transaction:', err.message);
+        res.status(500).send({ error: 'Server error: ' + err.message });
+    }
+});
 app.get('/api/totalDevicesByBrand', async (req, res) => {
     try {
         const pool = await poolPromise;
@@ -982,7 +1184,7 @@ app.get('/api/devicesCount', async (req, res) => {
     try {
         const pool = await poolPromise;
         const query = `
-             SELECT device, COUNT(*) as count
+            SELECT device, COUNT(*) as count
             FROM DeviceDetails1
             GROUP BY device`;
                
@@ -1105,7 +1307,7 @@ app.get('/api/devicesR/:assetId', async (req, res) => {
         // Query to check if asset ID exists in the Repair table
         const repairQuery = `
             SELECT Device, DeviceBrand, Model, SerialNumber, RepairStatus, InvoiceNumber,
-            Vendor, IssueDateToVendor, ReceivedDatefromVendor, RepairCost
+            Vendor, IssueDateToVendor, ReceivedDatefromVendor, RepairCost, RepairNote
             FROM IssueTracker
             WHERE AssetID = @AssetID AND RepairStatus NOT IN ('Resolved')
         `;
@@ -1167,7 +1369,8 @@ app.put('/api/repair/update', async (req, res) => {
             vendor, 
             issueDate, 
             receivedDate, 
-            repairCost
+            repairCost,
+            repairNote
         } = req.body;
 
         console.log('Received form data:', req.body);
@@ -1179,7 +1382,8 @@ app.put('/api/repair/update', async (req, res) => {
                 Vendor = @Vendor, 
                 IssueDateToVendor = @IssueDateToVendor, 
                 ReceivedDatefromVendor = @ReceivedDatefromVendor, 
-                RepairCost = @RepairCost
+                RepairCost = @RepairCost,
+                RepairNote = @RepairNote
             WHERE AssetID = @AssetID AND RepairStatus NOT IN ('Resolved');
         `;
 
@@ -1194,7 +1398,7 @@ app.put('/api/repair/update', async (req, res) => {
                    .input('IssueDateToVendor', sql.Date, issueDate)  
                    .input('ReceivedDatefromVendor', sql.Date, receivedDate)
                    .input('RepairCost', sql.Decimal(10, 2), repairCost)  
-                //    .input('RepairNote', sql.VarChar(500), repairNote) 
+                   .input('RepairNote', sql.VarChar(500), repairNote) 
                    .input('AssetID', sql.VarChar(50), assetId);  
 
         // If the repair status is "Resolved", update the DeviceDetails1 table
@@ -1305,10 +1509,6 @@ app.get('/api/EmployeeChart', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
-
-
-
-
 
 
 const port = process.env.PORT || 3000;

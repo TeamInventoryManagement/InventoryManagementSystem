@@ -51,7 +51,7 @@ const Sidebar = () => {
                     <i className="fas fa-laptop"></i>
                     <span>Laptop</span>
                 </Link>
-                <Link to="/NetworkEquipmentPage" className={`menu-item ${activeSection === 'NetworkEquipment' ? 'active' : ''}`} onClick={() => setActiveSection('NetworkEquipment')}>
+                <Link to="/NetworkEquipmentPage" className={`menu-item ${activeSection === 'Label' ? 'active' : ''}`} onClick={() => setActiveSection('NetworkEquipment')}>
                     <i className="fas fa-tag"></i>
                     <span>Network Equipment</span>
                 </Link>
@@ -65,7 +65,7 @@ const Sidebar = () => {
                     <i className="fas fa-user"></i>
                     <span>Employees</span>
                 </Link>
-                <Link to="/users-roles" className={`menu-item ${activeSection === 'UsersRoles' ? 'active' : ''}`} onClick={() => setActiveSection('UsersRoles')}>
+                <Link to="/UsersRolesPage" className={`menu-item ${activeSection === 'UsersRoles' ? 'active' : ''}`} onClick={() => setActiveSection('UsersRoles')}>
                     <i className="fas fa-users-cog"></i>
                     <span>Users & Roles</span>
                 </Link>
@@ -79,11 +79,14 @@ const Sidebar = () => {
                     <i className="fas fa-clipboard-list"></i>
                     <span>Transfer Details</span>
                 </Link>
-
                 <Link to="/EmployeeChartPage" className={`menu-item ${activeSection === 'EmployeeChart' ? 'active' : ''}`} onClick={() => setActiveSection('EmployeeChart')}>
-                    <i className="fas fa-clipboard-list"></i>
+                    <i className="fas fa-address-book"></i>
                     <span>Employee Details</span>
                 </Link>
+                {/* <Link to="/SearchPage" className={`menu-item ${activeSection === 'Search' ? 'active' : ''}`} onClick={() => setActiveSection('Search')}>
+                    <i className="fas fa-clipboard-list"></i>
+                    <span>Search Page</span>
+                </Link> */}
             </div>
         </>
     );

@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import logo from './images/Altria-logo.png';
 import "./Login.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
  
 const Login = () => {
   const [email, setEmail] = useState('');

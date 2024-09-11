@@ -9,7 +9,7 @@ const ColorChips = ({ label }) => {
     chipColor = 'success';
   } else if (label === 'In-Stock') {
     chipColor = 'primary';
-  } else if (label === 'Issue-Identified') {
+  } else if (label === 'Issue-Identify') {
     chipColor = 'warning';
   } else if (label === 'Send-to-Repair') {
     chipColor = 'secondary';
