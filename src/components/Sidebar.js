@@ -25,14 +25,24 @@ const Sidebar = () => {
                 <div className="logo">
                     <img src={logo} alt="Altria Logo" className="header-logo" />
                 </div>
-                <Link to="/HomePage" className={`menu-item ${activeSection === 'Home' ? 'active' : ''}`} onClick={() => setActiveSection('Home')}>
+                <Link to="/DashboardPage" className={`menu-item ${activeSection === 'Dashboard' ? 'active' : ''}`} onClick={() => setActiveSection('Dashboard')}>
+                    <i className="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </Link>
+                {/* <Link to="/HomePage" className={`menu-item ${activeSection === 'Home' ? 'active' : ''}`} onClick={() => setActiveSection('Home')}>
                     <i className="fas fa-home"></i>
                     <span>Home</span>
-                </Link>
+                </Link> */}
                 <Link to="/InventoryPage" className={`menu-item ${activeSection === 'Inventory' ? 'active' : ''}`} onClick={() => setActiveSection('Inventory')}>
                     <i className="fas fa-book"></i>
                     <span>Inventory</span>
                 </Link>
+
+                <Link to="/SearchDevicePage" className={`menu-item ${activeSection === 'DeviceSearch' ? 'active' : ''}`} onClick={() => setActiveSection('DeviceSearch')}>
+                    <i className="fas fa-search"></i>
+                    <span>Device Search</span>
+                </Link>
+
                 <Link to="/TransferPage" className={`menu-item ${activeSection === 'Transfer' ? 'active' : ''}`} onClick={() => setActiveSection('Transfer')}>
                     <i className="fas fa-exchange-alt"></i>
                     <span>Transfer</span>
@@ -41,11 +51,14 @@ const Sidebar = () => {
                     <i className="fas fa-handshake"></i>
                     <span>Handover</span>
                 </Link>
-                <Link to="/RepairFormPage" className={`menu-item ${activeSection === 'IssueTracker' ? 'active' : ''}`} onClick={() => setActiveSection('IssueTracker')}>
+                {/* <Link to="/RepairFormPage" className={`menu-item ${activeSection === 'IssueTracker' ? 'active' : ''}`} onClick={() => setActiveSection('IssueTracker')}>
+                    <i className="fas fa-clipboard-list"></i>
+                    <span>Issue Tracker</span>
+                </Link> */}
+                <Link to="/IssueTrackerPage2" className={`menu-item ${activeSection === 'IssueTracker2' ? 'active' : ''}`} onClick={() => setActiveSection('IssueTracker2')}>
                     <i className="fas fa-clipboard-list"></i>
                     <span>Issue Tracker</span>
                 </Link>
-
                 <div className="section-title">Devices</div>
                 <Link to="/LaptopDetailsPage" className={`menu-item ${activeSection === 'Laptop' ? 'active' : ''}`} onClick={() => setActiveSection('Laptop')}>
                     <i className="fas fa-laptop"></i>
@@ -65,10 +78,10 @@ const Sidebar = () => {
                     <i className="fas fa-user"></i>
                     <span>Employees</span>
                 </Link>
-                <Link to="/users-roles" className={`menu-item ${activeSection === 'UsersRoles' ? 'active' : ''}`} onClick={() => setActiveSection('UsersRoles')}>
+                {/* <Link to="/users-roles" className={`menu-item ${activeSection === 'UsersRoles' ? 'active' : ''}`} onClick={() => setActiveSection('UsersRoles')}>
                     <i className="fas fa-users-cog"></i>
                     <span>Users & Roles</span>
-                </Link>
+                </Link> */}
 
                 <div className="section-title">Reports</div>
                 <Link to="/InUseDevicePage" className={`menu-item ${activeSection === 'InUseDevices' ? 'active' : ''}`} onClick={() => setActiveSection('InUseDevices')}>
@@ -84,6 +97,7 @@ const Sidebar = () => {
                     <i className="fas fa-clipboard-list"></i>
                     <span>Employee Details</span>
                 </Link>
+
             </div>
         </>
     );
