@@ -49,12 +49,12 @@ export default function LaptopAgeStats() {
               gap: 1,
             }}
           >
-            <Typography variant="h4" component="p">
+            {/* <Typography variant="h4" component="p">
               Units
-            </Typography>
+            </Typography> */}
           </Stack>
           <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            Laptops Conditions: {laptopAgeData.labels.join(', ')} | {laptopAgeData.data.join(', ')}
+            Laptops Age upto date
           </Typography>
         </Stack>
         <LineChart
@@ -62,7 +62,7 @@ export default function LaptopAgeStats() {
             {
               data: laptopAgeData.labels, // Use categorical data for X-axis
               label: 'Laptop Age', // Label for X-axis
-              scaleType: 'band', // Treat the X-axis as a categorical scale0
+              scaleType: 'point', // Treat the X-axis as a categorical scale0
               min: 0, 
             },
           ]}

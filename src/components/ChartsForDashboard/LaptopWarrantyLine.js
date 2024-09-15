@@ -71,7 +71,7 @@ export default function LaptopWarrStats() {
     ((laptopWarExpTotal / laptopTotal) * 100).toFixed(2) : 0; // Percentage rounded to two decimal places
 
   return (
-    <Card variant="outlined" sx={{ width: '100%' }}>
+    <Card variant="outlined" sx={{ width: '100%'}}>
       <CardContent>
         <Typography component="h2" variant="subtitle2" gutterBottom>
           Laptop Warranty Expiration Statistics
@@ -116,19 +116,23 @@ export default function LaptopWarrStats() {
             },
             {
               data: laptopWarrData.warExpCount, // WarExpCount (Yearly)
-              label: 'Warranty Expiration Count',
+              label: 'Warranty Expiration within Year',
               area: true,
               min: 0,
             },
           ]}
-          height={300}
+          height={350}
           slotProps={{
             legend: {
               hidden: false, // Display legend to differentiate the two datasets
+              direction: 'row',
+              position: { vertical: 'bottom', horizontal: 'middle' },
+              padding: 0,
             },
           }}
-          margin={{ left: 30, right: 30, top: 50, bottom: 30 }}
+          margin={{ left: 30, right: 30, top: 30, bottom: 80 }}
           grid={{ vertical: true, horizontal: true }}
+    
         />
       </CardContent>
     </Card>

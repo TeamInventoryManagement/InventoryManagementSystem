@@ -17,6 +17,7 @@ export default function LaptopConditionStats() {
       if (laptopData && laptopData.InstockCount !== undefined && laptopData.InUseCount !== undefined) {
         setLaptopChartData({
           data: [
+            { label: 'Brand New', value: laptopData.BrandCount },
             { label: 'Good Condition', value: laptopData.GoodCount },
             { label: 'Issue Identified', value: laptopData.IssueCount },
             { label: 'Send to Repair', value: laptopData.RepairCount },

@@ -5,6 +5,7 @@ import { Typography, Card, CardContent, Stack } from '@mui/material';
 
 export default function TotalDevicesStat() {
   const [deviceChartData, setDeviceChartData] = useState(null);
+  const [totalDevicesCount, setTotalDeviceChartData] = useState(0);
 
   // Fetch Total Devices
   const fetchDeviceData = async () => {
@@ -30,6 +31,10 @@ export default function TotalDevicesStat() {
                 data: data.map((item) => item.InUseCount), // Extract counts for data
             },    
             {
+              label: 'Brand New',
+              data: data.map((item) => item.BrandCount), // Extract counts for data
+          },    
+            {
                 label: 'Good Condition',
                 data: data.map((item) => item.GoodCount), // Extract counts for data
             },     
@@ -51,8 +56,27 @@ export default function TotalDevicesStat() {
     }
   };
 
+  const fetchTotalDeviceCount = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/totalDevicesCount');
+      const data = await response.json(); 
+      console.log('Total Laptops Response:', data);
+
+      if (typeof data.count === 'number') {
+        setTotalDeviceChartData(data.count);
+      } else {
+        throw new Error('Invalid data format received for total device count.');
+      }
+    } catch (error) {
+      console.error('Error fetching total device count:', error);
+    } 
+  };
+
+
+
   useEffect(() => {
     fetchDeviceData();
+    fetchTotalDeviceCount();
   }, []);
 
   // Conditional rendering for the chart
@@ -64,7 +88,7 @@ export default function TotalDevicesStat() {
     <Card variant="outlined" sx={{ width: '100%' }}>
       <CardContent>
         <Typography component="h2" variant="subtitle2" gutterBottom>
-          Total Devices Statistics
+          Devices Statistics
         </Typography>
         <Stack sx={{ justifyContent: 'space-between' }}>
           <Stack
@@ -76,11 +100,11 @@ export default function TotalDevicesStat() {
             }}
           >
             <Typography variant="h4" component="p">
-              1.3M
+              {totalDevicesCount} Units
             </Typography>
           </Stack>
           <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            Page views and downloads for the last 6 months
+            Total device count upto date
           </Typography>
         </Stack>
         <BarChart
@@ -90,9 +114,10 @@ export default function TotalDevicesStat() {
             { data: deviceChartData.datasets[0].data, label: 'Total Devices', stack: 'A' },
             { data: deviceChartData.datasets[1].data, label: 'In Use', stack: 'B' },
             { data: deviceChartData.datasets[2].data, label: 'In Stock', stack: 'B' },
-            { data: deviceChartData.datasets[3].data, label: 'Good Condition', stack: 'C' },
-            { data: deviceChartData.datasets[4].data, label: 'Issue Identified', stack: 'C' },
-            { data: deviceChartData.datasets[5].data, label: 'Send to Repair', stack: 'C' },
+            { data: deviceChartData.datasets[3].data, label: 'Brand New', stack: 'C' },
+            { data: deviceChartData.datasets[4].data, label: 'Good Condition', stack: 'C' },
+            { data: deviceChartData.datasets[5].data, label: 'Issue Identified', stack: 'C' },
+            { data: deviceChartData.datasets[6].data, label: 'Send to Repair', stack: 'C' },
 
            ]}
           height={250}

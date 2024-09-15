@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Grid, Card, Typography } from '@mui/material';
+import { Box, Grid, Card, Typography, Stack } from '@mui/material';
 import LaptopMacIcon from '@mui/icons-material/LaptopMac';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import DeviceHubIcon from '@mui/icons-material/DeviceHub';
+import DevicesOtherIcon from '@mui/icons-material/DevicesOther';
+import HubIcon from '@mui/icons-material/Hub';
+import RouterIcon from '@mui/icons-material/Router';
+import MouseIcon from '@mui/icons-material/Mouse';
 
 const InvoiceCard = ({ icon: Icon, title, count, color }) => {
   const [animatedCount, setAnimatedCount] = useState(0);
@@ -27,7 +32,7 @@ const InvoiceCard = ({ icon: Icon, title, count, color }) => {
   }, [count]);
 
   return (
-    <Card sx={{ backgroundColor: color, display: 'flex', alignItems: 'center', p: 2 }}>
+    <Card sx={{ backgroundColor: color, display: 'flex', alignItems: 'center', p: 2,  width: '20%',marginBottom:4 }}>
       <Box sx={{ mr: 2 }}>
         <Icon style={{ fontSize: 40, color: '#fff' }} />
       </Box>
@@ -127,42 +132,68 @@ const InvoiceDashboard = () => {
   }, []);
 
   return (
-    <Box sx={{ flexGrow: 1, p: 3 }}>
-      <Grid container spacing={3}>
-        <Grid item xs={12} sm={6} md={3}>
-          <InvoiceCard
-            icon={LaptopMacIcon}
+    // <Box sx={{ flexGrow: 1, p: 3 }}>
+    //   <Grid container spacing={3}>
+    //     <Grid item xs={12} sm={6} md={3}>
+    //       <InvoiceCard
+    //         icon={LaptopMacIcon}
+    //         title="Total Devices"
+    //         count={totalDevicesCount} // Use the fetched count here
+    //         color="#4B6EFD"
+    //       />
+    //     </Grid>
+    //     <Grid item xs={12} sm={6} md={3}>
+    //       <InvoiceCard
+    //         icon={LocalShippingIcon}
+    //         title="Total Laptops"
+    //         count={totalLaptopChartData} // Use the fetched count here
+    //         color="#1CB0F6"
+    //       />
+    //     </Grid>
+    //     <Grid item xs={12} sm={6} md={3}>
+    //       <InvoiceCard
+    //         icon={CheckCircleIcon}
+    //         title="Total Network Equipments"
+    //         count={totalNetworkEquipmentsChartData}
+    //         color="#00D69B"
+    //       />
+    //     </Grid>
+    //     <Grid item xs={12} sm={6} md={3}>
+    //       <InvoiceCard
+    //         icon={HourglassEmptyIcon}
+    //         title="Total Accessories"
+    //         count={totalAccesoriesChartData}
+    //         color="#FFB648"
+    //       />
+    //     </Grid>
+    //   </Grid>
+    // </Box>
+    <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
+            <InvoiceCard
+            icon={DevicesOtherIcon}
             title="Total Devices"
             count={totalDevicesCount} // Use the fetched count here
             color="#4B6EFD"
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <InvoiceCard
-            icon={LocalShippingIcon}
-            title="Total Laptops"
-            count={totalLaptopChartData} // Use the fetched count here
-            color="#1CB0F6"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <InvoiceCard
-            icon={CheckCircleIcon}
-            title="Total Network Equipments"
-            count={totalNetworkEquipmentsChartData}
-            color="#00D69B"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <InvoiceCard
-            icon={HourglassEmptyIcon}
-            title="Total Accessories"
-            count={totalAccesoriesChartData}
-            color="#FFB648"
-          />
-        </Grid>
-      </Grid>
-    </Box>
+            <InvoiceCard
+             icon={LaptopMacIcon}
+             title="Total Laptops"
+             count={totalLaptopChartData} // Use the fetched count here
+             color="#1CB0F6"
+           />
+           <InvoiceCard
+             icon={RouterIcon}
+             title="Total Network Equipments"
+             count={totalNetworkEquipmentsChartData}
+             color="#00D69B"
+           />
+           <InvoiceCard
+             icon={MouseIcon}
+             title="Total Accessories"
+             count={totalAccesoriesChartData}
+             color="#FFB648"
+           />
+    </Stack>
   );
 };
 

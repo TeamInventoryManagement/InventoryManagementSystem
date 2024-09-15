@@ -6,6 +6,7 @@ import { Typography, Card, CardContent, Stack } from '@mui/material';
 export default function LaptopStats() {
   const [laptopChartData, setLaptopChartData] = useState(null);
 
+
   // Fetch Total Devices
   const fetchLaptopData = async () => {
     try {
@@ -28,6 +29,7 @@ export default function LaptopStats() {
       console.error('Error fetching data for laptops:', error);
     }
   };
+
 
   useEffect(() => {
     fetchLaptopData();

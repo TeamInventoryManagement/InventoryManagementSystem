@@ -6,19 +6,27 @@ import LaptopConditionStats from './ChartsForDashboard/LaptopConditionCharts';
 import LaptopAgeStats from './ChartsForDashboard/LaptopAge';
 import LaptopWarrStats from './ChartsForDashboard/LaptopWarrantyLine';
 import LaptopInStockGoodDataCard from './CardsForDashboard/LaptopInStockGoodCondition';
+import { Chip, Divider, Stack } from '@mui/material';
+import LaptopInUseIssueDataCard from './CardsForDashboard/LaptopInUseIssue';
+import LaptopDisposableDataCard from './CardsForDashboard/LaptopDisposable';
 
 const Dashboard = () => {
   return (
     <div>
       <InvoiceDashboard />
 
-      <div style={{ marginBottom: '20px' }}>
+      <div style={{ marginBottom: '30px' }}>
         <TotalDevicesStat />
       </div>
-      <div style={{ marginBottom: '20px' }}>
+      <Divider sx={{marginBottom: '20px'  }}>
+        <Chip label="Laptop Statistics" />
+      </Divider>
+      <Stack direction="row" sx={{ justifyContent: 'space-between',marginBottom: '20px'  }}>
       <LaptopInStockGoodDataCard />
-      </div>
-
+      <LaptopInUseIssueDataCard/>
+      <LaptopDisposableDataCard/>
+      </Stack>
+      
       <div style={{ display: 'flex', justifyContent: 'space-around', gap: '20px',marginBottom: '20px' }}>
         <LaptopStats />
         <LaptopConditionStats />

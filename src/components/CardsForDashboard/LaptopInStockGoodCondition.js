@@ -1,10 +1,11 @@
 import * as React from 'react';
-import { PieChart } from '@mui/x-charts/PieChart';
 import { useState, useEffect } from 'react';
 import { Typography, Card, CardContent, Stack, Chip } from '@mui/material';
 
 export default function LaptopInStockGoodDataCard() {
-    const [laptopInstockGoodCount, setlaptopInstockGoodCount] = useState(null);
+  const [laptopInstockGoodCount, setLaptopInstockGoodCount] = useState(0); // default value set to 0
+  const [laptopInstockBrandCount, setLaptopInstockBrandCount] = useState(0);
+
   // Fetch Total Devices
   const fetchLaptopInStockGoodDataCard = async () => {
     try {
@@ -13,9 +14,11 @@ export default function LaptopInStockGoodDataCard() {
 
       const laptopData = data.find((item) => item.device === 'Laptop');
 
-      const laptopInstockGoodCount = laptopData.InstockGoodCount;
+      const laptopInstockGoodCount = laptopData.InstockGoodCount || 0; // Set default to 0 in case of missing data
+      const laptopInstockBrandCount = laptopData.BrandCount || 0;
 
-      setlaptopInstockGoodCount(laptopInstockGoodCount);
+      setLaptopInstockGoodCount(laptopInstockGoodCount);
+      setLaptopInstockBrandCount(laptopInstockBrandCount);
 
     } catch (error) {
       console.error('Error fetching data for laptops:', error);
@@ -26,6 +29,7 @@ export default function LaptopInStockGoodDataCard() {
     fetchLaptopInStockGoodDataCard();
   }, []);
 
+  const totalLaptopCount = laptopInstockGoodCount + laptopInstockBrandCount; // Calculate total
 
   return (
     <Card variant="outlined" sx={{ width: '30%' }}>
@@ -43,19 +47,18 @@ export default function LaptopInStockGoodDataCard() {
             }}
           >
             <Typography variant="h4" component="p">
-              {laptopInstockGoodCount} Units
+              {totalLaptopCount} Units
             </Typography>
-            <Chip 
-              size="small" 
-              color="success" 
-              label='Available'  // Display percentage with label
+            <Chip
+              size="small"
+              color="success"
+              label={`Available`}
             />
           </Stack>
           <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            In Stock Good Condition Laptops
+            In Stock - Brand New and Good Condition Laptops
           </Typography>
         </Stack>
-
       </CardContent>
     </Card>
   );
