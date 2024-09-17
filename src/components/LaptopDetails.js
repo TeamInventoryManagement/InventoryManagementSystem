@@ -6,6 +6,8 @@ import Button from '@mui/material/Button';
 import LoadingButton from '@mui/lab/LoadingButton';
 import SaveIcon from '@mui/icons-material/Save';
 import DescriptionAlerts from "./Alerts.js";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const LaptopDetails = () => {
     const [formData, setFormData] = useState({
@@ -19,10 +21,12 @@ const LaptopDetails = () => {
         serialNumber: '',
         systemType: '',
         invoiceNumber: '',
+        screenSize: '',
         purchasedDate: '',
+        resolution: '',
         purchasedAmount: '',
         warentyMonths: '',
-        address: ''
+        purchaseCompany: ''
     });
 
     const [searchAssetId, setSearchAssetId] = useState('');
@@ -41,12 +45,14 @@ const LaptopDetails = () => {
         setAssetIdSearched(false);
         if (e.target.value === '') {
             resetFormData();
+            // resetBulkFormData(); chec this point
         }
     };
 
     const handleSearchClick = async () => {
         if (!searchAssetId) {
-            setAlert({ severity: 'info', title: 'Info', message: 'Please enter an Asset ID to search' });
+            toast.info("Please enter an Asset ID to search", {position: "top-center"});
+            //setAlert({ severity: 'info', title: 'Info', message: 'Please enter an Asset ID to search' });
             return;
         }
 
@@ -73,14 +79,17 @@ const LaptopDetails = () => {
                 serialNumber: data.SerialNumber || '',
                 systemType: data.SystemType || '',
                 invoiceNumber: data.InvoiceNumber || '',
+                screenSize: data.ScreenSize || '',
                 purchasedDate: data.PurchaseDate ? data.PurchaseDate.split('T')[0] : '',
+                resolution: data.Resolution || '',
                 purchasedAmount: data.PurchaseAmount || '',
                 warentyMonths: data.WarentyMonths || '',
-                address: data.Address || '',
+                purchaseCompany: data.PurchaseCompany || '',
             });
             setAssetIdSearched(true);
         } catch (error) {
-            setAlert({ severity: 'error', title: 'Error', message: 'An error occurred while fetching the device details' });
+            toast.error("An error occurred while fetching the device details", {position: "top-center"});
+            //setAlert({ severity: 'error', title: 'Error', message: 'An error occurred while fetching the device details' });
         }
     };
 
@@ -96,10 +105,12 @@ const LaptopDetails = () => {
             serialNumber: '',
             systemType: '',
             invoiceNumber: '',
+            screenSize: '',
             purchasedDate: '',
+            resolution: '',
             purchasedAmount: '',
             warentyMonths: '',
-            address: ''
+            purchaseCompany: ''
         });
         setSearchAssetId('');
         setAssetIdSearched(false);
@@ -115,16 +126,75 @@ const LaptopDetails = () => {
             });
             const data = await response.json();
             if (response.ok) {
-                setAlert({ severity: 'success', title: 'Success', message: 'Device Added successfully' });
+                toast.success("Device Added successfully", {position: "top-center"});
+                // setAlert({ severity: 'success', title: 'Success', message: 'Device Added successfully' });
                 resetFormData();
             } else {
-                setAlert({ severity: 'error', title: 'Error', message: data.error });
+                toast.error(data.error, {position: "top-center"});
+                //setAlert({ severity: 'error', title: 'Error', message: data.error });
             }
         } catch (error) {
-            setAlert({ severity: 'error', title: 'Error', message: 'An error occurred. Please try again' });
+            toast.error('An error occurred. Please try again', {position: "top-center"});
+            //setAlert({ severity: 'error', title: 'Error', message: 'An error occurred. Please try again' });
         }
     };
 
+
+    const resetBulkFormData = (excludeFields = []) => {
+        const defaultData = {
+            device: 'Laptop',
+            deviceBrand: formData.deviceBrand,
+            model: formData.model,
+            assetId: '',
+            processor: formData.processor,
+            laptopId: '',
+            installedRam: formData.installedRam,
+            serialNumber: '', // Keep the serial number unchanged
+            systemType: formData.systemType,
+            invoiceNumber: formData.invoiceNumber,
+            screenSize: formData.screenSize,
+            purchasedDate: formData.purchasedDate,
+            resolution: formData.resolution,
+            purchasedAmount: formData.purchasedAmount,
+            warentyMonths: formData.warentyMonths,
+            purchaseCompany: formData.purchaseCompany
+        };
+    
+        // Only reset fields that are not in the excludeFields array
+        const newFormData = { ...formData };
+        for (const key in defaultData) {
+            if (!excludeFields.includes(key)) {
+                newFormData[key] = defaultData[key];
+            }
+        }
+        setFormData(newFormData);
+        setSearchAssetId('');
+        setAssetIdSearched(false);
+    };
+    
+    const handleBulkData = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch('http://localhost:3000/api/LaptopDetails', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            const data = await response.json();
+            if (response.ok) {
+                toast.success("Device Added successfully", {position: "top-center"});
+                //setAlert({ severity: 'success', title: 'Success', message: 'Device Added successfully' });
+                resetBulkFormData(['serialNumber']); // Exclude serialNumber from resetting
+            } else {
+                toast.error(data.error, {position: "top-center"});
+                //setAlert({ severity: 'error', title: 'Error', message: data.error });
+            }
+        } catch (error) {
+            toast.error('An error occurred. Please try again', {position: "top-center"});
+            //setAlert({ severity: 'error', title: 'Error', message: 'An error occurred. Please try again' });
+        }
+    };
+    
     const handleUpdate = async (e) => {
         e.preventDefault();
         try {
@@ -134,14 +204,42 @@ const LaptopDetails = () => {
                 body: JSON.stringify(formData)
             });
             const data = await response.json();
-            if (response.ok) {
-                setAlert({ severity: 'success', title: 'Success', message: 'Device Updated successfully' });
-                resetFormData();
-            } else {
-                setAlert({ severity: 'error', title: 'Error', message: data.error });
-            }
+            // if (response.ok) {
+            //     toast.success("Device Updated successfully", {position: "top-center"});
+            //     resetFormData();
+            // } else {
+            //     toast.error(data.error, {position: "top-center"});
+            //     //setAlert({ severity: 'error', title: 'Error', message: data.error });
+            // }
+
+             // Show initial toast and save the ID
+             const toastId = toast.loading("Checking Info...", { position: "top-center" });
+    
+             // After a delay of 1 second, update the toast based on the response
+             setTimeout(() => {
+                 if (response.ok) {
+                     toast.update(toastId, {
+                         render: "Device Updated successfully", // Message to display
+                         type: "success", // Change the type to success
+                         isLoading: false, // Stop showing the loading spinner
+                         autoClose: 5000, // Auto-close after 5 seconds
+                         closeOnClick: true
+                     });
+                     resetFormData();
+                 } else {
+                     toast.update(toastId, {
+                         render: data.error || "Failed to update device", // Error message
+                         type: "error", // Set the type to error
+                         isLoading: false, // Stop showing the loading spinner
+                         autoClose: 5000,
+                         closeOnClick: true
+                     });
+                 }
+             }, 1000); // 1 second delay (1000 ms)
+     
         } catch (error) {
-            setAlert({ severity: 'error', title: 'Error', message: 'An error occurred. Please try again' });
+            toast.error('An error occurred. Please try again', {position: "top-center"});
+            //setAlert({ severity: 'error', title: 'Error', message: 'An error occurred. Please try again' });
         }
     };
 
@@ -155,13 +253,16 @@ const LaptopDetails = () => {
             });
             const data = await response.json();
             if (response.ok) {
-                setAlert({ severity: 'success', title: 'Success', message: 'Deleted Laptop Details Successfully' });
+                toast.success("Device Deleted successfully", {position: "top-center"});
+                //setAlert({ severity: 'success', title: 'Success', message: 'Deleted Laptop Details Successfully' });
                 resetFormData();
             } else {
-                setAlert({ severity: 'error', title: 'Error', message: data.error });
+                toast.error(data.error, {position: "top-center"});
+                //setAlert({ severity: 'error', title: 'Error', message: data.error });
             }
         } catch (error) {
-            setAlert({ severity: 'error', title: 'Error', message: 'An error occurred. Please try again' });
+            toast.error('An error occurred. Please try again', {position: "top-center"});
+            //setAlert({ severity: 'error', title: 'Error', message: 'An error occurred. Please try again' });
         }
     };
 
@@ -191,12 +292,11 @@ const LaptopDetails = () => {
                         </button>
                 </div>
                 <ButtonGroup variant="outlined" aria-label="Loading button group">
-                <Button onClick={handleSubmit}>+ Add Device</Button>
-                <Button onClick={handleUpdate}>! Update Device</Button>
-                <Button onClick={handleDelete}>- Delete Device</Button>
-                <LoadingButton loading loadingPosition="start" startIcon={<SaveIcon />}>
-                    Save
-                </LoadingButton>
+                    <Button onClick={handleSubmit}>+ Add</Button>
+                    <Button onClick={handleBulkData}>++ Add Bulk</Button>
+                    <Button onClick={handleUpdate}>! Update</Button>
+                    <Button onClick={handleDelete}>- Delete</Button>
+                    <LoadingButton loading loadingPosition="start" startIcon={<SaveIcon />}>Save</LoadingButton>
                 </ButtonGroup>
             </div>
 
@@ -218,6 +318,17 @@ const LaptopDetails = () => {
                     <div className="form-group">
                         <label>Model</label>
                         <input type="text" name="model" placeholder="Model" onChange={handleChange} value={formData.model} />
+                    </div>
+                </div>
+
+                <div className="form-row">
+                    <div className="form-group">
+                        <label>Screen Size</label>
+                        <input type="text" name="screenSize" placeholder="Screen Size" onChange={handleChange} value={formData.screenSize} />
+                    </div>
+                    <div className="form-group">
+                        <label>Resolution</label>
+                        <input type="text" name="resolution" placeholder="Resolution" onChange={handleChange} value={formData.resolution} />
                     </div>
                 </div>
 
@@ -257,11 +368,14 @@ const LaptopDetails = () => {
                         <label>Invoice Number</label>
                         <input type="text" name="invoiceNumber" placeholder="Invoice Number" onChange={handleChange} value={formData.invoiceNumber} />
                     </div>
+
                     <div className="form-group">
                         <label>Purchased Date</label>
                         <input type="date" name="purchasedDate" onChange={handleChange} value={formData.purchasedDate} />
                     </div>
                 </div>
+
+
 
                 <div className="form-row">
                     <div className="form-group">
@@ -272,8 +386,8 @@ const LaptopDetails = () => {
 
                 <div className="form-row">
                     <div className="form-group">
-                        <label>Address</label>
-                        <input type="text" name="address" placeholder="Address" className="full-width" onChange={handleChange} value={formData.address} />
+                        <label>Purchased Compnay</label>
+                        <input type="text" name="purchaseCompany" placeholder="Purchased Compnay" className="full-width" onChange={handleChange} value={formData.purchaseCompany} />
                     </div>
                 </div>
 
@@ -283,8 +397,9 @@ const LaptopDetails = () => {
                         <input type="number" name="warentyMonths" placeholder="Warranty Months" onChange={handleChange} value={formData.warentyMonths} />
                     </div>
                 </div>
+                
+                <ToastContainer />
 
-        
             </form>
         </div>
     </div>
