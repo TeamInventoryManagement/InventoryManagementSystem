@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { useState, useEffect } from 'react';
-
+import { toast, ToastContainer } from 'react-toastify';
 
 const columns = [
+  { field: 'TransferID', headerName: 'Transfer ID', width: 70 },
   { field: 'AssetID', headerName: 'Asset ID', width: 70 },
   { field: 'Device', headerName: 'Device', width: 130 },
   { field: 'DeviceBrand', headerName: 'Device Brand', width: 130 },
@@ -63,7 +64,7 @@ export default function TransferDevices() {
       <DataGrid
         rows={rows}
         columns={columns}
-        getRowId={(row) => row.AssetID} // Use AssetID as the unique identifier
+        getRowId={(row) => row.TransferID} // Use AssetID as the unique identifier
         initialState={{
           pagination: {
             paginationModel: { page: 0, pageSize: 100 },
