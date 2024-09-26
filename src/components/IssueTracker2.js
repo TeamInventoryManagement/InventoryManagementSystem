@@ -266,6 +266,7 @@ const handleRecived = async () => {
           ReceivedDate: FormData.ReceivedDate,
           RepairInvoiceNumber: FormData.RepairInvoiceNumber,
           RepairCost: FormData.RepairCost,
+          Invoice: FormData.Invoice,
       };
 
       const response = await fetch('http://localhost:3000/api/Recived', {
@@ -378,7 +379,7 @@ const handleRecived = async () => {
           <div>
           <ColorChips label={searchParams.CurrentStatus} />
           </div>
-            <ButtonGroup variant="outlined" aria-label="Loading button group" size="large" style={{ marginTop: '-5px', marginLeft:'150px' }}>
+            <ButtonGroup variant="outlined" aria-label="Loading button group"  style={{ marginTop: '-5px', marginLeft:'150px' }}>
               <Button onClick={handleSearch} size="large">
                 Search for Issues
               </Button>              
@@ -491,6 +492,7 @@ const handleRecived = async () => {
                 type='date'
                 label="IssueDateToVendor"
                 value={FormData.IssueDateToVendor}
+                InputLabelProps={{ shrink: true }}
                 onChange={(e) => setFormData({ ...FormData, IssueDateToVendor: e.target.value })}
             />
 
@@ -531,6 +533,7 @@ const handleRecived = async () => {
                 type='date'
                 label="ReceivedDate"
                 value={FormData.ReceivedDate}
+                InputLabelProps={{ shrink: true }}
                 onChange={(e) => setFormData({ ...FormData, ReceivedDate: e.target.value  }) }
             />
 
@@ -544,6 +547,12 @@ const handleRecived = async () => {
               <TextField variant="outlined" type="date" label="ReceivedDate" InputLabelProps={{shrink: true,}}  />
               <TextField variant="outlined" label="RepairCost (LKR)"/> */}
               {/* <Button color="primary" variant="contained">Submit</Button> */}
+              <TextField
+              type="file"
+              label="Invoice"
+              InputLabelProps={{ shrink: true }}
+              onChange={(e) => setFormData({ ...FormData, Invoice: e.target.files[0] })}
+            />
               <Button color="primary" variant="contained" onClick={handleRecived}>Recieved</Button>
             </Stack>
           </DialogContent>

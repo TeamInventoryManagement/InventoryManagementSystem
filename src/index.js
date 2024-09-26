@@ -20,6 +20,7 @@ import EmployeeChartPage from './pages/EmployeeChartPage';
 import DashboardPage from './pages/DashboardPage';
 import IssueTrackerPage2 from './pages/IssueTrackerPage2';
 import SearchDevicePage from './pages/SearchDevicePage';
+import DeviceRecordPage from './pages/DeviceRecordPage';
 
 
 ReactDOM.render(
@@ -45,6 +46,7 @@ ReactDOM.render(
         <Route path="DashboardPage" element={<DashboardPage />} />
         <Route path="IssueTrackerPage2" element={<IssueTrackerPage2 />} />
         <Route path="SearchDevicePage" element={<SearchDevicePage />} />
+        <Route path="DeviceRecordPage" element={<DeviceRecordPage />} />
         {/* <Route path="AccessoriesPage" element={<AccessoriesPage />} /> */}
       </Route>
     </Routes>
