@@ -3,6 +3,7 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const { sql, poolPromise } = require('./db'); 
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 
 const app = express();
 
@@ -10,12 +11,39 @@ app.use(cors());
 app.use(express.json());
 
 
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    },
+  });
+ 
+
 // Function to calculate warranty expiry date
 function calculateWarrantyExpiryDate(purchaseDate, warentyMonths) {
     const date = new Date(purchaseDate);
     date.setMonth(date.getMonth() + parseInt(warentyMonths, 10));
     return date.toISOString().split('T')[0]; 
 }
+
+
+const sendEmail = async (assetID) => {
+    try {
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: 'sudeepaweerasena@gmail.com',
+            subject: 'Device Sent to Repair',
+            text: `The device with Asset ID: ${assetID} has been sent for repair.`
+        };
+        await transporter.sendMail(mailOptions);
+        console.log('Email sent successfully');
+    } catch (error) {
+        console.error('Failed to send email:', error);
+    }
+};
+ 
+ 
 
 app.post('/api/login', async (req, res) => {
     try {
@@ -446,7 +474,7 @@ app.get('/api/transfer/:assetId', async (req, res) => {
         const assetId = req.params.assetId;
 
         const query = `
-            SELECT * FROM TransferDetails WHERE AssetID = @AssetID
+            SELECT * FROM TransferDetails WHERE AssetID = @AssetID 
         `;
 
         const result = await pool.request()
@@ -463,6 +491,32 @@ app.get('/api/transfer/:assetId', async (req, res) => {
         res.status(500).send({ error: 'Server error: ' + error.message });
     }
 });
+
+
+app.get('/api/handover/:assetId', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        const assetId = req.params.assetId;
+
+        const query = `
+            SELECT * FROM TransferDetails WHERE AssetID = @AssetID AND CurrentStatus = 'In-Use'
+        `;
+
+        const result = await pool.request()
+            .input('AssetID', sql.VarChar(50), assetId)
+            .query(query);
+
+        if (result.recordset.length > 0) {
+            res.status(200).json(result.recordset[0]);
+        } else {
+            res.status(404).send({ message: 'Asset not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching transfer details:', error.message);
+        res.status(500).send({ error: 'Server error: ' + error.message });
+    }
+});
+
 
 
 //Insert Transfer details
@@ -763,7 +817,7 @@ app.get('/api/TransferDevices', async (req, res) => {
         console.log(`Fetching transfer devices`);
         
         const transferdetailsquery = `
-            SELECT AssetID, Device, DeviceBrand, Model, SerialNumber, ConditionStatus, EmployeeID,FullName,
+            SELECT TransferID, AssetID, Device, DeviceBrand, Model, SerialNumber, ConditionStatus, EmployeeID,FullName,
             Division, IssueDate, HandoverDate AS HandoverDate, CurrentStatus 
             FROM TransferDetails
         `;
@@ -2026,6 +2080,7 @@ app.post('/api/str', async (req, res) => {
 
                 console.log('Insert Into Send To Repair table');
                 await transaction.commit();
+                await sendEmail(AssetID);
                 
         
                 console.log('Data inserted successfully into Send To Repair table');
@@ -2116,6 +2171,37 @@ app.put('/api/resolveIssue/:assetId', async (req, res) => {
     } catch (error) {
         console.error('Error resolving issue:', error);
         res.status(500).send('Error resolving issue');
+    }
+});
+
+
+// API to search device by AssetID for SummarySearch
+app.get('/api/SummarySearch/:assetId', async (req, res) => {
+    const { assetId } = req.params; // Get assetId from route params
+
+    try {
+        const pool = await poolPromise; // Ensure you're using your connection pool
+        const query = `
+            SELECT AssetID, FullName, Division, EmployeeID, Device, DeviceBrand, DeviceID, Model, 
+                   SerialNumber, SystemType, InvoiceNumber, PurchaseDate,
+                   PurchaseCompany, PurchaseAmount, WarentyMonths, WarrentyExpieryDate,
+                   CurrentStatus, ConditionStatus, Processor, InstalledRAM, ScreenSize, Resolution,
+                   MACAddress, BitLockerKey 
+            FROM AllDeviceDetails 
+            WHERE AssetID = @AssetID`;
+
+        const result = await pool.request()
+            .input('AssetID', sql.VarChar, assetId) // AssetID is a varchar
+            .query(query);
+
+        if (result.recordset.length > 0) {
+            res.json(result.recordset); // Send found record(s) as the response
+        } else {
+            res.status(404).send('No records found for this Asset ID');
+        }
+    } catch (error) {
+        console.error('Error fetching device data:', error);
+        res.status(500).send('Server error');
     }
 });
 

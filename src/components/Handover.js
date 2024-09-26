@@ -25,7 +25,7 @@ const Handover = () => {
 
   useEffect(() => {
     if (assetId) {
-      fetch(`http://localhost:3000/api/transfer/${assetId}`)
+      fetch(`http://localhost:3000/api/handover/${assetId}`)
         .then(response => response.json())
         .then(data => {
           setDevice(data.Device);
