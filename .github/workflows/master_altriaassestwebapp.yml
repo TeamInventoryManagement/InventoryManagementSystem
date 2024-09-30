@@ -38,7 +38,6 @@ jobs:
     needs: build
     environment:
       name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     
     steps:
       - name: Download artifact from build job
@@ -56,4 +55,3 @@ jobs:
           app-name: 'altriaassestwebapp'
           package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_94AB4925378A4F22B0AF4B52ABA93DE3 }}
-          
