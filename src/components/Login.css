@@ -1,83 +1,85 @@
-.login-container {
+/* Styling the login form specifically */
+.login-form {
+  padding: 20px;
+  background: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 320px;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #f5f5f5;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: #0056b3;
 }
 
-form1 {
-  background-color: white;
-  padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
-  width: 300px;
-  text-align: center;
-}
-
-.header-logo {
-  width: 100px; /* Adjust width as needed */
-  margin-bottom: 30px;
-}
-
-/* Styling for each form group */
-.form1-group {
-  margin-bottom: 20px;
-  text-align: left;
-}
-
-/* Labels for input fields */
-.form1-group label {
+.header-login-logo {
+  width: 60%; 
+  margin: 0 auto; 
   display: block;
-  margin-bottom: 8px;
-  font-weight: bold;
-  color: #333;
 }
 
-/* Input fields */
-.form1-group input,
-.form1-group select {
-  width: 100%;
-  padding: 10px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+
+.login-form .form1-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-form label {
+  text-align: left;
   font-size: 14px;
-  box-sizing: border-box;
+  color: #333;
+  margin-bottom: 5px;
 }
 
-.login-button {
-  width: 100%;
+.login-form input[type="email"],
+.login-form input[type="password"] {
   padding: 10px;
-  background-color: #007bff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  min-width: fit-content;
+  transition: border-color 0.3s;
+}
+
+.login-form input[type="email"]:focus,
+.login-form input[type="password"]:focus {
+  border-color: #0056b3;
+  outline: none;
+}
+
+.login-form .login-button {
+  background-color: #0056b3;
   color: white;
   border: none;
-  border-radius: 4px;
+  padding: 10px;
+  border-radius: 5px;
+  min-width: fit-content;
   cursor: pointer;
-  font-size: 16px;
-  margin-bottom: 10px;
+  transition: background-color 0.3s;
 }
 
-.login-button:hover {
-  background-color: #0056b3;
+.login-form .login-button:hover {
+  background-color: #003580;
 }
 
-
-
-.message {
-text-align: center;
-margin-top: 20px;
-padding: 10px;
-border-radius: 4px;
-font-size: 14px;
-color: #ffffff;
+.login-form .message {
+  padding: 10px;
+  text-align: center;
+  border-radius: 5px;
+  color: #fff;
+  font-size: 14px;
 }
 
-
-.error {
-background-color: #d9534f;
+.login-form .success {
+  background-color: #4caf50; 
 }
 
-/* Specific styles for success messages */
-.success {
-background-color: #5cb85c; /* Green background for successful actions */
+.login-form .error {
+  background-color: #f44336; 
+}
+
+/* Responsive adjustments for the login form */
+@media (max-width: 600px) {
+  .login-form {
+    width: 90%;
+  }
 }

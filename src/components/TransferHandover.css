@@ -27,6 +27,14 @@
     color: #333;
     font-weight: 500;
 }
+
+.checkComponents {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+    font-weight: 500;
+    font-family: "Poppins", sans-serif;
+}
  
 .form-group input,
 .form-group select {

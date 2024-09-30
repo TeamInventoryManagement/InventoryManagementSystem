@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./RepairForm.css";
 import searchIcon from './images/Search_icon.png';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
  
 const RepairForm = () => {
   const [device, setDevice] = useState("");
@@ -16,7 +14,7 @@ const RepairForm = () => {
   const [issueDate, setIssueDate] = useState('');
   const [receivedDate, setReceivedDate] = useState('');
   const [repairCost, setRepairCost] = useState('');
-  const [repairNote, setRepairNote] = useState('');
+  // const [repairNote, setRepairNote] = useState('');
  
   useEffect(() => {
     if (assetId) {
@@ -297,7 +295,6 @@ const handleUpdate = async () => {
             Update
           </button>
         </div>
-        <ToastContainer />
       </form>
     </div>
   );

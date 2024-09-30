@@ -3,8 +3,6 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import logo from './images/Altria-logo.png';
 import "./Login.css";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
  
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -20,7 +18,7 @@ const Login = () => {
       setMessage(response.data.message);
       setIsLoginSuccess(true); // Set based on actual response condition
       if (response.data.message === 'Successfully logged in') {
-        navigate('/HomePage');
+        navigate('/DashboardPage');
       } else {
         setIsLoginSuccess(false);
       }
@@ -32,8 +30,8 @@ const Login = () => {
  
   return (
     <div className="login-container">
-      <form onSubmit={handleSubmit}>
-        <img src={logo} alt="Altria Logo" className="header-logo" />
+      <form onSubmit={handleSubmit} className="login-form">
+        <img src={logo} alt="Altria Logo" className="header-login-logo" />
         <div className="form1-group">
           <label>Email:</label>
           <input
