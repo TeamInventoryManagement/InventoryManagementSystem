@@ -166,6 +166,7 @@ function DeviceSearch() {
               Issue: FormData.Issue,
               IssueNote: FormData.IssueNote,
               EffectComponents: FormData.EffectComponents.join(', ') // Join the array into a string if your backend expects a string
+
           };
   
           const response = await fetch('http://localhost:3000/api/insertIssue', {
@@ -267,7 +268,6 @@ const handleRecived = async () => {
           ReceivedDate: FormData.ReceivedDate,
           RepairInvoiceNumber: FormData.RepairInvoiceNumber,
           RepairCost: FormData.RepairCost,
-          Invoice: FormData.Invoice,
           FixedComponents: FormData.FixedComponents.join(', '),
           ReplacedComponents: FormData.ReplacedComponents.join(', '),
           RepairNote: FormData.RepairNote
@@ -387,7 +387,7 @@ const handleRecived = async () => {
           <div>
           <ColorChips label={searchParams.CurrentStatus} />
           </div>
-            <ButtonGroup variant="outlined" aria-label="Loading button group"  style={{ marginTop: '-5px', marginLeft:'150px' }}>
+            <ButtonGroup variant="outlined" aria-label="Loading button group" size="large" style={{ marginTop: '-5px', marginLeft:'150px' }}>
               <Button onClick={handleSearch} size="large">
                 Search for Issues
               </Button>              
@@ -446,7 +446,8 @@ const handleRecived = async () => {
             value={FormData.IssueNote}
             onChange={(e) => setFormData({ ...FormData, IssueNote: e.target.value })}
           />
-           <Autocomplete
+
+            <Autocomplete
               multiple
               id="checkboxes-issues"
               options={devicecomponents}
@@ -470,7 +471,8 @@ const handleRecived = async () => {
               renderInput={(params) => (
                 <TextField {...params} label="Effect Components" placeholder="Components affected" />
               )}
-              /> 
+            />
+
               <Button color="primary" variant="contained" onClick={handleInsertIssue}>Log Issue</Button>
               {/* <div>
               {alert.message && (
@@ -503,7 +505,6 @@ const handleRecived = async () => {
                 type='date'
                 label="IssueDateToVendor"
                 value={FormData.IssueDateToVendor}
-                InputLabelProps={{ shrink: true }}
                 onChange={(e) => setFormData({ ...FormData, IssueDateToVendor: e.target.value })}
             />
 
@@ -515,12 +516,15 @@ const handleRecived = async () => {
                 value={FormData.VendorAddress}
                 onChange={(e) => setFormData({ ...FormData, VendorAddress: e.target.value })}
             />
+
           <TextField
               type="file"
               label="Invoice"
               InputLabelProps={{ shrink: true }}
               onChange={(e) => setFormData({ ...FormData, Invoice: e.target.files[0] })}
           />
+           
+  
               {/* <TextField variant="outlined" label="Vendor" />
               <TextField variant="outlined" type="date" label="IssueDateToVendor" InputLabelProps={{shrink: true,}}  />
               <TextField variant="outlined" label="VendorAddress" /> */}
@@ -550,7 +554,6 @@ const handleRecived = async () => {
                 type='date'
                 label="ReceivedDate"
                 value={FormData.ReceivedDate}
-                InputLabelProps={{ shrink: true }}
                 onChange={(e) => setFormData({ ...FormData, ReceivedDate: e.target.value  }) }
             />
 
@@ -560,7 +563,8 @@ const handleRecived = async () => {
                 value={FormData.RepairCost}
                 onChange={(e) => setFormData({ ...FormData, RepairCost: e.target.value })}
             />
-                        <Autocomplete
+
+            <Autocomplete
               multiple
               id="FixedComponents"
               options={devicecomponents}
@@ -620,16 +624,11 @@ const handleRecived = async () => {
             value={FormData.RepairNote}
             onChange={(e) => setFormData({ ...FormData, RepairNote: e.target.value })}
           />
+
               {/* <TextField variant="outlined" label="RepairInvoice" />
               <TextField variant="outlined" type="date" label="ReceivedDate" InputLabelProps={{shrink: true,}}  />
               <TextField variant="outlined" label="RepairCost (LKR)"/> */}
               {/* <Button color="primary" variant="contained">Submit</Button> */}
-              <TextField
-              type="file"
-              label="Invoice"
-              InputLabelProps={{ shrink: true }}
-              onChange={(e) => setFormData({ ...FormData, Invoice: e.target.files[0] })}
-            />
               <Button color="primary" variant="contained" onClick={handleRecived}>Recieved</Button>
             </Stack>
           </DialogContent>

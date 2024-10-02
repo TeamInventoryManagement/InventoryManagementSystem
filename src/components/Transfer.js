@@ -9,6 +9,10 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ColorChips from "./Chips.js";
 import { useLocation } from 'react-router-dom';
+import Checkbox from '@mui/material/Checkbox';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+
 
 const Transfer = () => {
   const [device, setDevice] = useState("");
@@ -25,6 +29,10 @@ const Transfer = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const location = useLocation();
+  const [selectedTransferComponents, setSelectedTransferComponents] = useState([]);
+
+
+
 
   useEffect(() => {
     if (assetId) {
@@ -78,6 +86,16 @@ const Transfer = () => {
     }
   };
 
+  // Function to handle changes in checkbox selection
+const handleComponentChange = (event) => {
+  const { name, checked } = event.target;
+  setSelectedTransferComponents(prev =>
+    checked
+      ? [...prev, name]
+      : prev.filter(transferComponents => transferComponents !== name)
+  );
+};
+
   const resetForm = () => {
     setDevice("");
     setAssetId("");
@@ -107,6 +125,7 @@ const Transfer = () => {
       division,
       fullName,
       email,
+      selectedTransferComponents,
       issueDate: new Date().toISOString().split('T')[0],
       handoverDate: null
     };
@@ -121,23 +140,7 @@ const Transfer = () => {
       });
       const data = await response.json();
 
-      // if (response.ok) {
-  //       toast.success("Transfer successful!", { position: "top-center" });
-  //       //alert('Transfer successful!');
-  //       resetForm(); // Reset the form after a successful transfer
-  //     } else {
-  //       const data = await response.json();
-  //       toast.error("Error"+ data.error, { position: "top-center" });
-  //       //alert('Error: ' + data.error);
-  //     }
 
-      
-  //   } catch (error) {
-  //     console.error('Error during transfer:', error);
-  //     toast.error("An error occurred. Please try again", { position: "top-center" });
-  //     //alert('An error occurred. Please try again.');
-  //   }
-  // };
 
         // Show initial toast and save the ID
           const toastId = toast.loading("Checking Details...", { position: "top-center" });
@@ -382,6 +385,26 @@ const Transfer = () => {
         </ButtonGroup>
         </div>
 
+        
+      <div className="form-group">
+        <label>Laptop Components</label>
+        <div className="checkComponents">
+          <Checkbox
+            checked={selectedTransferComponents.includes("Bag")}
+            onChange={handleComponentChange}
+            name="Bag"
+            icon={<CheckBoxOutlineBlankIcon />}
+            checkedIcon={<CheckBoxIcon />}
+          /> Bag
+          <Checkbox
+            checked={selectedTransferComponents.includes("Charger")}
+            onChange={handleComponentChange}
+            name="Charger"
+            icon={<CheckBoxOutlineBlankIcon  />}
+            checkedIcon={<CheckBoxIcon />}
+          /> Charger
+        </div>
+      </div>
         
       
     </div>

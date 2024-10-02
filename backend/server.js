@@ -524,8 +524,10 @@ app.post('/api/Transfer', async (req, res) => {
     try {
         const pool = await poolPromise;
         const {
-            assetId, device, deviceBrand, model, serialNumber, bitLockerKey, conditionStatus, employeeId, fullName, division, email
+            assetId, device, deviceBrand, model, serialNumber, bitLockerKey, conditionStatus, employeeId, fullName, division, email, selectedTransferComponents
         } = req.body;
+
+        const transferComponentsString = selectedTransferComponents.join(', ');
 
         console.log('Received form data:', req.body);
 
@@ -538,8 +540,8 @@ app.post('/api/Transfer', async (req, res) => {
 
         try {
             const checkQuery = `
-                SELECT COUNT(*) AS count 
-                FROM TransferDetails 
+                SELECT COUNT(*) AS count
+                FROM TransferDetails
                 WHERE AssetID = @AssetID AND CurrentStatus = 'In-Use'
             `;
             const checkResult = await transaction.request()
@@ -552,11 +554,12 @@ app.post('/api/Transfer', async (req, res) => {
             }
 
             const insertQuery = `
-                INSERT INTO TransferDetails 
-                (AssetID, Device, DeviceBrand, Model, SerialNumber, BitLockerKey, ConditionStatus, EmployeeID, FullName, Division, Email, IssueDate, CurrentStatus)
-                VALUES 
-                (@AssetID, @Device, @DeviceBrand, @Model, @SerialNumber, @BitLockerKey, @ConditionStatus, @EmployeeID, @FullName, @Division, @Email, GETDATE(), 'In-Use')
-            `;
+            INSERT INTO TransferDetails
+            (AssetID, Device, DeviceBrand, Model, SerialNumber, BitLockerKey, ConditionStatus, EmployeeID, FullName, Division, Email, IssueDate, CurrentStatus, TransferComponents)
+            VALUES
+            (@AssetID, @Device, @DeviceBrand, @Model, @SerialNumber, @BitLockerKey, @ConditionStatus, @EmployeeID, @FullName, @Division, @Email, GETDATE(), 'In-Use', @TransferComponents)
+        `;
+
             await transaction.request()
                 .input('AssetID', sql.VarChar(50), assetId)
                 .input('Device', sql.VarChar(50), device)
@@ -569,12 +572,13 @@ app.post('/api/Transfer', async (req, res) => {
                 .input('FullName', sql.VarChar(50), fullName)
                 .input('Division', sql.VarChar(50), division)
                 .input('Email', sql.VarChar(50), email)
+                .input('TransferComponents', sql.VarChar(250), transferComponentsString)
                 .query(insertQuery);
 
             const updateDeviceQuery = `
                 UPDATE DeviceDetails1
                 SET CurrentStatus = 'In-Use'
-                WHERE AssetID = @AssetID  
+                WHERE AssetID = @AssetID
             `;
             await transaction.request()
                 .input('AssetID', sql.VarChar(50), assetId)
@@ -584,7 +588,6 @@ app.post('/api/Transfer', async (req, res) => {
                 UPDATE DeviceDetails1
                 SET ConditionStatus = 'Good-Condition'
                 WHERE AssetID = @AssetID AND ConditionStatus = 'Brand-new'
- 
             `;
             const updateConditionResult = await transaction.request()
                 .input('AssetID', sql.VarChar(50), assetId)
@@ -594,14 +597,13 @@ app.post('/api/Transfer', async (req, res) => {
                 UPDATE TransferDetails
                 SET ConditionStatus = 'Good-Condition'
                 WHERE AssetID = @AssetID AND ConditionStatus = 'Brand-new'
- 
             `;
 
             await transaction.request()
             .input('AssetID', sql.VarChar(50), assetId)
             .query(updateTransferDetailsQuery);
 
-                
+    
             console.log('Updated DeviceDetails table:', updateConditionResult);
 
             await transaction.commit();
@@ -617,13 +619,15 @@ app.post('/api/Transfer', async (req, res) => {
     }
 });
  
+ 
 
 // 
 app.post('/api/Handover', async (req, res) => {
     try {
         const pool = await poolPromise;
         const {
-        assetId
+        assetId,
+        laptopHandoverComponents
         } = req.body;
 
         console.log('Received form _data:', req.body);
@@ -642,12 +646,16 @@ app.post('/api/Handover', async (req, res) => {
           const updateDeviceQuery = `
                 UPDATE TransferDetails
                 SET CurrentStatus = 'Handover',
-                HandoverDate = GETDATE()
+                HandoverDate = GETDATE(),
+                HandoverComponents = @HandoverComponents
                 WHERE AssetID = @AssetID and  CurrentStatus = 'In-Use'
             `;
 
+            const componentsString = laptopHandoverComponents.join(', ');
+
            await transaction.request()
                 .input('AssetID', sql.VarChar(50), assetId)
+                .input('HandoverComponents', sql.VarChar(250), componentsString)
                 .query(updateDeviceQuery);
 
            // Update DeviceDetails Table
@@ -817,8 +825,8 @@ app.get('/api/TransferDevices', async (req, res) => {
         console.log(`Fetching transfer devices`);
         
         const transferdetailsquery = `
-            SELECT TransferID, AssetID, Device, DeviceBrand, Model, SerialNumber, ConditionStatus, EmployeeID,FullName,
-            Division, IssueDate, HandoverDate AS HandoverDate, CurrentStatus 
+            SELECT AssetID, Device, DeviceBrand, Model, SerialNumber, ConditionStatus, EmployeeID,FullName,
+            Division, IssueDate, HandoverDate AS HandoverDate, CurrentStatus, TransferComponents, HandoverComponents 
             FROM TransferDetails
         `;
 
@@ -1928,53 +1936,6 @@ app.get('/api/searchIssuesByAssetID/:assetId', async (req, res) => {
 });
 
 
-app.post('/api/insertIssue', async (req, res) => {
-    const pool = await poolPromise;
-    const { AssetID, Issue,IssueNote } = req.body; // Accessing form data from req.body
-
-    const transaction = new sql.Transaction(pool);
-    await transaction.begin();
-
-    try {
-
-        if (!AssetID) {
-            return res.status(400).send({ error: 'Asset ID field are required' });
-        }
-
-        const query = `
-            INSERT INTO Issues (AssetID, Issue,IssueLogDate, RepairStatus, IssueNote)
-            VALUES (@AssetID, @Issue, GETDATE(), 'Issue-Identified' , @IssueNote)
-        `;
-
-        await transaction.request()
-            .input('AssetID', sql.VarChar(50), AssetID)
-            .input('Issue', sql.VarChar(50), Issue)
-            .input('IssueNote', sql.VarChar(50), IssueNote)
-            .query(query);
-
-            const updateDeviceQuery = `
-                UPDATE DeviceDetails1
-                SET ConditionStatus='Issue-Identified'
-                WHERE AssetID = @AssetID  
-            `;
-
-            await transaction.request()
-                .input('AssetID', sql.VarChar(50), AssetID)
-                .query(updateDeviceQuery);
-
-        console.log('Insert Into Issue table');
-        console.log('Update device conditionStatus');
-
-
-        await transaction.commit();
-
-        res.status(200).json({ message: 'Issue inserted successfully' });
-    } catch (error) {
-        console.error('Error Inserting Issue:', error);
-        res.status(500).json({ error: 'Error Inserting Issue' });
-    }
-});
-
 // Search endpoint
  app.post('/api/search1', async (req, res) => {
     try {
@@ -2093,7 +2054,14 @@ app.post('/api/str', async (req, res) => {
 
 app.post('/api/Recived', async (req, res) => {
             const pool = await poolPromise;
-            const { AssetID, ReceivedDate, RepairInvoiceNumber, RepairCost } = req.body;
+            const { AssetID, ReceivedDate, RepairInvoiceNumber, RepairCost, FixedComponents, ReplacedComponents, RepairNote } = req.body;
+            // Validate before joining
+            const fixedComponentsString = Array.isArray(FixedComponents) ? FixedComponents.join(', ') : FixedComponents;
+            const replacedComponentsString = Array.isArray(ReplacedComponents) ? ReplacedComponents.join(', ') : ReplacedComponents;
+            // const replacedComponentsString = Array.isArray(ReplacedComponents) ? ReplacedComponents.join(', ') : ReplacedComponents;
+            
+
+            console.log('jump 1');
 
             const transaction = new sql.Transaction(pool);
             await transaction.begin();
@@ -2102,7 +2070,7 @@ app.post('/api/Recived', async (req, res) => {
                 // SQL query to insert data into the Issues table
                 const query = `
                     UPDATE SendToRepairs SET 
-                    AssetID = @AssetID, ReceivedDate = @ReceivedDate, RepairInvoiceNumber = @RepairInvoiceNumber, RepairCost = @RepairCost,RepairStatus='Received'
+                    AssetID = @AssetID, ReceivedDate = @ReceivedDate, RepairInvoiceNumber = @RepairInvoiceNumber, RepairCost = @RepairCost, RepairStatus='Received', FixedComponents = @FixedComponents, ReplacedComponents = @ReplacedComponents, RepairNote = @RepairNote
                     WHERE AssetID=@AssetID AND RepairStatus = 'Send-to-Repair'`;
         
                 await transaction.request()
@@ -2110,7 +2078,14 @@ app.post('/api/Recived', async (req, res) => {
                     .input('ReceivedDate', sql.Date, ReceivedDate)
                     .input('RepairInvoiceNumber', sql.VarChar, RepairInvoiceNumber)
                     .input('RepairCost', sql.VarChar, RepairCost)
+                    .input('FixedComponents', sql.VarChar(250), fixedComponentsString)
+                    .input('ReplacedComponents', sql.VarChar(250), replacedComponentsString)
+                    .input('RepairNote', sql.VarChar, RepairNote)
                     .query(query);
+
+
+                    console.log('jump 2');
+
 
                 const updateDeviceQuery = `
                 UPDATE DeviceDetails1
@@ -2202,6 +2177,58 @@ app.get('/api/SummarySearch/:assetId', async (req, res) => {
     } catch (error) {
         console.error('Error fetching device data:', error);
         res.status(500).send('Server error');
+    }
+});
+
+
+app.post('/api/insertIssue', async (req, res) => {
+    const pool = await poolPromise;
+    const { AssetID, Issue,IssueNote, EffectComponents } = req.body;
+    const effectComponentsString = Array.isArray(EffectComponents) ? EffectComponents.join(', ') : EffectComponents;
+
+
+    const transaction = new sql.Transaction(pool);
+    await transaction.begin();
+
+    try {
+
+        if (!AssetID) {
+            return res.status(400).send({ error: 'Asset ID field are required' });
+        }
+
+        const query = `
+        INSERT INTO Issues (AssetID, Issue, EffectComponents, IssueLogDate, RepairStatus, IssueNote)
+        VALUES (@AssetID, @Issue, @EffectComponents, GETDATE(), 'Issue-Identified', @IssueNote)
+      `;
+    
+      // Rest of your transaction logic
+      await transaction.request()
+      .input('AssetID', sql.VarChar(50), AssetID)
+      .input('Issue', sql.VarChar(250), Issue)
+      .input('EffectComponents', sql.VarChar(250), effectComponentsString)
+      .input('IssueNote', sql.VarChar(250), IssueNote)
+      .query(query);
+
+            const updateDeviceQuery = `
+                UPDATE DeviceDetails1
+                SET ConditionStatus='Issue-Identified'
+                WHERE AssetID = @AssetID  
+            `;
+
+            await transaction.request()
+                .input('AssetID', sql.VarChar(50), AssetID)
+                .query(updateDeviceQuery);
+
+        console.log('Insert Into Issue table');
+        console.log('Update device conditionStatus');
+
+
+        await transaction.commit();
+
+        res.status(200).json({ message: 'Issue inserted successfully' });
+    } catch (error) {
+        console.error('Error Inserting Issue:', error);
+        res.status(500).json({ error: 'Error Inserting Issue' });
     }
 });
 

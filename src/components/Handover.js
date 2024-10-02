@@ -8,6 +8,10 @@ import SaveIcon from '@mui/icons-material/Save';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ColorChips from "./Chips.js";
+import Checkbox from '@mui/material/Checkbox';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+
 
 const Handover = () => {
   const [assetId, setAssetId] = useState("");
@@ -22,6 +26,8 @@ const Handover = () => {
   const [division, setDivision] = useState("");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [selectedHandoverComponents, setSelectedHandoverComponents] = useState([]);
+
 
   useEffect(() => {
     if (assetId) {
@@ -57,6 +63,19 @@ const Handover = () => {
     setEmail("");
   };
 
+  const handleComponentChange = (event) => {
+    const { name, checked } = event.target;
+  
+    setSelectedHandoverComponents(prev => {
+      if (checked && !prev.includes(name)) {
+        return [...prev, name];
+      } else {
+        return prev.filter(item => item !== name);
+      }
+    });
+  };
+  
+
   const handleHandover = async () => {
     try {
       const response = await fetch('http://localhost:3000/api/handover', {
@@ -66,6 +85,7 @@ const Handover = () => {
           assetId,
           currentStatus: 'Handover',
           handoverDate: new Date().toISOString().split('T')[0],
+          laptopHandoverComponents: selectedHandoverComponents, 
         }),
       });
 
@@ -290,10 +310,30 @@ const Handover = () => {
         </div>
       </div>
 
+      <div className="form-group">
+        <label>Laptop Components</label>
+        <div className="checkComponents">
+          <Checkbox
+            checked={selectedHandoverComponents.includes("Bag")}
+            onChange={handleComponentChange}
+            name="Bag"
+            icon={<CheckBoxOutlineBlankIcon />}
+            checkedIcon={<CheckBoxIcon />}
+          /> Bag
+          <Checkbox
+            checked={selectedHandoverComponents.includes("Charger")}
+            onChange={handleComponentChange}
+            name="Charger"
+            icon={<CheckBoxOutlineBlankIcon />}
+            checkedIcon={<CheckBoxIcon />}
+          /> Charger
+        </div>
+      </div>
+
         <ButtonGroup
                 variant="outlined"
                 aria-label="Loading button group"
-                style={{ marginTop: '-1027px' ,marginLeft:'500px'}}>
+                style={{ marginTop: '-1200px' ,marginLeft:'500px'}}>
                 <Button onClick={handleHandover}>Handover Device</Button>
                 <LoadingButton loading loadingPosition="start" startIcon={<SaveIcon />}>Save</LoadingButton>
         </ButtonGroup>
